@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Виведення коштів | AR Bank</title>
+    <style>
+        :root { 
+            --primary: #6366f1; --bg: #0f172a; --card-bg: rgba(255, 255, 255, 0.05);
+            --text: #f8fafc; --input-bg: rgba(255, 255, 255, 0.1); --accent: #818cf8; 
+            --danger: #ef4444; --success: #10b981;
+        }
+
+        /* Підтримка світлої теми, якщо вона активна в системі */
+        body.light-mode {
+            --bg: #f1f5f9; --card-bg: rgba(255, 255, 255, 0.8);
+            --text: #1e293b; --input-bg: rgba(0, 0, 0, 0.05);
+            --primary: #4f46e5;
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a); 
+            background-attachment: fixed;
+            color: var(--text); display: flex; flex-direction: column; 
+            align-items: center; min-height: 100vh; margin: 0; padding: 20px; 
+        }
+
+        .container { width: 100%; max-width: 420px; box-sizing: border-box; }
+        
+        .header { display: flex; align-items: center; margin-bottom: 30px; width: 100%; }
+        .btn-back { 
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); 
+            color: var(--text); border-radius: 50%; width: 44px; height: 44px; 
+            display: flex; align-items: center; justify-content: center; text-decoration: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .glass-card { 
+            background: var(--card-bg); backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 28px; 
+            padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+        }
+
+        .info-section { text-align: center; margin-bottom: 25px; }
+        .label-sm { font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px; }
+        .balance-val { font-size: 32px; font-weight: 800; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .form-group { margin-bottom: 20px; }
+        
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        input { 
+            width: 100%; padding: 16px; background: var(--input-bg); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; 
+            color: var(--text); font-size: 18px; font-weight: 600; outline: none; transition: 0.3s; box-sizing: border-box;
+        }
+        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.15); }
+
+        .btn-max {
+            position: absolute; right: 10px; background: var(--primary);
+            color: white; border: none; border-radius: 10px; padding: 6px 12px;
+            font-size: 12px; font-weight: 700; cursor: pointer;
+        }
+
+        .btn-submit { 
+            width: 100%; padding: 18px; background: var(--primary); 
+            color: white; border: none; border-radius: 16px; 
+            font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+        #msg { text-align: center; font-size: 14px; margin-top: 15px; min-height: 20px; font-weight: 500; }
+
+        .route-info {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .route-step { text-align: center; flex: 1; }
+        .route-step span { display: block; font-size: 11px; color: #94a3b8; }
+        .route-step b { font-size: 14px; }
+    </style>
+    <script>
+        if(localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light-mode');
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="card.html" class="btn-back">←</a>
+        <h2 style="flex-grow:1; text-align:center; margin:0; margin-left:-44px;">Виведення коштів</h2>
+    </div>
+
+    <div class="glass-card">
+        <div class="info-section">
+            <span class="label-sm">Доступно на Картці 2</span>
+            <div class="balance-val" id="bal2">0.00 €</div>
+        </div>
+
+        <div class="form-group">
+            <span class="label-sm">Сума виведення</span>
+            <div class="input-wrapper">
+                <input type="number" id="amt" placeholder="0.00">
+                <button class="btn-max" id="max">MAX</button>
+            </div>
+        </div>
+
+        <button id="confirm" class="btn-submit" disabled>Переказати на основну</button>
+        <div id="msg"></div>
+
+        <div class="route-info">
+            <div class="route-step">
+                <span>Звідки</span>
+                <b>Картка 2</b>
+            </div>
+            <div style="color: var(--primary); font-weight: bold;">→</div>
+            <div class="route-step">
+                <span>Куди</span>
+                <b>Основна картка</b>
+            </div>
+        </div>
+    </div>
+</div>
+
+<audio id="snd" preload="auto"><source src="oplata.mp3" type="audio/mpeg"></audio>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, onValue, runTransaction, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+        authDomain: "ar-bank-dbfd9.firebaseapp.com",
+        databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "ar-bank-dbfd9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    let uid = null, bal2 = 0, c1Num = "", c2Num = "";
+    const el = {
+        bal: document.getElementById('bal2'),
+        amt: document.getElementById('amt'),
+        btn: document.getElementById('confirm'),
+        max: document.getElementById('max'),
+        msg: document.getElementById('msg'),
+        snd: document.getElementById('snd')
+    };
+
+    onAuthStateChanged(auth, u => {
+        if (u) {
+            uid = u.uid;
+            onValue(ref(db, `user/${uid}`), s => {
+                const d = s.val();
+                if (d) {
+                    bal2 = Number(d.card2?.balance || 0);
+                    c1Num = (d.card?.number || "").replace(/\s/g, '').slice(-4);
+                    c2Num = (d.card2?.number || "").replace(/\s/g, '').slice(-4);
+                    el.bal.textContent = `${bal2.toFixed(2)} €`;
+                    check();
+                }
+            });
+        } else { location.href = 'login.html'; }
+    });
+
+    function check() {
+        const v = Number(el.amt.value);
+        el.btn.disabled = !(v > 0 && v <= bal2);
+    }
+
+    el.amt.oninput = check;
+    el.max.onclick = () => { el.amt.value = bal2; check(); };
+
+    el.btn.onclick = async () => {
+        const a = Number(el.amt.value);
+        el.btn.disabled = true;
+        el.msg.textContent = "Обробка транзакції...";
+        el.msg.style.color = "var(--text)";
+        if (el.snd) el.snd.play();
+
+        try {
+            // Зняття з card2
+            const res = await runTransaction(ref(db, `user/${uid}/card2/balance`), b => {
+                if (b >= a) return parseFloat((b - a).toFixed(2));
+            });
+
+            if (!res.committed) throw new Error("Недостатньо коштів");
+
+            // Поповнення card
+            await runTransaction(ref(db, `user/${uid}/card/balance`), b => {
+                return parseFloat(((b || 0) + a).toFixed(2));
+            });
+
+            // Історія
+            const ts = Date.now();
+            await push(ref(db, `user/${uid}/card2/history`), {
+                amount: -a, description: `Виведення на картку **** ${c1Num}`, timestamp: ts, currency: "€"
+            });
+            await push(ref(db, `user/${uid}/card/history`), {
+                amount: a, description: `Зарахування з картки **** ${c2Num}`, timestamp: ts, currency: "€"
+            });
+
+            el.msg.textContent = "Кошти успішно виведено!";
+            el.msg.style.color = "var(--success)";
+            setTimeout(() => location.href = 'card.html', 1500);
+
+        } catch (e) {
+            el.msg.textContent = e.message;
+            el.msg.style.color = "var(--danger)";
+            el.btn.disabled = false;
+        }
+    };
+</script>
+</body>
+</html>

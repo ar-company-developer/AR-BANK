@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Текстовий переказ | AR Bank</title>
+    <script>(function(){const t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark-mode');})();</script>
+    <style>
+        :root { --background-color: #f7f9fc; --card-bg: #ffffff; --input-background: #f0f2f5; --button-color: #000000; --button-text: #ffffff; --text-color: #1a1a1a; --text-secondary: #757575; --success-color: #28a745; --error-color: #dc3545; --back-button-bg: #e0e0e0; --balance-color: #007bff; }
+        html.dark-mode { --background-color: #121212; --card-bg: #1e1e1e; --input-background: #2c2c2c; --button-color: #ffffff; --button-text: #000000; --text-color: #f0f0f0; --text-secondary: #b0b0b0; --back-button-bg: #333; --balance-color: #4da3ff; }
+        
+        body { font-family: -apple-system, sans-serif; background-color: var(--background-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { width: 90%; max-width: 420px; padding: 20px; box-sizing: border-box; padding-bottom: 120px; }
+        
+        .header { display: flex; align-items: center; padding: 15px 0 30px; }
+        .back-button-circle { width: 44px; height: 44px; background-color: var(--back-button-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; text-decoration: none; }
+        .back-button-circle svg { width: 24px; height: 24px; fill: var(--text-color); }
+        .title { font-size: 20px; font-weight: 800; text-align: center; flex-grow: 1; margin-left: -44px; }
+
+        .balance-card { background-color: var(--card-bg); border-radius: 24px; padding: 20px; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(128,128,128,0.1); }
+        #balanceInfo { font-size: 26px; font-weight: 800; color: var(--balance-color); margin-top: 5px; }
+
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-wrapper { background-color: var(--input-background); border-radius: 18px; padding: 16px 20px; transition: 0.2s; border: 1px solid transparent; }
+        .input-wrapper:focus-within { border-color: var(--balance-color); }
+        input, textarea { width: 100%; border: none; background: none; font-size: 17px; font-weight: 600; color: var(--text-color); outline: none; font-family: inherit; }
+        textarea { resize: none; height: 80px; font-size: 15px; }
+
+        #errorMessage { font-size: 14px; text-align: center; margin: 15px 0; padding: 12px; border-radius: 12px; min-height: 20px; font-weight: 500; }
+
+        .footer-button-area { position: fixed; bottom: 0; left: 0; right: 0; padding: 25px 20px; background-color: var(--background-color); max-width: 600px; margin: 0 auto; z-index: 100; }
+        button#confirmButton { width: 100%; padding: 20px; background-color: var(--button-color); color: var(--button-text); border: none; border-radius: 22px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        button#confirmButton:disabled { opacity: 0.4; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="card.html" class="back-button-circle">
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg>
+        </a>
+        <h1 class="title">Переказ за текстом</h1>
+    </div>
+
+    <div class="balance-card">
+        <div style="font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">Доступний баланс</div>
+        <div id="balanceInfo">0.00 €</div>
+    </div>
+
+    <div class="form-group">
+        <label>Картка отримувача</label>
+        <div class="input-wrapper">
+            <input type="text" id="receiverCard" maxlength="19" placeholder="0000 0000 0000 0000">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Сума</label>
+        <div class="input-wrapper">
+            <input type="number" id="amount" placeholder="0.00" step="0.01">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Коментар отримувачу</label>
+        <div class="input-wrapper">
+            <textarea id="comment" placeholder="Напишіть щось..."></textarea>
+        </div>
+    </div>
+
+    <div id="errorMessage"></div>
+</div>
+
+<div class="footer-button-area">
+    <button id="confirmButton" disabled>Надіслати</button>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, get, runTransaction, onValue, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+        authDomain: "ar-bank-dbfd9.firebaseapp.com",
+        databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "ar-bank-dbfd9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    const el = {
+        cardInp: document.getElementById('receiverCard'),
+        amtInp: document.getElementById('amount'),
+        commInp: document.getElementById('comment'),
+        btn: document.getElementById('confirmButton'),
+        bal: document.getElementById('balanceInfo'),
+        err: document.getElementById('errorMessage')
+    };
+
+    let userUID = null, currentBalance = 0;
+
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            userUID = user.uid;
+            onValue(ref(db, `user/${user.uid}/card/balance`), s => {
+                currentBalance = parseFloat(s.val()) || 0;
+                el.bal.textContent = `${currentBalance.toFixed(2)} €`;
+                validateForm();
+            });
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+
+    function validateForm() {
+        const cardValue = el.cardInp.value.replace(/\s/g, '');
+        const amountValue = parseFloat(el.amtInp.value);
+        
+        const isValid = cardValue.length === 16 && 
+                        !isNaN(amountValue) && 
+                        amountValue > 0 && 
+                        amountValue <= currentBalance;
+        
+        el.btn.disabled = !isValid;
+    }
+
+    async function processTransfer() {
+        const amount = parseFloat(el.amtInp.value);
+        const rawCard = el.cardInp.value.replace(/\s/g, '');
+        const comment = el.commInp.value.trim() || "Текстовий переказ";
+
+        el.btn.disabled = true;
+        showMsg("Обробка переказу...", "var(--text-color)", "transparent");
+
+        try {
+            // 1. Шукаємо отримувача
+            const indexSnap = await get(ref(db, `cards_index/${rawCard}`));
+            if (!indexSnap.exists()) throw new Error("Картку не знайдено в системі");
+            
+            const receiverData = indexSnap.val();
+            if (receiverData.uid === userUID) throw new Error("Не можна надсилати кошти самому собі");
+
+            // 2. Транзакція списання
+            const sRes = await runTransaction(ref(db, `user/${userUID}/card/balance`), currentVal => {
+                const b = parseFloat(currentVal) || 0;
+                if (b >= amount) return parseFloat((b - amount).toFixed(2));
+                return; 
+            });
+
+            if (!sRes.committed) throw new Error("Недостатньо коштів");
+
+            // 3. Зарахування отримувачу
+            const targetPath = `user/${receiverData.uid}/${receiverData.card_type || 'card'}/balance`;
+            await runTransaction(ref(db, targetPath), currentVal => {
+                return parseFloat(((parseFloat(currentVal) || 0) + amount).toFixed(2));
+            });
+
+            // 4. Запис в історію
+            const timestamp = Date.now();
+            const historyItem = {
+                amount: amount,
+                currency: "€",
+                timestamp: timestamp,
+                comment: comment
+            };
+
+            // Для відправника
+            await push(ref(db, `user/${userUID}/card/history`), {
+                ...historyItem,
+                amount: -amount,
+                description: `Переказ на картку **** ${rawCard.slice(-4)}`
+            });
+
+            // Для отримувача
+            await push(ref(db, `user/${receiverData.uid}/${receiverData.card_type || 'card'}/history`), {
+                ...historyItem,
+                amount: amount,
+                description: `Вхідний переказ (${comment})`
+            });
+
+            showMsg("Переказ успішно надіслано!", "var(--success-color)", "rgba(40,167,69,0.1)");
+            
+            setTimeout(() => {
+                window.location.href = 'card.html';
+            }, 2000);
+
+        } catch (e) {
+            showMsg(e.message, "var(--error-color)", "rgba(220,53,69,0.1)");
+            el.btn.disabled = false;
+        }
+    }
+
+    function showMsg(text, color, bg) {
+        el.err.textContent = text;
+        el.err.style.color = color;
+        el.err.style.background = bg;
+    }
+
+    el.cardInp.oninput = () => {
+        let v = el.cardInp.value.replace(/\s/g, '').substring(0, 16);
+        el.cardInp.value = v.match(/.{1,4}/g)?.join(' ') || v;
+        validateForm();
+    };
+
+    el.amtInp.oninput = validateForm;
+    el.btn.onclick = processTransfer;
+
+</script>
+</body>
+</html>

@@ -235,6 +235,25 @@
             margin-top: 50px;
             color: var(--text-secondary);
         }
+        .receipt-comment {
+    background: var(--input-background);
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 15px;
+    font-size: 14px;
+    text-align: left;
+    border: 1px solid var(--border-color);
+    word-break: break-word;
+}
+.comment-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
     </style>
 </head>
 <body>
@@ -313,43 +332,54 @@
             return new Date(timestamp).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
         }
 
-        function openReceipt(transaction, displayDescription) {
-            const isIncome = transaction.amount > 0;
-            const amountClass = isIncome ? 'income' : 'expense';
-            const sign = isIncome ? '+' : '';
-            
-            receiptBody.innerHTML = `
-                <img src="money.png" alt="Money" class="receipt-img" onerror="this.style.display='none'">
-                <div class="receipt-amount ${amountClass}">
-                    ${sign}${transaction.amount.toFixed(0)} ${transaction.currency || '€'}
-                </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">Призначення</span>
-                    <span class="receipt-value">${displayDescription}</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">Дата</span>
-                    <span class="receipt-value">${formatDateOnly(transaction.timestamp)}</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">Час</span>
-                    <span class="receipt-value">${formatTimeOnly(transaction.timestamp)}</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">ID транзакції</span>
-                    <span class="receipt-value">#${Math.floor(100000000 + Math.random() * 900000000)}</span>
-                </div>
-                <div class="receipt-row" style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px;">
-                 <span class="receipt-label">Статус</span>
-                    <span class="receipt-value" style="color: var(--income-color)">Виконано</span>
-                    </div>
-            `;
-            
-            modal.style.display = 'flex';
-            // Force reflow for animation
-            void modal.offsetWidth; 
-            modal.classList.add('show');
-        }
+function openReceipt(transaction, displayDescription) {
+    const isIncome = transaction.amount > 0;
+    const amountClass = isIncome ? 'income' : 'expense';
+    const sign = isIncome ? '+' : '';
+    
+    // Перевіряємо, чи є коментар у транзакції
+    const commentHtml = transaction.comment 
+        ? `<div class="receipt-comment">
+                <span class="comment-label">Коментар</span>
+                ${transaction.comment}
+           </div>` 
+        : '';
+    
+    receiptBody.innerHTML = `
+        <img src="money.png" alt="Money" class="receipt-img" onerror="this.style.display='none'">
+        <div class="receipt-amount ${amountClass}">
+            ${sign}${transaction.amount.toFixed(0)} ${transaction.currency || '€'}
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Призначення</span>
+            <span class="receipt-value">${displayDescription}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Дата</span>
+            <span class="receipt-value">${formatDateOnly(transaction.timestamp)}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Час</span>
+            <span class="receipt-value">${formatTimeOnly(transaction.timestamp)}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">ID транзакції</span>
+            <span class="receipt-value">#${Math.floor(100000000 + Math.random() * 900000000)}</span>
+        </div>
+        
+        ${commentHtml}
+
+        <div class="receipt-row" style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+            <span class="receipt-label">Статус</span>
+            <span class="receipt-value" style="color: var(--income-color)">Виконано</span>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+    void modal.offsetWidth; 
+    modal.classList.add('show');
+}
+
 
         function renderHistory(transactions) {
             historyList.innerHTML = '';
