@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page_title" data-i18n="page_title_card">Профіль - AR BANK</title>
+    <link rel="stylesheet" href="card.css">
+    
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js"></script>
+    
+    <script type="module" src="card.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="profile-icon" style="margin-left: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88"><path d="M78 38v-3H10v3a1.003 1.003 0 0 0 1 1h66a1.003 1.003 0 0 0 1-1zM10 77h68v-3a1.003 1.003 0 0 0-1-1H11a1.003 1.003 0 0 0-1 1z" style="fill:currentColor"/><rect x="5" y="79" width="78" height="8" rx="1" ry="1" style="fill:currentColor"/><path d="M28 41H14v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM51 41H37v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM74 41H60v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM17 47h8v18h-8zM40 47h8v18h-8zM63 47h8v18h-8zM14 68v3h14v-3a1.003 1.003 0 0 0-1-1H15a1.003 1.003 0 0 0-1 1zM37 68v3h14v-3a1.003 1.003 0 0 0-1-1H38a1.003 1.003 0 0 0-1 1zM60 68v3h14v-3a1.003 1.003 0 0 0-1-1H61a1.003 1.003 0 0 0-1 1zM44 10a8 8 0 1 0 8 8 8.01 8.01 0 0 0-8-8zm-.527 6.618 1.949.975A2.844 2.844 0 0 1 45 22.855V23a1 1 0 0 1-2 0v-.145a2.848 2.848 0 0 1-2-2.71 1 1 0 0 1 2 0 .856.856 0 0 0 .855.855h.29a.854.854 0 0 0 .382-1.618l-1.949-.975A2.844 2.844 0 0 1 43 13.145V13a1 1 0 0 1 2 0v.145a2.848 2.848 0 0 1 2 2.71 1 1 0 1 1-2 0 .856.856 0 0 0-.855-.855h-.29a.854.854 0 0 0-.382 1.618z" style="fill:currentColor"/><path d="m82.466 21.115-38-20a.995.995 0 0 0-.932 0l-38 20A1 1 0 0 0 5 22v10a1 1 0 0 0 1 1h76a1 1 0 0 0 1-1V22a1 1 0 0 0-.534-.885zM44 28a10 10 0 1 1 10-10 10.012 10.012 0 0 1-10 10z" style="fill:currentColor"/></svg>
+        </div>
+        <h3 class="title-1"><strong>AR BANK</strong></h3>
+        <div class="gear-icon" onclick="redirectTo('setting.html')" style="margin-right: 10px; cursor: pointer;">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.65l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.003 7.003 0 0 0-1.62-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.22-1.12.52-1.62.94l-2.39-.96a.5.5 0 0 0-.61.22L2.7 8.83a.5.5 0 0 0 .12.65l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.82 14.59a.5.5 0 0 0-.12.65l1.92 3.32c.14.24.43.33.68.22l2.39-.96c.5.42 1.04.72 1.62.94l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54c.58-.22 1.12-.52 1.62-.94l2.39.96c.25.1.54.01.68-.22l1.92-3.32a.5.5 0 0 0-.12-.65l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"/></svg>
+        </div>
+    </header>
+
+    <div class="slider-container">
+        <div class="card-slider" id="cardSlider">
+            <div class="card" onclick="toggleFlip(this)">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="chip-logo-container">
+                            <div class="card-chip">
+                                <svg fill="white" viewBox="0 0 511 511"><path d="M455.5,56h-400C24.897,56,0,80.897,0,111.5v288C0,430.103,24.897,455,55.5,455h400c30.603,0,55.5-24.897,55.5-55.5v-288C511,80.897,486.103,56,455.5,56z M464,248H343v-56.5c0-4.687,3.813-8.5,8.5-8.5H464V248z M343,263h121v65H343V263z M479,223h17v65h-17V223z M479,208v-65h17v65H479z M464,168H351.5c-12.958,0-23.5,10.542-23.5,23.5V408H183V103h272.5c4.687,0,8.5,3.813,8.5,8.5V168z M168,248H47v-65h121V248z M32,288H15v-65h17V288z M47,263h121v65H47V263z M263,88V71h137v17H263z M248,88H111V71h137V88z M168,103v65H47v-56.5c0-4.687,3.813-8.5,8.5-8.5H168z M32,208H15v-65h17V208z M15,303h17v65H15V303z M47,343h121v65H55.5c-4.687,0-8.5-3.813-8.5-8.5V343z M248,423v17H111v-17H248z M263,423h137v17H263V423z M343,408v-65h121v56.5c0,4.687-3.813,8.5-8.5,8.5H343z M479,303h17v65h-17V303z M496,111.5V128h-17v-16.5c0-12.958-10.542-23.5-23.5-23.5H415V71h40.5C477.832,71,496,89.168,496,111.5z M55.5,71H96v17H55.5C42.542,88,32,98.542,32,111.5V128H15v-16.5C15,89.168,33.168,71,55.5,71z M15,399.5V383h17v16.5c0,12.958,10.542,23.5,23.5,23.5H96v17H55.5C33.168,440,15,421.832,15,399.5z M455.5,440H415v-17h40.5c12.958,0,23.5-10.542,23.5-23.5V383h17v16.5C496,421.832,477.832,440,455.5,440z"/></svg>
+                            </div>
+                            <div class="bank-logo"><strong>AR-Card</strong></div>
+                        </div>
+                        <div class="card-number"><strong class="card-num-display">#### #### #### ####</strong></div>
+                        <div class="card-details">
+                            <div class="card-expiry">
+                                <span data-i18n="valid_thru_label">VALID<br>THRU</span>
+                                <span class="expiry-date">ММ/РР</span>
+                            </div>
+                            <div class="card-name"><span class="card-name-display">ІМ'Я ПРІЗВИЩЕ</span></div>
+                        </div>
+                    </div>
+                    <div class="card-back">
+                        <div class="bank-name-back">AR BANK</div>
+                        <div class="magnetic-stripe"></div>
+                        <div class="signature-cvv-area">
+                            <div class="signature-line"></div>
+                            <div class="cvv-box"><span class="cvv-number">***</span></div>
+                        </div>
+                        <div class="back-text" data-i18n="cvv_warning">Ніколи не повідомляйте свій CVV-код...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="secondCardContainer" style="min-width: 330px; display: flex; justify-content: center;">
+                <div class="card dark-card" onclick="toggleFlip(this)">
+                    <div class="card-inner">
+                        <div class="card-front" style="background: var(--text-color); color:var(--body-bg); background-image: none;">
+                            <div class="chip-logo-container">
+                                <div class="card-chip">
+                                   <svg fill="currentColor" viewBox="0 0 511 511"><path d="M455.5,56h-400C24.897,56,0,80.897,0,111.5v288C0,430.103,24.897,455,55.5,455h400c30.603,0,55.5-24.897,55.5-55.5v-288C511,80.897,486.103,56,455.5,56z M464,248H343v-56.5c0-4.687,3.813-8.5,8.5-8.5H464V248z M343,263h121v65H343V263z M479,223h17v65h-17V223z M479,208v-65h17v65H479z M464,168H351.5c-12.958,0-23.5,10.542-23.5,23.5V408H183V103h272.5c4.687,0,8.5,3.813,8.5,8.5V168z M168,248H47v-65h121V248z M32,288H15v-65h17V288z M47,263h121v65H47V263z M263,88V71h137v17H263z M248,88H111V71h137V88z M168,103v65H47v-56.5c0-4.687,3.813-8.5,8.5-8.5H168z M32,208H15v-65h17V208z M15,303h17v65H15V303z M47,343h121v65H55.5c-4.687,0-8.5-3.813-8.5-8.5V343z M248,423v17H111v-17H248z M263,423h137v17H263V423z M343,408v-65h121v56.5c0,4.687-3.813,8.5-8.5,8.5H343z M479,303h17v65h-17V303z M496,111.5V128h-17v-16.5c0-12.958-10.542-23.5-23.5-23.5H415V71h40.5C477.832,71,496,89.168,496,111.5z M55.5,71H96v17H55.5C42.542,88,32,98.542,32,111.5V128H15v-16.5C15,89.168,33.168,71,55.5,71z M15,399.5V383h17v16.5c0,12.958,10.542,23.5,23.5,23.5H96v17H55.5C33.168,440,15,421.832,15,399.5z M455.5,440H415v-17h40.5c12.958,0,23.5-10.542,23.5-23.5V383h17v16.5C496,421.832,477.832,440,455.5,440z"/></svg>
+                                </div>
+                                <div class="bank-logo"><strong>AR-Bank</strong></div>
+                            </div>
+                            <div class="card-number"><strong class="card-num-display">#### #### #### ####</strong></div>
+                            <div class="card-details">
+                                <div class="card-expiry">
+                                    <span data-i18n="valid_thru_label">VALID<br>THRU</span>
+                                    <span class="expiry-date">ММ/РР</span>
+                                </div>
+                                <div class="card-name"><span class="card-name-display">ІМ'Я ПРІЗВИЩЕ</span></div>
+                            </div>
+                        </div>
+                        <div class="card-back" style="background: var(--text-color); color: var(--body-bg);">
+                            <div class="bank-name-back">AR BANK</div>
+                            <div class="magnetic-stripe"></div>
+                            <div class="signature-cvv-area">
+                                <div class="signature-line"></div>
+                                <div class="cvv-box"><span class="cvv-number">***</span></div>
+                            </div>
+                            <div class="back-text">Ніколи не повідомляйте свій CVV-код...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slider-dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+    </div>
+
+    <hr class="separator">
+
+    <div class="setting-button" onclick="redirectTo('earning.html')">
+        <div class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g fill="currentColor"><path d="M58.88 32.12a3.93 3.93 0 0 0-5.42 0L42.59 43H27a1 1 0 0 1 0-2h10.5a3.5 3.5 0 0 0 0-7H17a1.033 1.033 0 0 0-.71.29l-6.88 6.88 12.42 12.42L24.41 51H45a1.033 1.033 0 0 0 .71-.29l13.17-13.17a3.839 3.839 0 0 0 0-5.42zM5.707 40.293a1 1 0 0 0-1.414 0l-3 3a1 1 0 0 0 0 1.414l17 17a1 1 0 0 0 1.414 0l3-3a1 1 0 0 0 0-1.414zM.29 48.29A1.033 1.033 0 0 0 0 49v13a1 1 0 0 0 1 1h13a1.033 1.033 0 0 0 .71-.29l.88-.88L1.17 47.41zM63 1H19a1 1 0 0 0-1 1v26a1 1 0 0 0 1 1h44a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm-3 18a1 1 0 0 1-1 1 4 4 0 0 0-4 4 1 1 0 0 1-1 1H28a1 1 0 0 1-1-1 4 4 0 0 0-4-4 1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1 4 4 0 0 0 4-4 1 1 0 0 1 1-1h26a1 1 0 0 1 1 1 4 4 0 0 0 4 4 1 1 0 0 1 1 1v8a1 1 0 0 1-1 1z"/><path d="M53.083 7H28.917A6.017 6.017 0 0 1 24 11.917v6.166A6.017 6.017 0 0 1 28.917 23h24.166A6.017 6.017 0 0 1 58 18.083v-6.166A6.017 6.017 0 0 1 53.083 7zM42 20a1 1 0 0 1-2 0h-1a1 1 0 0 1 0-2h1v-2a3 3 0 0 1 0-6 1 1 0 0 1 2 0h1a1 1 0 0 1 0 2h-1v2a3 3 0 0 1 0 6z"/><path d="M42 16v2a1 1 0 0 0 0-2zM39 13a1 1 0 0 0 1 1v-2a1 1 0 0 0-1 1z"/></g></svg>
+        </div>
+        <div class="label" data-i18n="earning_button">Заробіток</div>
+        <div class="arrow">›</div>
+    </div>
+    
+    <div class="setting-button" onclick="redirectTo('finance.html')">
+        <div class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g fill="currentColor"><path d="M35 34.5a1.5 1.5 0 0 0-1.5-1.5H33v3h.5a1.5 1.5 0 0 0 1.5-1.5zM30.5 31h.5v-3h-.5a1.5 1.5 0 0 0 0 3z"/><path d="M12 28.94V42h33.06A8.023 8.023 0 0 1 52 35.06V22H18.94A8.023 8.023 0 0 1 12 28.94zM30.5 26h.5v-1a1 1 0 0 1 2 0v1h2a1 1 0 0 1 0 2h-2v3h.5a3.5 3.5 0 0 1 0 7H33v1a1 1 0 0 1-2 0v-1h-2a1 1 0 0 1 0-2h2v-3h-.5a3.5 3.5 0 0 1 0-7z"/><path d="M13 55h-3V28a1 1 0 0 1 1-1 6 6 0 0 0 6-6 1 1 0 0 1 1-1h34v-4H5a1 1 0 0 0-1 1v38H1a1 1 0 0 0-.91.58 1.017 1.017 0 0 0 .15 1.07l6 7a1 1 0 0 0 1.52 0l6-7a1.017 1.017 0 0 0 .15-1.07A1 1 0 0 0 13 55z"/><path d="m63.76 7.35-6-7a1.04 1.04 0 0 0-1.52 0l-6 7a1.017 1.017 0 0 0-.15 1.07A1 1 0 0 0 51 9h3v27a1 1 0 0 1-1 1 6 6 0 0 0-6 6 1 1 0 0 1-1 1H12v4h47a1 1 0 0 0 1-1V9h3a1 1 0 0 0 .91-.58 1.017 1.017 0 0 0-.15-1.07z"/></g></svg>
+        </div>
+        <div class="label" data-i18n="finance_button">Фінанси</div>
+        <div class="arrow">›</div>
+    </div>
+    
+    <div class="setting-button" onclick="redirectTo('history.html')">
+        <div class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 73.82c-100.617 0-182.18 81.563-182.18 182.172S155.383 438.18 256 438.18c100.608 0 182.18-81.572 182.18-182.188 0-100.61-81.572-182.172-182.18-182.172zm12.604 204.223V149.424a12.604 12.604 0 1 1 25.207 0V263l51.873 24.468a12.599 12.599 0 0 1 10.749 22.79l-69.847-32.95a12.6 12.6 0 0 1-7.982-19.264z" fill="currentColor"/></svg>
+        </div>
+        <div class="label" data-i18n="history_button">Історія</div>
+        <div class="arrow">›</div>
+    </div>
+    
+    <div class="setting-button" onclick="redirectTo('market.html')">
+        <div class="icon">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><g data-name="market android app aplication phone"><path d="M30.56 8.47a8 8 0 0 0-7-7 64.29 64.29 0 0 0-15.06 0 8 8 0 0 0-7 7 64.29 64.29 0 0 0 0 15.06 8 8 0 0 0 7 7 64.83 64.83 0 0 0 15.06 0 8 8 0 0 0 7-7 64.29 64.29 0 0 0 0-15.06zM8.7 3.42a63.65 63.65 0 0 1 14.6 0 6 6 0 0 1 5.28 5.28c.09.76.14 1.53.2 2.3H26.5A2.5 2.5 0 0 1 24 8.5V7a1 1 0 0 0-2 0v1.5a2.5 2.5 0 0 1-5 0V7a1 1 0 0 0-2 0v1.5a2.5 2.5 0 0 1-5 0V7a1 1 0 0 0-2 0v1.5A2.5 2.5 0 0 1 5.5 11H3.22c.06-.77.11-1.54.2-2.3A6 6 0 0 1 8.7 3.42zm-.7 25V18h6v10.94a62.6 62.6 0 0 1-5.3-.36 5.44 5.44 0 0 1-.7-.15zm20.58-5.12a6 6 0 0 1-5.28 5.28A63.55 63.55 0 0 1 16 29V18a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v9.56a6 6 0 0 1-2.58-4.26A63.24 63.24 0 0 1 3.09 13H5.5A4.46 4.46 0 0 0 9 11.29a4.44 4.44 0 0 0 7 0 4.44 4.44 0 0 0 7 0A4.46 4.46 0 0 0 26.5 13h2.41a63.24 63.24 0 0 1-.33 10.3z"/><path d="M24 16h-3a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2zm-3 5v-3h3v3z"/></g></svg>
+        </div>
+        <div class="label" data-i18n="market_button">AR MARKET</div>
+        <div class="arrow">›</div>
+    </div>
+
+    <div class="setting-button" onclick="redirectTo('cards.html')">
+        <div class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 19H4c-1.103 0-2-.897-2-2V7c0-1.103.897-2 2-2h16c1.103 0 2 .897 2 2v10c0 1.103-.897 2-2 2zM4 7v10h16.002L20 7H4z"/><path d="M3 9h18v2H3zM15 13h3v2h-3z"/></svg>
+        </div>
+        <div class="label" data-i18n="card_button">Картки</div>
+        <div class="arrow">›</div>
+    </div>
+            <div class="setting-button" onclick="redirectTo('crypto.html')">
+        <div class="icon">
+          <svg fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+	 width="40px" height="40px" viewBox="0 0 394.4 394.401"
+	 xml:space="preserve">
+<g>
+	<path d="M197.2,0C88.292,0,0,88.292,0,197.201C0,306.109,88.292,394.4,197.2,394.4c108.909,0,197.2-88.291,197.2-197.199
+		C394.4,88.292,306.109,0,197.2,0z M197.2,362.005c-91.018,0-164.805-73.787-164.805-164.805
+		c0-91.019,73.787-164.805,164.805-164.805c91.019,0,164.806,73.787,164.806,164.805C362.006,288.218,288.219,362.005,197.2,362.005
+		z M271.633,192.073c6.316-8.915,10.084-20.074,10.084-32.198c0-29.172-21.76-52.822-48.592-52.822c-2.148,0-4.76,0-7.746,0V66.205
+		c0-2.326-1.904-4.223-4.223-4.223h-14.096c-2.326,0-4.223,1.904-4.223,4.223v40.848h-22.536V66.205
+		c0-2.326-1.904-4.223-4.223-4.223h-14.083c-2.326,0-4.223,1.904-4.223,4.223v40.848h-46.485c-2.333,0-4.223,1.89-4.223,4.223
+		v14.226c0,2.176,1.625,4.06,3.794,4.257c15.872,1.455,24.378,12.104,24.378,25.187v87.333c0,11.771-6.073,21.113-19.346,22.392
+		c-1.884,0.184-3.448,1.523-3.801,3.387l-2.693,14.361c-0.483,2.563,1.489,4.938,4.101,4.938h44.261v40.848
+		c0,2.325,1.904,4.223,4.223,4.223h14.083c2.325,0,4.223-1.904,4.223-4.223v-40.848h22.536v40.848c0,2.325,1.904,4.223,4.223,4.223
+		h14.082c2.326,0,4.223-1.904,4.223-4.223v-40.848c7.984,0,14.613,0,19.014,0c26.84,0,48.592-23.331,48.592-52.115
+		C292.984,217.274,284.52,201.444,271.633,192.073z M180.295,140.855c0,0,21.671,0,34.509,0c12.84,0,23.242,10.404,23.242,23.243
+		c0,12.838-10.402,23.242-23.242,23.242c-12.838,0-34.509,0-34.509,0V140.855z M226.072,254.953c-12.838,0-45.777,0-45.777,0
+		v-46.484c0,0,32.939,0,45.777,0c12.84,0,23.242,10.403,23.242,23.242C249.314,244.548,238.912,254.953,226.072,254.953z"/>
+</g>
+</svg>
+        </div>
+        <div class="label" data-i18n="crypto_button">AR Crypto</div>
+        <div class="arrow">›</div>
+    </div>
+    <script>
+        function redirectTo(url) {
+            window.location.href = url;
+        }
+        function toggleFlip(cardElement) {
+            cardElement.classList.toggle('flipped');
+        }
+        (function applyTheme() {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        })();
+        const slider = document.getElementById('cardSlider');
+        const dots = document.querySelectorAll('.dot');
+        if (slider) {
+            slider.addEventListener('scroll', () => {
+                const index = Math.round(slider.scrollLeft / slider.offsetWidth);
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            });
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('user_lang') || 'uk';
+            if (typeof applyTranslation === 'function') {
+                applyTranslation(savedLang);
+            }
+        });
+    </script>
+    <script src="translate.js"></script>
+</body>
+</html>

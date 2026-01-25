@@ -1,0 +1,258 @@
+<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Налаштування картки</title>
+<style>
+    :root { --bg: #0a0c10; --card: rgba(255,255,255,0.05); --accent: #6366f1; --text: #f8fafc; --danger: #ff4757; --success: #10b981; }
+    body { font-family: 'SF Pro Display', system-ui, sans-serif; background: #0f172a; color: var(--text); display: flex; justify-content: center; padding: 20px; margin: 0; }
+    .container { width: 100%; max-width: 440px; }
+    .glass { background: var(--card); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 20px; margin-bottom: 20px; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .row:last-child { border-bottom: none; }
+    
+    .code-display { font-size: 24px; font-weight: 800; color: var(--accent); text-align: center; letter-spacing: 2px; margin: 10px 0; text-transform: uppercase; }
+    
+    input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; text-align: center; font-size: 16px; margin: 5px 0; box-sizing: border-box; }
+    .limit-input { width: 80px; text-align: right; padding: 8px; font-size: 14px; margin: 0; outline: none; }
+    .limit-input:read-only { color: #94a3b8; border-color: transparent; background: transparent; cursor: default; }
+    
+    button { width: 100%; padding: 15px; border-radius: 16px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+    .btn-main { background: var(--accent); color: white; }
+    .btn-danger { background: rgba(255,71,87,0.1); color: var(--danger); border: 1px solid var(--danger); }
+    .btn-save { background: var(--success); color: white; margin-top: 20px; }
+    
+    .label { color: #94a3b8; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .user-tag { background: rgba(99, 102, 241, 0.2); color: var(--accent); padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+    h3 { font-size: 16px; margin-top: 0; color: #94a3b8; font-weight: 600; }
+
+    /* --- СТИЛІ МОДАЛКИ --- */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; opacity: 0; transition: 0.3s; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box { background: #161b22; border: 1px solid rgba(255,255,255,0.1); border-radius: 28px; padding: 30px; width: 90%; max-width: 320px; text-align: center; transform: translateY(20px); transition: 0.3s; }
+    .modal-overlay.active .modal-box { transform: translateY(0); }
+    .modal-icon { width: 50px; height: 50px; margin: 0 auto 15px; display: block; }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .modal-text { color: #94a3b8; font-size: 14px; line-height: 1.5; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<div class="container">
+    <a href="card.html" style="display:block; text-align:left; color:#94a3b8; margin-top:10px; text-decoration:none; font-size: 14px;">‹ Назад</a>
+    <h2 id="title" style="text-align:center;">Налаштування</h2>
+    
+    <div class="glass">
+        <div class="row"><span class="label">Власник</span><span id="vRoblox">-</span></div>
+        <div class="row"><span class="label">Тип</span><span id="vType">-</span></div>
+        <div class="row"><span class="label">Баланс</span><span id="vBal" style="color: var(--success); font-weight: 700;">0.00 €</span></div>
+    </div>
+
+    <div id="ownerSection" style="display: none;" class="glass">
+        <div class="label" style="text-align: center;">Код доступу</div>
+        <div class="code-display" id="vCode">XXX-XXX</div>
+        <p style="font-size: 11px; color: #94a3b8; text-align: center;">Дайте цей код своєму другу, щоб він міг приєднатись</p>
+    </div>
+
+    <div id="limitSection" style="display: none;" class="glass">
+        <h3 id="limitHeader">Ліміти операцій (€)</h3>
+        <div class="row"><span class="label">Поповнення</span><input type="number" id="limDeposit" class="limit-input"></div>
+        <div class="row"><span class="label">Виведення</span><input type="number" id="limWithdraw" class="limit-input"></div>
+        <div class="row"><span class="label">Перекази</span><input type="number" id="limTransfer" class="limit-input"></div>
+        <button class="btn-save" id="btnSaveLimits">Зберегти ліміти</button>
+    </div>
+
+    <div id="membersSection" style="display: none;" class="glass">
+        <h3>Учасники родини</h3>
+        <div id="memberList"></div>
+    </div>
+
+    <div id="joinSection" style="display: none;" class="glass">
+        <div class="label" style="margin-bottom: 10px;">Приєднатися за кодом</div>
+        <input type="text" id="joinCode" placeholder="X7J-9R2" maxlength="7" style="text-transform: uppercase;">
+        <button class="btn-main" id="btnJoin">Приєднатися</button>
+    </div>
+
+    <div id="actionArea"></div>
+</div>
+
+<div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+        <div id="modalIconArea" class="modal-icon"></div>
+        <div class="modal-title" id="modalTitle">Система</div>
+        <div class="modal-text" id="modalText">Повідомлення</div>
+        <button class="btn-main" id="modalBtn" onclick="closeModal()">Зрозуміло</button>
+        <button class="btn-danger" id="modalConfirmBtn" style="display:none;">Підтвердити</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, get, set, remove, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+        authDomain: "ar-bank-dbfd9.firebaseapp.com",
+        databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "ar-bank-dbfd9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    let uID, myCard = null, ownerUID = null;
+
+    const icons = {
+        success: `<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+        error: `<svg viewBox="0 0 24 24" fill="none" stroke="#ff4757" stroke-width="3"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+        info: `<svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="3"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+        question: `<svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="3"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3m.08 4h.01" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10"/></svg>`
+    };
+
+    window.showAlert = (title, text, type = 'info', callback = null) => {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalText').innerText = text;
+        document.getElementById('modalIconArea').innerHTML = icons[type];
+        document.getElementById('modalBtn').style.display = 'block';
+        document.getElementById('modalConfirmBtn').style.display = 'none';
+        window.currentModalCallback = callback;
+        modal.classList.add('active');
+    };
+
+    window.showConfirm = (title, text, onConfirm) => {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalText').innerText = text;
+        document.getElementById('modalIconArea').innerHTML = icons.question;
+        document.getElementById('modalBtn').innerText = "Скасувати";
+        const cBtn = document.getElementById('modalConfirmBtn');
+        cBtn.style.display = 'block';
+        cBtn.onclick = () => { onConfirm(); closeModal(); };
+        modal.classList.add('active');
+    };
+
+    window.closeModal = () => {
+        document.getElementById('customModal').classList.remove('active');
+        if(window.currentModalCallback) { window.currentModalCallback(); window.currentModalCallback = null; }
+    };
+
+    onAuthStateChanged(auth, u => {
+        if (u) { uID = u.uid; checkUserStatus(); }
+        else location.href = 'login.html';
+    });
+
+    async function checkUserStatus() {
+        const snap = await get(ref(db, `user/${uID}/card2`));
+        if (snap.exists()) {
+            myCard = snap.val();
+            await initSettings();
+        } else {
+            document.getElementById('joinSection').style.display = 'block';
+            document.getElementById('title').textContent = "Приєднання";
+        }
+    }
+
+    async function initSettings() {
+        const rawNum = myCard.number.replace(/\s/g, '');
+        const indexSnap = await get(ref(db, `cards_index/${rawNum}`));
+        ownerUID = indexSnap.val().uid;
+
+        document.getElementById('vRoblox').textContent = myCard.telegram;
+        document.getElementById('vType').textContent = myCard.type;
+        
+        // Синхронізація балансу та лімітів
+        onValue(ref(db, `user/${ownerUID}/card2`), s => {
+            const data = s.val() || {};
+            document.getElementById('vBal').textContent = (data.balance || 0).toFixed(2) + " €";
+            document.getElementById('limDeposit').value = data.limits?.deposit || 0;
+            document.getElementById('limWithdraw').value = data.limits?.withdraw || 0;
+            document.getElementById('limTransfer').value = data.limits?.transfer || 0;
+        });
+
+        if (uID === ownerUID) setupOwnerUI(rawNum);
+        else setupMemberUI();
+    }
+
+    async function setupOwnerUI(cardNum) {
+        const isFamily = myCard.type === 'Сімейна';
+        document.getElementById('ownerSection').style.display = isFamily ? 'block' : 'none';
+        document.getElementById('membersSection').style.display = isFamily ? 'block' : 'none';
+        document.getElementById('limitSection').style.display = 'block';
+        
+        if (isFamily) {
+            document.getElementById('vCode').textContent = myCard.family_code || "---";
+            const allUsers = await get(ref(db, 'user'));
+            const listDiv = document.getElementById('memberList');
+            listDiv.innerHTML = "";
+            allUsers.forEach(child => {
+                const userData = child.val();
+                if (child.key !== uID && userData.card2?.number === myCard.number) {
+                    const row = document.createElement('div');
+                    row.className = 'row';
+                    row.innerHTML = `<span>${userData.full_name || userData.roblox}</span> <span class="user-tag">Учасник</span>`;
+                    listDiv.appendChild(row);
+                }
+            });
+        }
+
+        document.querySelectorAll('.limit-input').forEach(i => i.readOnly = false);
+        document.getElementById('btnSaveLimits').style.display = 'block';
+        document.getElementById('btnSaveLimits').onclick = async () => {
+            const limits = {
+                deposit: parseFloat(document.getElementById('limDeposit').value) || 0,
+                withdraw: parseFloat(document.getElementById('limWithdraw').value) || 0,
+                transfer: parseFloat(document.getElementById('limTransfer').value) || 0
+            };
+            await set(ref(db, `user/${uID}/card2/limits`), limits);
+            showAlert("Успішно", "Ліміти оновлено", "success");
+        };
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-danger'; 
+        delBtn.textContent = isFamily ? 'Видалити картку' : 'Видалити картку';
+        delBtn.onclick = () => {
+            showConfirm("Видалення", "Ви впевнені? Дані буде втрачено назавжди.", async () => {
+                await remove(ref(db, `cards_index/${cardNum}`));
+                await remove(ref(db, `user/${uID}/card2`));
+                location.reload();
+            });
+        };
+        const actionArea = document.getElementById('actionArea');
+        actionArea.innerHTML = ""; actionArea.appendChild(delBtn);
+    }
+
+    function setupMemberUI() {
+        document.getElementById('limitSection').style.display = 'block';
+        document.getElementById('limitHeader').textContent = "Ліміти";
+        document.querySelectorAll('.limit-input').forEach(i => i.readOnly = true);
+        document.getElementById('btnSaveLimits').style.display = 'none';
+
+        document.getElementById('ownerSection').style.display = 'none';
+        document.getElementById('membersSection').style.display = 'none';
+
+        const exitBtn = document.createElement('button');
+        exitBtn.className = 'btn-danger'; exitBtn.textContent = 'Вийти з родини';
+        exitBtn.onclick = () => {
+            showConfirm("Вихід", "Ви впевнені, що хочете від'єднатися?", async () => {
+                await remove(ref(db, `user/${uID}/card2`));
+                location.reload();
+            });
+        };
+        const actionArea = document.getElementById('actionArea');
+        actionArea.innerHTML = ""; actionArea.appendChild(exitBtn);
+    }
+
+    document.getElementById('btnJoin').onclick = async () => {
+        const code = document.getElementById('joinCode').value.trim().toUpperCase();
+        if (code.length < 7) return showAlert("Помилка", "Некоректний код", "error");
+        const usersSnap = await get(ref(db, 'user'));
+        let foundCard = null;
+        usersSnap.forEach(u => {
+            const c = u.val().card2;
+            if (c && c.family_code === code) foundCard = c;
+        });
+        if (foundCard) {
+            await set(ref(db, `user/${uID}/card2`), foundCard);
+            showAlert("Успіх", "Приєднано!", "success", () => location.reload());
+        } else showAlert("Невдача", "Код не знайдено", "error");
+    };
+</script>
+</body></html>

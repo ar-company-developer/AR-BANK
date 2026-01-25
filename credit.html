@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title data-i18n="page_title_loan">Отримання Кредиту - AR BANK</title>
+    <script>
+        (function(){
+            const e=localStorage.getItem("theme");
+            if(e==="dark")document.documentElement.classList.add("dark-mode");
+            else document.documentElement.classList.remove("dark-mode")
+        })()
+    </script>
+    <style>
+        :root{--background-color:#fff;--input-background:#f0f0f0;--button-color:#000;--button-text:#fff;--text-color:#333;--secondary-text:#777;--input-border-light:#e0e0e0;--focus-color:var(--button-color);--error-color:#dc3545;--shadow-color:rgba(0,0,0,.2);--back-button-bg:#f0f0f0}
+        html.dark-mode{--background-color:#121212;--input-background:#1e1e1e;--button-color:white;--button-text:black;--text-color:#f0f0f0;--secondary-text:#aaa;--input-border-light:#444;--focus-color:var(--button-color);--error-color:#f87171;--shadow-color:rgba(0,0,0,.4);--back-button-bg:#282828}
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background-color:var(--background-color);margin:0;padding:0;color:var(--text-color);display:flex;flex-direction:column;align-items:center;min-height:100vh;transition:background-color .3s,color .3s}
+        .container{width:100%;max-width:600px;padding:20px}
+        .header{display:flex;align-items:center;justify-content:flex-start;padding:10px 0 30px}
+        .back-button-circle{width:40px;height:40px;background-color:var(--back-button-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:20px;text-decoration:none;transition:background-color .3s}
+        .back-button-circle svg{width:20px;height:20px;fill:var(--text-color);transition:fill .3s}
+        .title{font-size:26px;font-weight:700;text-align:center;flex-grow:1;margin-left:-40px;color:var(--text-color);transition:color .3s}
+        h2{font-size:20px;font-weight:600;margin-bottom:30px;color:var(--text-color);transition:color .3s}
+        .form-group{margin-bottom:25px}
+        label{display:block;font-size:14px;font-weight:500;color:var(--secondary-text);margin-bottom:8px;transition:color .3s}
+        input{width:100%;padding:18px 15px;border:1px solid var(--input-border-light);background-color:var(--input-background);color:var(--text-color);border-radius:12px;font-size:16px;outline:0;box-sizing:border-box;transition:border-color .3s,background-color .3s}
+        input:focus{border-color:var(--focus-color)}
+        button{width:100%;padding:20px;background-color:var(--button-color);color:var(--button-text);border:none;border-radius:15px;font-size:18px;font-weight:700;cursor:pointer;margin-top:100px;box-shadow:0 4px 10px var(--shadow-color);transition:background-color .3s,box-shadow .3s}
+        #message{text-align:center;margin-top:20px;font-weight:600;color:var(--text-color)}
+        #message.error{color:var(--error-color)}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="finance.html" class="back-button-circle">
+                <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg>
+            </a>
+            <h1 class="title" data-i18n="loan_title">Отримати Кредит</h1>
+        </div>
+        <h2 data-i18n="loan_subtitle">Введіть дані для оформлення заявки на кредит.</h2>
+        <form id="loanForm">
+            <div class="form-group">
+                <label for="amount" data-i18n="loan_amount_label">Бажана сума кредиту (EUR):</label>
+                <input type="number" id="amount" data-i18n-placeholder="loan_amount_placeholder" placeholder="Від 3000 до 28000€" min="3000" max="28000" required>
+            </div>
+            <div class="form-group">
+                <label for="robloxUsername" data-i18n="loan_roblox_label">Ваш Username з roblox:</label>
+                <input type="text" id="robloxUsername" placeholder="@username" required>
+            </div>
+            <div class="form-group">
+                <label for="telegramUsername" data-i18n="loan_telegram_label">Ваш Username з telegram:</label>
+                <input type="text" id="telegramUsername" placeholder="@username" required>
+            </div>
+            <button type="submit" data-i18n="loan_submit_btn">Надіслати Заявку</button>
+        </form>
+        <p id="message"></p>
+    </div>
+
+    <script src="translate.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+        const f={apiKey:"AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",authDomain:"ar-bank-dbfd9.firebaseapp.com",databaseURL:"https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",projectId:"ar-bank-dbfd9"},
+            app=initializeApp(f),db=getDatabase(app),auth=getAuth(app);
+        
+        let uid=null;
+        const msg=document.getElementById("message"),form=document.getElementById("loanForm");
+
+        // Функція для отримання поточного словника перекладів
+        const getT = () => translations[localStorage.getItem("user_lang") || "uk"];
+
+        onAuthStateChanged(auth,e=>{e?uid=e.uid:window.location.href="login.html"});
+
+        form.addEventListener("submit",async e=>{
+            e.preventDefault();
+            const t = getT();
+            msg.textContent="",msg.className="";
+
+            if(!uid){
+                msg.textContent = t.auth_error_general || "Auth Error";
+                msg.classList.add("error");
+                return;
+            }
+
+            const a=Number(document.getElementById("amount").value),
+                  r=document.getElementById("robloxUsername").value.trim(),
+                  tel=document.getElementById("telegramUsername").value.trim();
+
+            if(a<3e3||a>28e3){
+                msg.textContent = t.loan_error_range;
+                msg.classList.add("error");
+                return;
+            }
+
+            if(!r.startsWith("@")||!tel.startsWith("@")){
+                msg.textContent = t.loan_error_username;
+                msg.classList.add("error");
+                return;
+            }
+
+            msg.textContent = t.loan_processing;
+
+            try{
+                await set(ref(db,`loan_requests/${uid}`),{sum:a,telegram:tel,roblox:r,timestamp:Date.now(),status:"pending"});
+                window.location.href="ok3.html"
+            }catch(err){
+                msg.textContent = t.loan_error_save + err.message;
+                msg.classList.add("error")
+            }
+        });
+    </script>
+</body>
+</html>

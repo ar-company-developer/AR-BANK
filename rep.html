@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поповнення картки | AR-BANK</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --accent: #6366f1;
+            --text: #f8fafc;
+            --success: #10b981;
+            --danger: #ef4444;
+            --modal-bg: rgba(15, 23, 42, 0.95);
+        }
+
+        body {
+            font-family: 'SF Pro Display', system-ui, sans-serif;
+            background: radial-gradient(circle at top, #1e1b4b, #0f172a);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Стилі форми */
+        .deposit-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        h2 { text-align: center; margin-bottom: 30px; font-weight: 800; }
+
+        .balance-info {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .balance-val { color: var(--accent); font-weight: 700; }
+
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 10px; font-size: 13px; color: #94a3b8; text-transform: uppercase; }
+
+        input {
+            width: 100%;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        input:focus { border-color: var(--accent); background: rgba(0, 0, 0, 0.5); }
+
+        .btn-confirm {
+            width: 100%;
+            padding: 18px;
+            background: var(--accent);
+            border: none;
+            border-radius: 18px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Стилі Модалки */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-box {
+            background: var(--modal-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            width: 90%;
+            max-width: 340px;
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-overlay.active .modal-box { transform: translateY(0); }
+
+        .modal-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .modal-text {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            color: #cbd5e1;
+        }
+
+        .modal-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="deposit-card">
+    <h2>Поповнення</h2>
+    
+    <div class="balance-info">
+        <span>Баланс Основної:</span>
+        <span class="balance-val" id="mainBal">0.00 €</span>
+    </div>
+
+    <div class="input-group">
+        <label>Сума поповнення (€)</label>
+        <input type="number" id="amount" placeholder="0.00" step="0.01">
+    </div>
+
+    <button id="btnAction" class="btn-confirm">Поповнити</button>
+    
+    <a href="card.html" class="back-link">Скасувати</a>
+</div>
+
+<div class="modal-overlay" id="sysModal">
+    <div class="modal-box">
+        <span id="modalIcon" class="modal-icon">🔔</span>
+        <div id="modalText" class="modal-text">Повідомлення системи</div>
+        <button class="modal-btn" onclick="closeModal()">Зрозуміло</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+        authDomain: "ar-bank-dbfd9.firebaseapp.com",
+        databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "ar-bank-dbfd9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    let uID, mainBalance = 0, ownerUID = null, card2Data = null;
+
+    // Функція показу модалки
+    window.showModal = (text, type = 'info', redirect = null) => {
+        const modal = document.getElementById('sysModal');
+        const mText = document.getElementById('modalText');
+        const mIcon = document.getElementById('modalIcon');
+        
+        mText.innerText = text;
+        
+        if(type === 'error') {
+            mIcon.innerText = 'Danger';
+            document.querySelector('.modal-btn').style.background = 'var(--danger)';
+        } else if(type === 'success') {
+            mIcon.innerText = 'Success';
+            document.querySelector('.modal-btn').style.background = 'var(--success)';
+        } else {
+            mIcon.innerText = 'Accent';
+            document.querySelector('.modal-btn').style.background = 'var(--accent)';
+        }
+
+        modal.classList.add('active');
+        window.modalRedirect = redirect;
+    };
+
+    window.closeModal = () => {
+        document.getElementById('sysModal').classList.remove('active');
+        if(window.modalRedirect) {
+            location.href = window.modalRedirect;
+        }
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            uID = user.uid;
+            loadData();
+        } else {
+            location.href = 'login.html';
+        }
+    });
+
+    async function loadData() {
+        try {
+            const mainSnap = await get(ref(db, `user/${uID}/card/balance`));
+            mainBalance = mainSnap.val() || 0;
+            document.getElementById('mainBal').textContent = mainBalance.toFixed(2) + " €";
+
+            const card2Snap = await get(ref(db, `user/${uID}/card2`));
+            if (!card2Snap.exists()) {
+                showModal("Друга картка не активована!", "error", "card.html");
+                return;
+            }
+            card2Data = card2Snap.val();
+
+            const rawNum = card2Data.number.replace(/\s/g, '');
+            const indexSnap = await get(ref(db, `cards_index/${rawNum}`));
+            ownerUID = indexSnap.val().uid;
+        } catch(e) {
+            showModal("Помилка завантаження даних", "error");
+        }
+    }
+
+    document.getElementById('btnAction').onclick = async () => {
+        const amount = parseFloat(document.getElementById('amount').value);
+        const btn = document.getElementById('btnAction');
+
+        if (!amount || amount <= 0) return showModal("Введіть коректну суму!", "error");
+        if (amount > mainBalance) return showModal("Недостатньо коштів на основній картці!", "error");
+
+        const ownerCardSnap = await get(ref(db, `user/${ownerUID}/card2`));
+        const ownerData = ownerCardSnap.val();
+        const limit = ownerData.limits?.deposit || 0;
+
+        if (limit > 0 && amount > limit) {
+            return showModal(`Перевищено ліміт поповнення! Максимум: ${limit} €`, "error");
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Обробка...";
+
+        try {
+            const newMainBal = mainBalance - amount;
+            const currentCard2Bal = ownerData.balance || 0;
+            const newCard2Bal = currentCard2Bal + amount;
+
+            await update(ref(db, `user/${uID}/card`), { balance: newMainBal });
+            await update(ref(db, `user/${ownerUID}/card2`), { balance: newCard2Bal });
+
+            showModal("Поповнення успішне!", "success", "card.html");
+
+        } catch (err) {
+            showModal("Помилка: " + err.message, "error");
+            btn.disabled = false;
+            btn.textContent = "Спробувати знову";
+        }
+    };
+</script>
+</body>
+</html>

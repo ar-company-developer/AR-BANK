@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Транзакція | Card 2</title>
+    <style>
+        :root { 
+            --primary: #6366f1; --bg: #0f172a; --card-bg: rgba(255, 255, 255, 0.05);
+            --text: #f8fafc; --input-bg: rgba(255, 255, 255, 0.1); --accent: #818cf8; 
+            --danger: #ef4444; --success: #10b981;
+        }
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a); 
+            color: var(--text); display: flex; flex-direction: column; 
+            align-items: center; min-height: 100vh; margin: 0; padding: 20px; 
+        }
+        .container { width: 100%; max-width: 420px; box-sizing: border-box; }
+        
+        .header { display: flex; align-items: center; margin-bottom: 30px; width: 100%; }
+        .btn-back { 
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); 
+            color: white; border-radius: 50%; width: 44px; height: 44px; 
+            display: flex; align-items: center; justify-content: center; text-decoration: none;
+        }
+
+        .glass-card { 
+            background: var(--card-bg); backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 28px;
+            margin-top: 130px;
+            padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+        }
+
+        .balance-info { text-align: center; margin-bottom: 25px; }
+        .balance-val { font-size: 32px; font-weight: 800; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        
+        input { 
+            width: 100%; padding: 16px; background: var(--input-bg); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; 
+            color: white; font-size: 16px; outline: none; transition: 0.3s; box-sizing: border-box;
+        }
+        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.15); }
+
+        .btn-submit { 
+            width: 100%; padding: 18px; background: var(--primary); 
+            color: white; border: none; border-radius: 16px; 
+            font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px;
+        }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        #errorMessage { text-align: center; font-size: 14px; margin-top: 15px; min-height: 20px; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="card.html" class="btn-back">←</a>
+        <h2 style="flex-grow:1; text-align:center; margin:0; margin-left:-44px;">Переказ з Картки 2</h2>
+    </div>
+
+    <div class="glass-card">
+        <div class="balance-info">
+            <label>Баланс вашої другої картки</label>
+            <div class="balance-val" id="balanceInfo">0.00 €</div>
+        </div>
+
+        <div class="form-group">
+            <label>Отримувач (Номер картки)</label>
+            <input type="text" id="receiverCard" maxlength="19" placeholder="0000 0000 0000 0000">
+        </div>
+
+        <div class="form-group">
+            <label>Сума (€)</label>
+            <input type="number" id="amount" placeholder="Мін. 10.00">
+        </div>
+
+        <button id="confirmButton" class="btn-submit" disabled>Надіслати кошти</button>
+        <div id="errorMessage"></div>
+    </div>
+</div>
+
+<audio id="clickSound" preload="auto"><source src="oplata.mp3" type="audio/mpeg"></audio>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, get, runTransaction, onValue, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+        authDomain: "ar-bank-dbfd9.firebaseapp.com",
+        databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "ar-bank-dbfd9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    const el = {
+        cardInp: document.getElementById('receiverCard'),
+        amtInp: document.getElementById('amount'),
+        btn: document.getElementById('confirmButton'),
+        bal: document.getElementById('balanceInfo'),
+        err: document.getElementById('errorMessage'),
+        snd: document.getElementById('clickSound')
+    };
+
+    let bal2 = 0, sUID = null, sCard2Num = "";
+
+    function showMsg(m, type = 'error') {
+        el.err.textContent = m;
+        el.err.style.color = type === 'success' ? '#10b981' : '#ef4444';
+    }
+
+    onAuthStateChanged(auth, u => {
+        if (u) {
+            sUID = u.uid;
+            onValue(ref(db, `user/${u.uid}/card2`), s => {
+                const d = s.val();
+                bal2 = d ? Number(d.balance) || 0 : 0;
+                sCard2Num = d ? (d.number || "").replace(/\s/g, '') : "";
+                el.bal.textContent = `${bal2.toFixed(2)} €`;
+            });
+        } else { location.href = 'login.html'; }
+    });
+
+    async function handleTransfer() {
+        const rawCard = el.cardInp.value.replace(/\s/g, '');
+        const amount = Number(el.amtInp.value);
+
+        if (el.snd) el.snd.play();
+        el.btn.disabled = true;
+        showMsg("Обробка...", 'success');
+
+        try {
+            // Перевірка отримувача
+            const s = await get(ref(db, `cards_index/${rawCard}`));
+            if (!s.exists()) throw new Error("Картку отримувача не знайдено");
+            
+            const index = s.val();
+            const targetUID = index.uid;
+            const targetNode = index.card_type || 'card';
+
+            // Списання з card2
+            const sRes = await runTransaction(ref(db, `user/${sUID}/card2/balance`), b => {
+                if (b >= amount) return parseFloat((b - amount).toFixed(2));
+            });
+
+            if (!sRes.committed) throw new Error("Недостатньо коштів на Картці 2");
+
+            // Зарахування отримувачу
+            await runTransaction(ref(db, `user/${targetUID}/${targetNode}/balance`), b => {
+                return parseFloat(((b || 0) + amount).toFixed(2));
+            });
+
+            // Історія
+            const h = { amount: amount, timestamp: Date.now(), currency: "€" };
+            await push(ref(db, `user/${sUID}/card2/history`), { 
+                ...h, amount: -amount, description: `Переказ на **** ${rawCard.slice(-4)}` 
+            });
+            await push(ref(db, `user/${targetUID}/${targetNode}/history`), { 
+                ...h, amount: amount, description: `Надходження з **** ${sCard2Num.slice(-4)}` 
+            });
+
+            showMsg("Транзакція успішна!", 'success');
+            setTimeout(() => location.href = 'card.html', 1500);
+        } catch (e) {
+            showMsg(e.message);
+            el.btn.disabled = false;
+        }
+    }
+
+    el.btn.onclick = handleTransfer;
+
+    el.cardInp.oninput = () => {
+        let v = el.cardInp.value.replace(/\s/g, '').substring(0, 16);
+        el.cardInp.value = v.match(/.{1,4}/g)?.join(' ') || v;
+        checkBtn();
+    };
+    el.amtInp.oninput = checkBtn;
+
+    function checkBtn() {
+        const v = el.cardInp.value.replace(/\s/g, '');
+        const a = Number(el.amtInp.value);
+        el.btn.disabled = !(v.length === 16 && a >= 10 && a <= bal2);
+    }
+</script>
+</body>
+</html>

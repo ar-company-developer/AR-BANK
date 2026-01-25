@@ -1,0 +1,113 @@
+/* === 🟢 ЗМІННІ СВІТЛОЇ ТЕМИ === */
+:root {
+    --background-color: #ffffff;
+    --text-color: #000; /* Чорний для заголовків та іконки */
+    --secondary-text-color: #555; /* Сірий для повідомлень */
+    --button-bg: #000;
+    --button-text: #fff;
+    --button-hover-bg: #333;
+}
+
+/* === 🔵 ЗМІННІ ТЕМНОЇ ТЕМИ === */
+html.dark-mode {
+    --background-color: #121212;
+    --text-color: #f0f0f0; 
+    --secondary-text-color: #aaaaaa;
+    --button-bg: white; /* Блакитний для кнопки */
+    --button-text: black;
+    --button-hover-bg: gray;
+}
+
+/* === БАЗОВІ СТИЛІ === */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: var(--background-color); 
+    color: var(--secondary-text-color);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s; /* Плавний перехід теми */
+}
+
+.confirmation-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+    display: flex; 
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh; /* Щоб кнопка була знизу */
+}
+
+/* Іконка галочки */
+.check-icon {
+    width: 120px; 
+    height: 120px;
+    margin: 60px auto 30px auto; 
+    display: flex;
+    margin-top: 160px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    color: var(--text-color); /* Використовуємо змінну для кольору */
+    transition: color 0.3s;
+}
+
+/* Гарантуємо, що SVG займає всю площу контейнера */
+.check-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Заголовок "Успішно!" */
+.status-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--text-color); /* Використовуємо змінну */
+    margin-bottom: 15px;
+    line-height: 1.2;
+    transition: color 0.3s;
+}
+
+/* Повідомлення */
+.status-message {
+    font-size: 16px;
+    color: var(--secondary-text-color); /* Використовуємо змінну */
+    line-height: 1.5;
+    margin-bottom: auto; /* Відштовхує кнопку до низу */
+    padding: 0 15px; 
+    transition: color 0.3s;
+}
+
+/* Кнопка "На початок" */
+.home-button {
+    display: block;
+    width: 100%; 
+    padding: 18px 0; 
+    margin: 40px 0 0 0; 
+    background-color: var(--button-bg); /* Використовуємо змінну */
+    color: var(--button-text); /* Використовуємо змінну */
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center; /* Центрування тексту в блоці */
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s, color 0.2s;
+    flex-shrink: 0; 
+    box-sizing: border-box; 
+}
+
+.home-button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.home-button:active {
+    transform: scale(0.99);
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="login_page_title">AR BANK - Вхід</title>
+    <link rel="stylesheet" href="login.css">
+    <script>
+        (function(){
+            const theme = localStorage.getItem('theme');
+            if(theme === 'dark'){
+                document.documentElement.classList.add('dark-mode');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+            }
+        })();
+    </script>
+    <script src="translate.js"></script>
+    <script type="module" src="login.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo-title">AR BANK</h1>
+            <h2 class="form-title" data-i18n="login_header">Вхід у кабінет</h2>
+        </header>
+        
+        <form id="loginForm" class="form">
+            <div class="input-group">
+                <label for="login-input" data-i18n="label_email">Email</label>
+                <input type="text" id="login-input" name="login" required 
+                       data-i18n-placeholder="placeholder_email" placeholder="example@email.com">
+            </div>
+            
+            <div class="input-group">
+                <label for="password" data-i18n="label_password">Пароль</label>
+                <input type="password" id="password" name="password" required 
+                       data-i18n-placeholder="your_password" placeholder="Ваш пароль">
+            </div>
+            
+            <div id="error-message" class="error-message" style="display: none;"></div>
+            
+            <button type="submit" class="submit-button" data-i18n="btn_login">УВІЙТИ</button>
+        </form>
+    </div>
+        <script src="translate.js"></script>
+</body>
+</html>

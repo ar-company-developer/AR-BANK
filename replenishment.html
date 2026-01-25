@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="page_title_replenish">Поповнення рахунку - AR BANK</title>
+<script>(function(){const theme=localStorage.getItem('theme');if(theme==='dark'){document.documentElement.classList.add('dark-mode');}else{document.documentElement.classList.remove('dark-mode');}})();</script>
+<style>
+:root{--background-color:#ffffff;--input-background:#f0f0f0;--button-color:#000000;--button-text:#ffffff;--text-color:#333333;--secondary-text-color:#777;--back-button-bg:#f0f0f0;--border-color:#e0e0e0;--error-color:#dc3545;}
+html.dark-mode{--background-color:#121212;--input-background:#1e1e1e;--button-color:white;--button-text:black;--text-color:#f0f0f0;--secondary-text-color:#aaaaaa;--back-button-bg:#2a2a2a;--border-color:#444444;--error-color:#ff6b6b;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background-color:var(--background-color);margin:0;padding:0;color:var(--text-color);display:flex;flex-direction:column;align-items:center;min-height:100vh;transition:0.3s;}
+.container{width:100%;max-width:600px;padding:20px;box-sizing:border-box;}
+.header{display:flex;align-items:center;padding:10px 0 30px;}
+.back-button-circle{width:40px;height:40px;background-color:var(--back-button-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:20px;text-decoration:none;}
+.back-button-circle svg{width:20px;height:20px;fill:var(--text-color);}
+.title{font-size:26px;font-weight:700;flex-grow:1;margin-left:-40px;text-align:center;}
+h2{font-size:20px;font-weight:600;margin-bottom:30px;}
+.form-group{margin-bottom:25px;}
+label{display:block;font-size:14px;color:var(--secondary-text-color);margin-bottom:8px;}
+input{width:100%;padding:18px 15px;border:1px solid var(--border-color);background-color:var(--input-background);color:var(--text-color);border-radius:12px;font-size:16px;outline:none;box-sizing:border-box;}
+button{width:100%;padding:20px;background-color:var(--button-color);color:var(--button-text);border:none;border-radius:15px;font-size:18px;font-weight:700;cursor:pointer;margin-top:30px;box-shadow:0 4px 10px rgba(0,0,0,0.2);}
+#message{text-align:center;margin-top:20px;font-weight:600;}
+.error{color:var(--error-color);}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<a href="finance.html" class="back-button-circle">
+<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg>
+</a>
+<h1 class="title" data-i18n="replenish_title">Поповнення</h1>
+</div>
+<h2 data-i18n="replenish_subtitle">Заповніть форму для поповнення рахунку.</h2>
+<form id="replenishmentForm">
+<div class="form-group">
+<label data-i18n="label_amount">Введіть суму:</label>
+<input type="number" id="amount" data-i18n-placeholder="placeholder_amount" min="1000" max="8000" required>
+</div>
+<div class="form-group">
+<label data-i18n="label_roblox">Ваш Username з roblox:</label>
+<input type="text" id="robloxUsername" placeholder="@username" required>
+</div>
+<div class="form-group">
+<label data-i18n="label_telegram">Ваш Username з telegram:</label>
+<input type="text" id="telegramUsername" placeholder="@username" required>
+</div>
+<button type="submit" data-i18n="btn_send_request">Надіслати запит</button>
+</form>
+<p id="message"></p>
+</div>
+<script src="translate.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+const firebaseConfig = {apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",authDomain: "ar-bank-dbfd9.firebaseapp.com",databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",projectId: "ar-bank-dbfd9"};
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const auth = getAuth(app);
+const form = document.getElementById('replenishmentForm');
+const msg = document.getElementById('message');
+let uid = null;
+onAuthStateChanged(auth,(u)=>{if(u){uid=u.uid;}else{window.location.href="login.html";}});
+form.addEventListener('submit',async(e)=>{e.preventDefault();const sum=Number(document.getElementById('amount').value);const rbx=document.getElementById('robloxUsername').value.trim();const tg=document.getElementById('telegramUsername').value.trim();if(!uid){msg.textContent=window.i18next.t('error_auth');return;}if(sum<1000||sum>8000){msg.textContent=window.i18next.t('error_amount_range');return;}if(!rbx.startsWith('@')||!tg.startsWith('@')){msg.textContent=window.i18next.t('error_username_at');return;}msg.textContent=window.i18next.t('msg_sending');try{await push(ref(database,`Replenishment/${uid}`),{sum,telegram:tg,roblox:rbx,timestamp:Date.now(),status:'pending'});window.location.href="ok4.html";}catch(err){msg.textContent=err.message;msg.classList.add('error');}});
+</script>
+</body>
+</html>

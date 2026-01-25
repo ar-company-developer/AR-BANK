@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="sell_page_title">Продати товар</title>
+<script>(function(){const theme=localStorage.getItem('theme');if(theme==='dark'||(!theme&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark-mode');}})();</script>
+<style>
+:root{--background-color:#f0f4f8;--card-background:#ffffff;--primary-color:#4a69ff;--button-color:#1a1a1a;--button-text:#ffffff;--text-color:#1e293b;--input-background:#f8f9fa;--input-border:#d3dce6;--back-button-bg:#e2e8f0;--success-color:#28a745;--error-color:#dc3545;--shadow-color:rgba(0,0,0,0.1);--footer-shadow-color:rgba(0,0,0,0.15);}
+html.dark-mode{--background-color:#0f172a;--card-background:#1e293b;--primary-color:white;--button-color:#f0f0f0;--button-text:#0066e9;--text-color:#f1f5f9;--input-background:#334155;--input-border:#475569;--back-button-bg:#334155;--success-color:#4ade80;--error-color:#f87171;--shadow-color:rgba(0,0,0,0.6);--footer-shadow-color:rgba(0,0,0,0.8);}
+body{font-family:'Inter',sans-serif;background-color:var(--background-color);margin:0;padding:0;color:var(--text-color);display:flex;flex-direction:column;align-items:center;min-height:100vh;transition:0.3s;}
+.container{width:90%;max-width:420px;padding:20px 20px 120px;}
+.header{display:flex;align-items:center;padding:10px 0 30px;}
+.back-button-circle{width:44px;height:44px;background-color:var(--back-button-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;margin-right:20px;}
+.back-button-circle svg{width:24px;height:24px;fill:var(--text-color);}
+.title{font-size:24px;font-weight:800;flex-grow:1;text-align:center;margin-left:-40px;}
+.form-card{background-color:var(--card-background);border-radius:20px;padding:25px;box-shadow:0 10px 25px var(--shadow-color);}
+.form-group{margin-bottom:20px;}
+label{display:block;font-size:14px;font-weight:700;margin-bottom:8px;color:var(--primary-color);}
+input,select,textarea{width:100%;padding:14px;border:1px solid var(--input-border);border-radius:12px;box-sizing:border-box;font-size:16px;background-color:var(--input-background);color:var(--text-color);outline:none;}
+textarea{min-height:80px;resize:none;}
+#imagePreview{width:100px;height:100px;border:2px dashed var(--input-border);border-radius:15px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;}
+#imagePreview img{width:100%;height:100%;object-fit:cover;}
+#previewText{font-size:12px;opacity:0.6;text-align:center;}
+.footer-button-area{position:fixed;bottom:0;width:100%;max-width:420px;padding:15px 20px;background-color:var(--background-color);box-shadow:0 -8px 20px var(--footer-shadow-color);box-sizing:border-box;}
+button#submitListing{width:100%;padding:18px;background-color:var(--primary-color);color:var(--button-text);border:none;border-radius:15px;font-size:18px;font-weight:700;cursor:pointer;}
+button#submitListing:disabled{opacity:0.5;cursor:not-allowed;}
+.auth-status{font-size:13px;text-align:center;margin-bottom:15px;min-height:18px;}
+.error{color:var(--error-color);}.success{color:var(--success-color);}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<a href="market.html" class="back-button-circle"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg></a>
+<h1 class="title" data-i18n="sell_page_title">Створити Оголошення</h1>
+</div>
+<div class="auth-status" id="authStatus" data-i18n="sell_auth_checking">Зачекайте...</div>
+<form id="listingForm" class="form-card">
+<div id="imagePreview"><img id="previewImage" style="display:none;"><span id="previewText" data-i18n="sell_preview_text">Виберіть предмет</span></div>
+<div class="form-group">
+<label data-i18n="sell_image_label">Фото Товару</label>
+<select id="imageSelect" required><option value="" data-i18n="sell_image_placeholder">-- Оберіть --</option>
+<option value="cookie.png">Печиво</option><option value="energy-drink.png">Енергетик</option><option value="ladder.png">Драбина</option>
+<option value="chocolate.jpg">Гарячий шоколад</option><option value="gold.png">Золото</option><option value="flashlight.jpeg">Ліхтарик</option>
+<option value="gps.jpeg">GPS</option><option value="graned.jpeg">Граната</option><option value="bomb.jpeg">Бомба</option>
+<option value="buta.jpeg">Металева біта</option><option value="apple.jpeg">Яблуко</option><option value="Cones.webp">Конус</option>
+<option value="conus2.jpeg">Маячок</option><option value="glock17.png">Пістолет</option><option value="G39.jpeg">G36</option>
+<option value="mp5.jpeg">MP5</option><option value="nij.jpeg">Шабля</option><option value="m4a1.jpeg">M4</option>
+<option value="der.jpeg">Дерев'яна біта</option><option value="images (3).jpeg">Ювелірний виріб</option><option value="images (2).jpeg">Кристал</option>
+<option value="linia.png">Пожежна стрічка</option><option value="circular-saw.png">Бензопила</option><option value="bayonet.png">Ніж</option>
+<option value="strawberryjuice.png">Полуничний сік</option><option value="remote-control.png">Remote Control</option><option value="m58b.png">Дробовик</option>
+</select></div>
+<div class="form-group"><label data-i18n="sell_name_label">Назва:</label><input type="text" id="productName" data-i18n-placeholder="sell_name_placeholder" required maxlength="8"></div>
+<div class="form-group"><label data-i18n="sell_desc_label">Опис:</label><textarea id="productDescription" data-i18n-placeholder="sell_desc_placeholder"></textarea></div>
+<div class="form-group"><label data-i18n="sell_qty_label">Кількість:</label><input type="number" id="productQuantity" min="1" value="1" required></div>
+<div class="form-group"><label data-i18n="sell_price_label">Ціна за шт:</label><input type="number" id="productPrice" min="0.01" step="0.01" required></div>
+</form>
+</div>
+<div class="footer-button-area"><button id="submitListing" onclick="handleSubmission(event)" disabled data-i18n="sell_btn_publish">Опублікувати</button></div>
+<script src="translate.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+const firebaseConfig = {apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",authDomain: "ar-bank-dbfd9.firebaseapp.com",databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",projectId: "ar-bank-dbfd9"};
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const auth = getAuth(app);
+const imageSelect = document.getElementById('imageSelect');
+const previewImage = document.getElementById('previewImage');
+const previewText = document.getElementById('previewText');
+const productNameInput = document.getElementById('productName');
+const authStatus = document.getElementById('authStatus');
+const submitButton = document.getElementById('submitListing');
+let currentUID = null;
+const imageToNameMap = {'cookie.png':'Печиво','energy-drink.png':'Енергетик','ladder.png':'Драбина','chocolate.jpg':'Гарячий шоколад','gold.png':'Золото','flashlight.jpeg':'Ліхтарик','gps.jpeg':'GPS','graned.jpeg':'Граната','bomb.jpeg':'Бомба','buta.jpeg':'Металева біта','apple.jpeg':'Яблуко','Cones.webp':'Конус','conus2.jpeg':'Маячок','glock17.png':'Пістолет','G39.jpeg':'G36','mp5.jpeg':'MP5','nij.jpeg':'Шабля','m4a1.jpeg':'M4','der.jpeg':'Дерев\'яна біта','images (3).jpeg':'Ювелірний виріб','images (2).jpeg':'Кристал','linia.png':'Пожежна стрічка','circular-saw.png':'Бензопила','bayonet.png':'Ніж','strawberryjuice.png':'Полуничний сік','remote-control.png':'Remote Control','m58b.png':'Дробовик'};
+imageSelect.addEventListener('change',()=>{const val=imageSelect.value;if(val){previewImage.src=val;previewImage.style.display='block';previewText.style.display='none';if(!productNameInput.value.trim())productNameInput.value=imageToNameMap[val]||'';}else{previewImage.style.display='none';previewText.style.display='block';productNameInput.value='';}});
+onAuthStateChanged(auth,(user)=>{if(user){currentUID=user.uid;authStatus.textContent='';submitButton.disabled=false;}else{currentUID=null;authStatus.textContent=window.i18next.t('sell_auth_error');authStatus.className='auth-status error';submitButton.disabled=true;}});
+window.handleSubmission = async function(e){e.preventDefault();if(!currentUID)return;const name=productNameInput.value.trim();const qty=parseInt(document.getElementById('productQuantity').value);const prc=parseFloat(document.getElementById('productPrice').value);if(!imageSelect.value||!name||qty<=0||prc<=0){authStatus.textContent=window.i18next.t('sell_msg_val_error');authStatus.className='auth-status error';return;}submitButton.disabled=true;authStatus.textContent=window.i18next.t('sell_msg_sending');try{await push(ref(database,'market/selling'),{image:imageSelect.value,name,description:document.getElementById('productDescription').value.trim(),quantity:qty,price:prc,sellerUID:currentUID,timestamp:Date.now()});authStatus.textContent=window.i18next.t('sell_msg_success');setTimeout(()=>window.location.href="market.html",1000);}catch(err){authStatus.textContent=err.message;submitButton.disabled=false;}};
+</script>
+</body>
+</html>

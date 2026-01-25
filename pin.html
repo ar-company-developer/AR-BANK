@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="pin_page_title">Введіть PIN - AR BANK</title>
+<script>(function(){if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');})();</script>
+<link rel="stylesheet" href="pin.css">
+<script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js"></script>
+<script type="module" src="pin.js"></script>
+</head>
+<body>
+<audio id="clickSound" preload="auto"><source src="click.mp3" type="audio/mpeg"></audio>
+<div class="pin-container">
+<h1 class="main-title" data-i18n="pin_title">PIN</h1>
+<p class="subtitle" data-i18n="pin_subtitle">введіть свій пін-код</p>
+<div class="pin-indicators" id="pinIndicators">
+<div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+</div>
+<div id="error-message" class="error-message" style="display:none;" data-i18n="pin_error">Невірний PIN-код.</div>
+<div class="keypad" id="keypad">
+<div class="key-row">
+<button class="key" onclick="playClick()" data-value="1">1</button>
+<button class="key" onclick="playClick()" data-value="2">2</button>
+<button class="key" onclick="playClick()" data-value="3">3</button>
+</div>
+<div class="key-row">
+<button class="key" onclick="playClick()" data-value="4">4</button>
+<button class="key" onclick="playClick()" data-value="5">5</button>
+<button class="key" onclick="playClick()" data-value="6">6</button>
+</div>
+<div class="key-row">
+<button class="key" onclick="playClick()" data-value="7">7</button>
+<button class="key" onclick="playClick()" data-value="8">8</button>
+<button class="key" onclick="playClick()" data-value="9">9</button>
+</div>
+<div class="key-row">
+<div class="key placeholder"></div>
+<button class="key" onclick="playClick()" data-value="0">0</button>
+<button class="key delete-key" onclick="playClick()" data-action="delete">
+<svg viewBox="0 0 16 16" fill="none" width="24" height="24"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16ZM4.29289 5.70711L6.58579 8L4.29289 10.2929L5.70711 11.7071L8 9.41421L10.2929 11.7071L11.7071 10.2929L9.41421 8L11.7071 5.70711L10.2929 4.29289L8 6.58579L5.70711 4.29289L4.29289 5.70711Z" fill="currentColor"/></svg>
+</button>
+</div>
+</div>
+<button id="logoutButton" class="logout-button" data-i18n="pin_logout">Вийти</button>
+</div>
+<script src="translate.js"></script>
+<script>function playClick(){const s=document.getElementById('clickSound').cloneNode(true);s.play();}</script>
+</body>
+</html>

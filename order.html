@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="order_page_title">Замовити картку AR BANK</title>
+    <link rel="stylesheet" href="order.css">
+    
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js"></script>
+    
+   
+    <script type="module" src="order.js"></script>
+</head>
+
+<body>
+    <div class="header">
+        <a href="welcome.html" class="back-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+        <h1 class="page-title" data-i18n="order_card_header">Замовити Картку</h1>
+    </div>
+
+    <div class="form-container">
+        <p class="form-description" data-i18n="order_description">
+            Заповніть форму, щоб стати клієнтом AR BANK. Відправте запит на отримання картки.
+        </p>
+
+        <form id="orderForm">
+            <label for="name" data-i18n="label_name">Ім'я</label>
+            <input type="text" id="name" name="name" data-i18n-placeholder="placeholder_name" placeholder="name in roblox" required>
+
+            <label for="email" data-i18n="label_email">Електронна пошта</label>
+            <input type="email" id="email" name="email" data-i18n-placeholder="placeholder_email" placeholder="example@gmail.com" required>
+            
+            <label for="username" data-i18n="label_telegram">Username</label>
+            <input type="text" id="username" name="username" data-i18n-placeholder="placeholder_telegram" placeholder="@username (з Telegram)" required pattern="^@[a-zA-Z0-9_]{3,}$" title="Починається з @, містить лише літери, цифри та _">
+
+            <label for="password" data-i18n="label_password">Пароль</label>
+            <input type="password" id="password" name="password" data-i18n-placeholder="placeholder_password" placeholder="Придумайте пароль" required minlength="8">
+            
+            <label for="pinInput" data-i18n="label_pin">Створіть PIN-код (4 цифри):</label>
+            <input type="password" id="pinInput" data-i18n-placeholder="placeholder_pin" placeholder="Введіть 4-значний PIN" maxlength="4" required>
+            
+            <div id="pin-error" style="color: red; display: none; margin-top: 5px;" data-i18n="pin_error_msg">
+                PIN повинен містити рівно 4 цифри.
+            </div>
+
+            <p id="error-message" class="error-message" style="display: none;"></p>
+
+            <button type="submit" class="submit-button" data-i18n="btn_create_account">
+                Створити обліковий запис
+            </button>
+        </form>
+    </div>
+
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+        <script src="translate.js"></script>
+</body>
+</html>

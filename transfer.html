@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Транзакція</title>
+    <script>(function(){const t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark-mode');})();</script>
+    <style>
+        :root { --background-color: #f7f9fc; --card-bg: #ffffff; --input-background: #f0f2f5; --button-color: #000000; --button-text: #ffffff; --text-color: #1a1a1a; --text-secondary: #757575; --success-color: #28a745; --error-color: #dc3545; --back-button-bg: #e0e0e0; --balance-color: #007bff; --escrow-accent: #007bff; --escrow-bg: #e6f7ff; }
+        html.dark-mode { --background-color: #121212; --card-bg: #1e1e1e; --input-background: #2c2c2c; --button-color: #ffffff; --button-text: #000000; --text-color: #f0f0f0; --text-secondary: #b0b0b0; --back-button-bg: #333; --balance-color: #4da3ff; --escrow-accent: #3793ff; --escrow-bg: #1a2633; }
+        
+        body { font-family: -apple-system, sans-serif; background-color: var(--background-color); color: var(--text-color); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { width: 90%; max-width: 420px; padding: 20px; box-sizing: border-box; padding-bottom: 120px; }
+        
+        .header { display: flex; align-items: center; padding: 15px 0 30px; }
+        .back-button-circle { width: 44px; height: 44px; background-color: var(--back-button-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; text-decoration: none; }
+        .back-button-circle svg { width: 24px; height: 24px; fill: var(--text-color); }
+        .title { font-size: 22px; font-weight: 800; text-align: center; flex-grow: 1; margin-left: -44px; }
+
+        .balance-card { background-color: var(--card-bg); border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(128,128,128,0.1); }
+        #balanceInfo { font-size: 24px; font-weight: 800; color: var(--balance-color); margin-top: 5px; }
+
+        /* Escrow View */
+        .escrow-receipt { background: var(--escrow-bg); border: 2px dashed var(--escrow-accent); border-radius: 24px; padding: 30px 20px; text-align: center; margin-bottom: 20px; display: none; }
+        .escrow-receipt h2 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--escrow-accent); font-weight: 700; }
+        .escrow-amount { font-size: 42px; font-weight: 900; margin: 20px 0; color: var(--text-color); }
+        .escrow-details { font-size: 14px; border-top: 1px solid rgba(128,128,128,0.2); padding-top: 20px; color: var(--text-secondary); }
+        .escrow-details strong { color: var(--text-color); }
+
+        /* Regular View */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary); }
+        .input-wrapper { background-color: var(--input-background); border-radius: 16px; padding: 16px 20px; }
+        input { width: 100%; border: none; background: none; font-size: 18px; font-weight: 600; color: var(--text-color); outline: none; }
+
+        #errorMessage { font-size: 14px; text-align: center; margin: 15px 0; padding: 10px; border-radius: 10px; min-height: 20px; }
+
+        .footer-button-area { position: fixed; bottom: 0; left: 0; right: 0; padding: 25px 20px; background-color: var(--background-color); box-shadow: 0 -10px 30px rgba(0,0,0,0.08); max-width: 600px; margin: 0 auto; z-index: 100; }
+        button#confirmButton { width: 100%; padding: 22px; background-color: var(--button-color); color: var(--button-text); border: none; border-radius: 20px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        button#confirmButton.escrow-mode { background-color: var(--escrow-accent); color: white; box-shadow: 0 4px 15px rgba(0,123,255,0.3); }
+        button#confirmButton:disabled { background-color: #ccc !important; color: #888 !important; cursor: not-allowed; box-shadow: none !important; opacity: 0.6; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="statusMessage" style="text-align:center;margin-top:50px; font-weight: 600;">Синхронізація з банком...</div>
+    
+    <div id="mainContent" style="display:none;">
+        <div class="header">
+            <a href="chats.html" class="back-button-circle">
+                <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg>
+            </a>
+            <h1 class="title" id="pageTitle">Оплата</h1>
+        </div>
+
+        <div class="balance-card">
+            <div style="font-size: 12px; color: var(--text-secondary); font-weight: 600;">ВАШ БАЛАНС</div>
+            <div id="balanceInfo">0.00 €</div>
+        </div>
+
+        <div id="escrowView" class="escrow-receipt">
+            <h2>Безпечний платіж</h2>
+            <div class="escrow-amount" id="escrowDisplayAmount">0.00 €</div>
+            <div class="escrow-details">
+                <p>Отримувач: <strong id="sellerName">Завантаження...</strong></p>
+                <p>Статус: <strong>Escrow захист активовано</strong> 🛡️</p>
+            </div>
+        </div>
+
+        <div id="regularView">
+            <div class="form-group">
+                <label>Номер картки отримувача</label>
+                <div class="input-wrapper">
+                    <input type="text" id="receiverCard" maxlength="19" placeholder="0000 0000 0000 0000">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Сума переказу</label>
+                <div class="input-wrapper">
+                    <input type="number" id="amount" placeholder="0.00" step="0.01">
+                </div>
+            </div>
+        </div>
+
+        <div id="errorMessage"></div>
+    </div>
+</div>
+
+<div class="footer-button-area" id="footerButtonArea" style="display:none;">
+    <button id="confirmButton" disabled>Підтвердити</button>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, get, runTransaction, onValue, update, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+        authDomain: "ar-bank-dbfd9.firebaseapp.com",
+        databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "ar-bank-dbfd9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    const urlP = new URLSearchParams(window.location.search);
+    const tKey = urlP.get('key');
+    const eAmt = parseFloat(urlP.get('amount'));
+    const isEscrow = !!tKey && !isNaN(eAmt);
+
+    const el = {
+        main: document.getElementById('mainContent'),
+        status: document.getElementById('statusMessage'),
+        escrowView: document.getElementById('escrowView'),
+        regularView: document.getElementById('regularView'),
+        cardInp: document.getElementById('receiverCard'),
+        amtInp: document.getElementById('amount'),
+        btn: document.getElementById('confirmButton'),
+        bal: document.getElementById('balanceInfo'),
+        err: document.getElementById('errorMessage'),
+        footer: document.getElementById('footerButtonArea'),
+        escrowAmt: document.getElementById('escrowDisplayAmount'),
+        seller: document.getElementById('sellerName')
+    };
+
+    let bal1 = 0, sUID = null, targetCardRaw = "", dataLoaded = false;
+
+    if (isEscrow) {
+        el.regularView.style.display = 'none';
+        el.escrowView.style.display = 'block';
+        el.escrowAmt.textContent = `${eAmt.toFixed(2)} €`;
+        el.btn.textContent = `Оплатити ${eAmt.toFixed(2)} €`;
+        el.btn.classList.add('escrow-mode');
+    }
+
+    onAuthStateChanged(auth, u => {
+        if (u) {
+            sUID = u.uid;
+            el.status.style.display = 'none';
+            el.main.style.display = 'block';
+            el.footer.style.display = 'block';
+
+            onValue(ref(db, `user/${u.uid}/card/balance`), s => {
+                bal1 = parseFloat(s.val()) || 0;
+                el.bal.textContent = `${bal1.toFixed(2)} €`;
+                checkBtn();
+            });
+
+            if (isEscrow) {
+                initEscrow();
+            }
+        }
+    });
+
+    async function initEscrow() {
+        try {
+            // Спробуємо знайти транзакцію в двох можливих місцях
+            let tSnap = await get(ref(db, `market/transactions/${tKey}`));
+            if (!tSnap.exists()) tSnap = await get(ref(db, `transactions/${tKey}`));
+
+            if (tSnap.exists()) {
+                const t = tSnap.val();
+                const sellerSnap = await get(ref(db, `user/${t.sellerUID}`));
+                if (sellerSnap.exists()) {
+                    const sData = sellerSnap.val();
+                    el.seller.textContent = sData.username || "Продавець";
+                    targetCardRaw = sData.card?.number?.replace(/\s/g, '') || "";
+                    
+                    if (!targetCardRaw) {
+                        showMsg("У продавця не налаштована картка для прийому платежів", false);
+                    }
+                    dataLoaded = true;
+                    checkBtn();
+                }
+            } else {
+                showMsg("Транзакцію не знайдено в базі", false);
+            }
+        } catch (err) {
+            console.error(err);
+            showMsg("Помилка завантаження даних угоди", false);
+        }
+    }
+
+    function checkBtn() {
+        const a = isEscrow ? eAmt : parseFloat(el.amtInp.value);
+        const cardV = isEscrow ? targetCardRaw : el.cardInp.value.replace(/\s/g, '');
+
+        console.log("--- Перевірка Кнопки ---");
+        console.log("Баланс:", bal1);
+        console.log("Сума до сплати:", a);
+        console.log("Картка отримувача:", cardV);
+
+        let isDisabled = false;
+
+        if (bal1 < a) {
+            isDisabled = true;
+            if (isEscrow) showMsg("Недостатньо коштів на балансі", false);
+        } else if (!cardV || cardV.length < 16) {
+            isDisabled = true;
+        } else if (isEscrow && !dataLoaded) {
+            isDisabled = true;
+        } else {
+            el.err.textContent = ""; // Очищуємо помилку, якщо все ок
+        }
+
+        el.btn.disabled = isDisabled;
+    }
+
+    async function handleTransfer() {
+        el.btn.disabled = true;
+        showMsg("Виконується безпечний переказ...", true);
+
+        try {
+            const amount = isEscrow ? eAmt : parseFloat(el.amtInp.value);
+            const rawCard = isEscrow ? targetCardRaw : el.cardInp.value.replace(/\s/g, '');
+
+            // 1. Пошук отримувача через індекс
+            const indexSnap = await get(ref(db, `cards_index/${rawCard}`));
+            if (!indexSnap.exists()) throw new Error("Картку отримувача не знайдено в системі");
+            const index = indexSnap.val();
+
+            // 2. Списання
+            const sRes = await runTransaction(ref(db, `user/${sUID}/card/balance`), b => {
+                const currentB = parseFloat(b) || 0;
+                if (currentB >= amount) return parseFloat((currentB - amount).toFixed(2));
+                return; // Відміна
+            });
+
+            if (!sRes.committed) throw new Error("Недостатньо коштів або помилка зв'язку");
+
+            // 3. Зарахування
+            await runTransaction(ref(db, `user/${index.uid}/${index.card_type || 'card'}/balance`), b => {
+                return parseFloat(((parseFloat(b) || 0) + amount).toFixed(2));
+            });
+
+            // 4. Історія
+            const hist = { amount: amount, timestamp: Date.now(), currency: "€" };
+            const descTo = isEscrow ? "Оплата через Escrow" : "Вихідний переказ";
+            const descFrom = isEscrow ? "Продаж через Escrow" : "Вхідний переказ";
+
+            await push(ref(db, `user/${sUID}/card/history`), { ...hist, amount: -amount, description: descTo });
+            await push(ref(db, `user/${index.uid}/${index.card_type || 'card'}/history`), { ...hist, amount: amount, description: descFrom });
+
+            // 5. Оновлення угоди
+            if (isEscrow) {
+                const updateObj = { paymentStatus: 'confirmed', paidAt: Date.now() };
+                await update(ref(db, `market/transactions/${tKey}`), updateObj);
+                await update(ref(db, `transactions/${tKey}`), updateObj).catch(()=>{}); 
+            }
+
+            showMsg("Оплата пройшла успішно!", true);
+            setTimeout(() => { location.href = isEscrow ? 'chats.html' : 'card.html'; }, 2000);
+
+        } catch (e) {
+            showMsg(e.message, false);
+            el.btn.disabled = false;
+        }
+    }
+
+    function showMsg(m, isSuccess) {
+        el.err.textContent = m;
+        el.err.style.color = isSuccess ? 'var(--success-color)' : 'var(--error-color)';
+        el.err.style.background = isSuccess ? 'rgba(40,167,69,0.1)' : 'rgba(220,53,69,0.1)';
+    }
+
+    el.btn.onclick = handleTransfer;
+    el.cardInp.oninput = () => {
+        let v = el.cardInp.value.replace(/\s/g, '').substring(0, 16);
+        el.cardInp.value = v.match(/.{1,4}/g)?.join(' ') || v;
+        checkBtn();
+    };
+    el.amtInp.oninput = checkBtn;
+
+</script>
+</body>
+</html>

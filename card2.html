@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Оформлення картки | AR-BANK</title>
+    <style>
+        :root {
+            --primary: #4f46e5; --bg: #0f172a; --card-bg: rgba(255, 255, 255, 0.05);
+            --text: #f8fafc; --input-bg: rgba(255, 255, 255, 0.1); --accent: #818cf8; --danger: #ef4444; --success: #10b981;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+            color: var(--text); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px;
+        }
+        .back-nav { width: 100%; max-width: 450px; margin-bottom: 20px; }
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px; background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text); padding: 10px 16px;
+            border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.3s;
+        }
+        .form-container {
+            background: var(--card-bg); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px; border-radius: 28px; width: 100%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); box-sizing: border-box;
+        }
+        h2 { margin: 0 0 30px 0; font-size: 26px; font-weight: 800; text-align: center; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        input, .custom-select-trigger { width: 100%; padding: 14px 18px; background: var(--input-bg); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; color: white; font-size: 15px; outline: none; transition: 0.3s; box-sizing: border-box; }
+        .custom-select-trigger { display: flex; justify-content: space-between; align-items: center; color: #94a3b8; cursor: pointer; }
+        .btn-submit { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        
+        .btn-secondary {
+            width: 100%; background: none; border: 1px dashed rgba(255,255,255,0.2); color: #94a3b8;
+            padding: 14px; border-radius: 14px; margin-top: 15px; cursor: pointer; transition: 0.3s; font-size: 14px;
+        }
+
+        /* --- СТИЛІ МОДАЛОК --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #1e293b; width: 90%; max-width: 400px; padding: 25px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .type-option { background: rgba(255, 255, 255, 0.05); padding: 15px; margin-bottom: 12px; border-radius: 16px; cursor: pointer; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; }
+        .type-option:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.1); }
+        
+        /* Системна модалка */
+        #sysModal .modal-content { text-align: center; max-width: 320px; }
+        .sys-icon { width: 50px; height: 50px; margin: 0 auto 15px; }
+        .sys-title { font-weight: 800; font-size: 18px; margin-bottom: 8px; }
+        .sys-text { color: #94a3b8; font-size: 14px; margin-bottom: 20px; line-height: 1.4; }
+
+        .btn-join-action { background: var(--accent); width: 100%; padding: 14px; border-radius: 12px; border: none; color: white; font-weight: 700; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="back-nav"><a href="card.html" class="btn-back">← Назад до банку</a></div>
+
+<div class="form-container">
+    <h2>Замовлення картки</h2>
+    <form id="cardRequestForm">
+        <div class="form-group"><label>Usernames</label><div class="input-row"><input type="text" id="roblox" placeholder="Roblox" required><input type="text" id="telegram" placeholder="Telegram" required></div></div>
+        <div class="form-group"><label>Тип картки</label><div class="custom-select-trigger" id="openModal"><span id="selectedTypeText">Оберіть тип картки...</span><span>▼</span></div><input type="hidden" id="cardType" required></div>
+        <button type="submit" class="btn-submit" id="submitBtn">Замовити картку</button>
+    </form>
+    
+    <button class="btn-secondary" id="openJoinModal">Приєднатись за кодом</button>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+        <div class="type-option" data-value="Сімейна" data-label="👨‍👩‍👧‍👦 Сімейна">
+            <div class="type-icon">👨‍👩‍👧‍👦</div><div class="type-info"><b>Сімейна</b><br><span>Спільний бюджет для друзів та родини</span></div>
+        </div>
+        <div class="type-option" data-value="Робоча" data-label="💼 Робоча">
+            <div class="type-icon">💼</div><div class="type-info"><b>Робоча</b><br><span>Для професійних виплат та обліку</span></div>
+        </div>
+        <div class="type-option" data-value="Зберігальна" data-label="💰 Зберігальна">
+            <div class="type-icon">💰</div><div class="type-info"><b>Зберігальна</b><br><span>Безпечне місце для заощаджень</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="joinModalOverlay">
+    <div class="modal-content">
+        <div style="text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 700;">Вхід до родини</div>
+        <input type="text" id="inputJoinCode" placeholder="Напр: X7J-9R2" style="text-align: center; font-family: monospace; letter-spacing: 2px; text-transform: uppercase;">
+        <button class="btn-join-action" id="btnConfirmJoin">Підтвердити</button>
+        <button class="btn-secondary" id="closeJoinModal" style="border:none;">Скасувати</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="sysModal">
+    <div class="modal-content">
+        <div id="sysIcon" class="sys-icon"></div>
+        <div id="sysTitle" class="sys-title">Повідомлення</div>
+        <div id="sysText" class="sys-text">Опис події</div>
+        <button class="btn-join-action" onclick="closeSysModal()">Зрозуміло</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+        authDomain: "ar-bank-dbfd9.firebaseapp.com",
+        databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "ar-bank-dbfd9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    
+    let currentUserId = null;
+    onAuthStateChanged(auth, (user) => { if(user) currentUserId = user.uid; });
+
+    // SVG Іконки
+    const sysIcons = {
+        success: `<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+        error: `<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+        info: `<svg viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="3"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+    };
+
+    // Функції системної модалки
+    window.showSysNotify = (title, text, type = 'info', redirect = null) => {
+        document.getElementById('sysTitle').innerText = title;
+        document.getElementById('sysText').innerText = text;
+        document.getElementById('sysIcon').innerHTML = sysIcons[type];
+        document.getElementById('sysModal').style.display = 'flex';
+        window.sysRedirect = redirect;
+    };
+
+    window.closeSysModal = () => {
+        document.getElementById('sysModal').style.display = 'none';
+        if(window.sysRedirect) window.location.href = window.sysRedirect;
+    };
+
+    function generateFamilyCode() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        const gen = (len) => Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        return `${gen(3)}-${gen(3)}`;
+    }
+
+    async function getUniqueCardNumber() {
+        let num = '44'; 
+        for (let i = 0; i < 14; i++) num += Math.floor(Math.random() * 10);
+        return num;
+    }
+
+    const typeModal = document.getElementById('modalOverlay');
+    const joinModal = document.getElementById('joinModalOverlay');
+    const typeInput = document.getElementById('cardType');
+    const selectedText = document.getElementById('selectedTypeText');
+
+    document.getElementById('openModal').onclick = () => typeModal.style.display = 'flex';
+    document.getElementById('openJoinModal').onclick = () => joinModal.style.display = 'flex';
+    document.getElementById('closeJoinModal').onclick = () => joinModal.style.display = 'none';
+
+    document.querySelectorAll('.type-option').forEach(opt => {
+        opt.onclick = () => {
+            typeInput.value = opt.dataset.value;
+            selectedText.textContent = opt.dataset.label;
+            typeModal.style.display = 'none';
+        };
+    });
+
+    document.getElementById('cardRequestForm').onsubmit = async (e) => {
+        e.preventDefault();
+        if (!currentUserId || !typeInput.value) return showSysNotify("Помилка", "Оберіть тип картки!", "error");
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+
+        try {
+            const rawNumber = await getUniqueCardNumber();
+            const formattedNumber = rawNumber.replace(/(\d{4})(\d{4})(\d{4})(\d{4})/, '$1 $2 $3 $4');
+
+            const cardData = {
+                number: formattedNumber, balance: 0,
+                type: typeInput.value,
+                roblox: document.getElementById('roblox').value,
+                telegram: document.getElementById('telegram').value,
+                style_id: "default", timestamp: Date.now()
+            };
+
+            if (typeInput.value === 'Сімейна') cardData.family_code = generateFamilyCode();
+
+            await set(ref(db, `user/${currentUserId}/card2`), cardData);
+            await set(ref(db, `cards_index/${rawNumber}`), { uid: currentUserId, card_type: "card2" });
+
+            showSysNotify("Успіх", "Картка активована", "success", "card.html");
+        } catch (err) { 
+            showSysNotify("Помилка", err.message, "error"); 
+            btn.disabled = false; 
+        }
+    };
+
+    document.getElementById('btnConfirmJoin').onclick = async () => {
+        const codeInput = document.getElementById('inputJoinCode').value.trim().toUpperCase();
+        if (!codeInput) return;
+
+        const btn = document.getElementById('btnConfirmJoin');
+        btn.disabled = true;
+
+        try {
+            const usersSnap = await get(ref(db, 'user'));
+            let foundCard = null;
+
+            usersSnap.forEach(u => {
+                const c = u.val().card2;
+                if (c && c.family_code === codeInput) foundCard = c;
+            });
+
+            if (foundCard) {
+                const myCheck = await get(ref(db, `user/${currentUserId}/card2`));
+                if (myCheck.exists()) {
+                    showSysNotify("Увага", "У вас вже є активована картка", "info");
+                } else {
+                    await set(ref(db, `user/${currentUserId}/card2`), foundCard);
+                    showSysNotify("Успіх", "Приєднано до родини", "success", "card.html");
+                }
+            } else {
+                showSysNotify("Невдача", "Код не знайдено", "error");
+            }
+        } catch (e) { showSysNotify("Помилка", e.message, "error"); }
+        btn.disabled = false;
+    };
+
+    window.onclick = (e) => { 
+        if(e.target == typeModal) typeModal.style.display = 'none';
+        if(e.target == joinModal) joinModal.style.display = 'none';
+    };
+</script>
+</body></html>

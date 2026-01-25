@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Crypto</title>
+    <script>
+        (function(){
+            const e = localStorage.getItem("theme");
+            if(e === "dark") document.documentElement.classList.add("dark-mode");
+            else document.documentElement.classList.remove("dark-mode");
+        })()
+    </script>
+    <style>
+        :root {
+            /* Світла тема (за замовчуванням) */
+            --bg-color: #f7f9fc;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --text-secondary: #777;
+            --accent-dark: #1e2329; /* Картка балансу завжди темна */
+            --up-color: #28a745;
+            --down-color: #dc3545;
+            --back-btn-bg: #f0f0f0;
+            --crypto-card-shadow: rgba(0, 0, 0, 0.05);
+        }
+
+        html.dark-mode {
+            /* Темна тема */
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #f0f0f0;
+            --text-secondary: #aaa;
+            --back-btn-bg: #282828;
+            --crypto-card-shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 80px 20px 20px 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            color: var(--text-main);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Стильна кнопка Назад (як у прикладі) */
+        .back-button-circle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--back-btn-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            z-index: 1000;
+        }
+        .back-button-circle svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-main);
+            transition: fill 0.3s;
+        }
+
+        .balance-card {
+            width: 100%; max-width: 500px; 
+            background: #1e2329; /* Завжди темна для контрасту */
+            color: white;
+            border-radius: 24px; padding: 25px; margin-bottom: 20px; box-sizing: border-box;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .balance-amount { font-size: 32px; font-weight: 700; color: #fcd535; margin: 8px 0; }
+        .user-assets { 
+            font-size: 14px; border-top: 1px solid rgba(255,255,255,0.1); 
+            padding-top: 12px; display: flex; gap: 15px; flex-wrap: wrap; 
+        }
+
+        .crypto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 500px; }
+        
+        .crypto-card {
+            background-color: var(--card-bg); 
+            border-radius: 20px; padding: 15px;
+            text-decoration: none; color: var(--text-main); 
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: space-between; aspect-ratio: 1/1;
+            box-shadow: 0 4px 15px var(--crypto-card-shadow); 
+            transition: 0.3s;
+        }
+        .crypto-card:active { transform: scale(0.95); }
+        
+        .logo-svg { width: 45px; height: 45px; }
+        .trend { display: flex; align-items: center; gap: 4px; font-weight: 700; font-size: 14px; }
+        .up { color: var(--up-color); }
+        .down { color: var(--down-color); }
+        
+        small { color: var(--text-secondary); transition: color 0.3s; }
+        .balance-card small { color: #848e9c; } /* Для картки балансу фіксований колір */
+    </style>
+</head>
+<body>
+
+<a href="card.html" class="back-button-circle">
+    <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg>
+</a>
+
+<div class="balance-card">
+    <small>Мій баланс</small>
+    <div class="balance-amount" id="user-balance">Завантаження...</div>
+    <div class="user-assets" id="assets-list">Завантаження активів...</div>
+</div>
+
+<div class="crypto-grid">
+    <a href="trade.html?coin=Tether" class="crypto-card">
+        <svg class="logo-svg" viewBox="0 0 108 108"><path d="M25.5 15.2L9.1 49.7c-.1.1-.1.3 0 .4.1.1.1.3.2.4l44.2 42.5c.1.1.3.2.5.2s.3-.1.5-.2l44.3-42.5c.1-.1.2-.2.2-.4s0-.3-.1-.4L82.5 15.2c0-.1-.1-.2-.2-.3-.1-.1-.2-.1-.3-.1H26.1c-.1 0-.2 0-.3.1-.1.1-.2.2-.3.3z" fill="#50AF95"/><path d="M59.7 53.3c-.3 0-2 0-5.6 0-3 0-5 0-5.8 0-11.3-.5-19.7-2.5-19.7-4.8 0-2.3 8.4-4.3 19.7-4.8V51.3c.7 0 2.8.1 5.7.1 3.5 0 5.3-.1 5.6-.1V43.7c11.2.5 19.6 2.5 19.6 4.8s-8.4 4.3-19.6 4.8zM59.7 42.9V36h15.7v-10.5H32.7V36h15.7v6.9c-12.8.6-22.4 3.1-22.4 6.1s9.6 5.5 22.4 6.1v22h11.3v-22c12.7-.6 22.3-3.1 22.3-6.1s-9.6-5.5-22.3-6.1z" fill="white"/></svg> 
+        <span style="font-weight:600">USDT</span>
+        <span id="usdt-price">...</span>
+        <div id="usdt-trend" class="trend"></div>
+    </a>
+    
+    <a href="trade.html?coin=ARcoin" class="crypto-card">
+        <svg width="50px" height="50px" viewBox="0 0 512 512"><polyline points="201.14 64 256 32 310.86 64" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="256" y1="32" x2="256" y2="112" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="310.86 448 256 480 201.14 448" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="256" y1="480" x2="256" y2="400" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="64 207.51 64 144 117.15 112.49" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="64" y1="144" x2="131.29" y2="184" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="448 304.49 448 368 394.85 399.51" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="448" y1="368" x2="380.71" y2="328" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="117.15 400 64 368 64 304.49" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="64" y1="368" x2="130.64" y2="328" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="394.85 112.49 448 144 448 207.51" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="448" y1="144" x2="380.71" y2="184" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="256 320 256 256 310.86 224" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><line x1="256" y1="256" x2="201.14" y2="224" fill="none" stroke="var(--text-main)" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/></svg>
+        <span style="font-weight:600">ARcoin</span>
+        <span id="ar-price">...</span>
+        <div id="ar-trend" class="trend"></div>
+    </a>
+
+    <a href="trade.html?coin=Bitcoin" class="crypto-card">
+        <svg class="logo-svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path d="M22.292 14.56c.328-2.193-1.34-3.371-3.62-4.157l.74-2.965-1.803-.45-.72 2.887c-.474-.118-.96-.229-1.444-.339l.724-2.903-1.802-.45-.74 2.965c-.392-.09-.774-.178-1.144-.27l.002-.01-2.486-.62-.48 1.93s1.337.306 1.31.325c.73.182.862.665.84 1.047l-.842 3.376c.05.013.116.031.188.058l-.19-.047-1.18 4.728c-.09.222-.315.556-.824.43.018.026-1.31-.327-1.31-.327l-.895 2.064 2.346.586c.437.11.864.223 1.285.33l-.748 3.001 1.802.45.74-2.966c.492.133.971.258 1.439.377l-.736 2.95 1.802.45.748-3.003c3.076.582 5.392.348 6.366-2.435.786-2.242-.04-3.535-1.658-4.381 1.178-.272 2.065-1.047 2.304-2.642zm-4.12 5.772c-.558 2.241-4.332 1.03-5.556.724l.991-3.974c1.224.306 5.143.91 4.565 3.25zm.557-5.803c-.508 2.041-3.653 1.004-4.673.75l.9-3.606c1.02.254 4.302.73 3.773 2.856z" fill="white"/></svg>
+        <span style="font-weight:600">Bitcoin</span>
+        <span id="btc-price">...</span>
+        <div id="btc-trend" class="trend"></div>
+    </a>
+
+    <a href="trade.html?coin=Toncoin" class="crypto-card">
+        <svg xmlns="http://www.w3.org/2000/svg" width="50px" height="50px" viewBox="0 0 24 24"><path fill="#08C" d="m20.661 7.22l-7.846 12.494a1.058 1.058 0 0 1-1.794-.006L3.328 7.214A2.2 2.2 0 0 1 3 6.05a2.29 2.29 0 0 1 2.324-2.255h13.362C19.963 3.794 21 4.8 21 6.044c0 .413-.116.82-.339 1.175M5.218 6.8l5.723 8.826V5.912H5.816c-.592 0-.857.392-.598.89m7.84 8.826L18.783 6.8c.265-.497-.006-.89-.599-.89H13.06z"/></svg>
+        <span style="font-weight:600">Toncoin</span>
+        <span id="ton-price">...</span>
+        <div id="ton-trend" class="trend"></div>
+    </a>
+    
+    <a href="trade.html?coin=Ethereum" class="crypto-card">
+        <svg width="50" height="50" viewBox="0 0 109 108" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M55.0637 9V42.1287C55.0637 42.2693 54.9231 42.41 54.7825 42.41C53.7981 42.8399 52.9543 43.2658 51.9698 43.6917C50.7042 44.2583 49.2978 44.8288 48.0322 45.54L43.3913 47.6696L39.5943 49.3773L34.9535 51.5108C33.6878 52.0814 32.4221 52.6479 31.0158 53.3591C30.0314 53.785 28.9063 54.3556 27.9219 54.7815C27.7813 54.7815 27.7813 54.9221 27.6406 54.7815H27.5C27.9219 54.0703 28.3438 53.4998 28.7657 52.7926C31.0158 48.9513 33.4065 45.1141 35.6566 41.2729C38.0473 37.1544 40.5787 33.0279 42.9694 28.9054C45.2195 25.0681 47.4696 21.2309 49.7197 17.5343C51.4073 14.6855 53.0949 11.9894 54.6418 9.14063C54.9231 9.14063 54.9231 9 55.0637 9C54.9231 9 55.0637 9 55.0637 9V9Z" fill="#8C8C8C"/><path d="M82.3461 54.7817C80.2366 56.2041 77.9865 57.4818 75.877 58.7596C68.9861 62.8861 62.2358 66.868 55.3449 70.9905C55.2042 70.9905 55.2042 71.1311 55.0636 71.1311C54.923 71.1311 54.923 70.9905 54.923 70.9905V42.4102C54.923 42.2695 55.0636 42.2695 55.2042 42.2695C55.7668 42.5508 56.3293 42.8401 57.0324 43.1214C58.72 43.9772 60.5482 44.6884 62.2358 45.5402C63.7827 46.2514 65.1891 46.9626 66.736 47.5291C68.9861 62.8861 62.2358 66.868 55.3449 70.9905C55.2042 70.9905 55.2042 71.1311 55.0636 71.1311C54.923 71.1311 54.923 70.9905 54.923 70.9905V42.4102C54.923 42.2695 55.0636 42.2695 55.2042 42.2695C55.7668 42.5508 56.3293 42.8401 57.0324 43.1214C58.72 43.9772 60.5482 44.6884 62.2358 45.5402C63.7827 46.2514 65.1891 46.9626 66.736 47.5291C68.2829 48.2403 69.6893 48.9515 71.2362 49.6627C72.5019 50.2333 73.9082 50.7998 75.1739 51.511C76.4396 52.0816 77.8459 52.6481 79.1116 53.3593C80.096 53.7852 81.0804 54.3558 82.2054 54.7817C82.2054 54.6411 82.2054 54.7817 82.3461 54.7817V54.7817Z" fill="#141414"/><path d="M55.0639 98.9995C55.0639 98.9995 54.9232 98.9995 55.0639 98.9995C54.9232 98.9995 54.9232 98.9995 54.7826 98.8549C51.97 94.877 49.298 91.0358 46.4853 87.0539L38.0475 75.1123C35.3755 71.2751 32.5628 67.4379 29.8908 63.452L27.7814 60.4666C27.7814 60.3259 27.6407 60.3259 27.6407 60.1853C27.7814 60.1853 27.7814 60.3259 27.922 60.3259C31.7191 62.6001 35.6567 64.8744 39.4538 67.1486C43.8133 69.8527 48.3135 72.4122 52.6731 75.1123C53.3763 75.5382 54.2201 75.9641 54.9232 76.39C55.0639 76.39 55.0639 76.5347 55.0639 76.6753V98.9995Z" fill="#8C8C8C"/><path d="M27.5 53.2934C27.5 53.1528 27.5 53.1528 27.5 53.2934C28.9063 52.5822 30.3126 52.0157 31.7189 51.3045L37.2036 48.745C38.6099 48.0338 40.0162 47.4673 41.4225 46.7561C43.3913 45.7596 45.5008 44.9078 47.4696 43.9113C48.876 43.3408 50.2823 42.6296 51.6886 42.063C52.673 41.6371 53.6574 41.2112 54.6418 40.6406C54.7825 40.6406 54.7825 40.5 54.9231 40.5V69.5022C54.7825 69.6468 54.7825 69.5022 54.6418 69.5022C54.2199 69.2209 53.7981 69.0763 53.5168 68.791L27.7813 53.4381C27.6406 53.2934 27.5 53.2934 27.5 53.2934ZM81.9243 58.5571C81.9243 58.6977 81.9243 58.6977 81.7837 58.8383C73.6271 70.4987 65.4705 82.0144 57.3138 93.6747C56.47 94.9524 55.6263 96.0895 54.7825 97.3713V74.7618C56.6107 73.6247 58.4389 72.4876 60.2671 71.4951L81.7837 58.6977C81.7837 58.5571 81.9243 58.5571 81.9243 58.5571V58.5571Z" fill="#3C3C3B"/><path d="M55.0637 42.2686V9.14795L82.0649 54.3589C82.2056 54.4995 82.3462 54.6402 82.3462 54.7848C81.7837 54.5036 81.2211 54.2143 80.518 53.933C79.8148 53.6477 79.1117 53.2218 78.4085 52.9365C77.9866 52.7959 77.5647 52.5106 77.0022 52.366C76.299 52.0847 75.4553 51.6548 74.7521 51.3735C74.3302 51.2289 73.9083 50.9476 73.4864 50.8029L70.5332 49.5252C69.9706 49.2399 69.5487 49.0993 68.9862 48.814C68.2831 48.5287 67.5799 48.1028 66.8768 47.8175C66.4549 47.6769 66.033 47.3916 65.6111 47.251L62.6578 45.9692C62.0953 45.688 61.6734 45.5433 61.1109 45.258C60.4077 44.9768 59.7046 44.5469 59.0014 44.2616C58.5795 43.9803 58.017 43.8357 57.5951 43.5544L55.0637 42.2726V42.2686Z" fill="#343434"/></svg> 
+        <span style="font-weight:600">Ethereum</span>
+        <span id="eth-price">...</span>
+        <div id="eth-trend" class="trend"></div>
+    </a>
+</div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    const f = {
+        apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+        authDomain: "ar-bank-dbfd9.firebaseapp.com",
+        databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "ar-bank-dbfd9"
+    };
+    const app = initializeApp(f);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    let coinMultipliers = {};
+    const coinSeeds = {
+        'Bitcoin': 123.45, 'Ethereum': 678.90, 'Toncoin': 432.10,
+        'ARcoin': 999.99, 'Solana': 555.55, 'XRP': 111.11
+    };
+    const bases = { 
+        'Bitcoin': 92000, 'Ethereum': 3700, 'Toncoin': 5.20, 
+        'ARcoin': 12.50, 'Solana': 105.00, 'XRP': 0.62 
+    };
+    onValue(ref(db, `crypto/settings/multipliers`), (snapshot) => {
+        coinMultipliers = snapshot.val() || {};
+        refreshMarketUI();
+    });
+    function getLiveMarketData(coinName) {
+        const isStable = coinName.toLowerCase() === 'tether' || coinName.toLowerCase() === 'usdt';
+        if (isStable) return { price: 1.00, percent: "0.00", arrow: "green" };
+        const multiplier = coinMultipliers[coinName] || 1;
+        const base = (bases[coinName] || 100) * multiplier;
+        const seed = coinSeeds[coinName] || 1.0;
+        const now = Math.floor(Date.now() / 10000) * 10000;
+        const t = Math.floor(now / 10000); 
+        const calc = (step) => {
+            const s = step + (seed * 500); 
+            const wave1 = Math.sin(s * 0.02) * (base * 0.04);
+            const wave2 = Math.sin(s * 0.15) * (base * 0.01);
+            const noise = Math.sin(Math.tan(Math.sin(s * 0.5))) * (base * 0.005);
+            const trend = Math.cos(s * 0.011 + Math.sin(s * 0.002)) * (base * 0.06);
+            return base + wave1 + wave2 + noise + trend;
+        };
+        const current = calc(t);
+        const previous = calc(t - 1);
+        const isUp = current >= previous;
+        const percent = Math.abs(((current - previous) / previous) * 100).toFixed(2);
+        return {
+            price: current.toFixed(2),
+            percent: percent,
+            arrow: isUp ? "green" : "red"
+        };
+    }
+    function refreshMarketUI() {
+        const coinsMap = {
+            'Bitcoin': 'btc',
+            'Ethereum': 'eth',
+            'Toncoin': 'ton',
+            'ARcoin': 'ar',
+            'Tether': 'usdt'
+        };
+        for (const [fullName, id] of Object.entries(coinsMap)) {
+            const data = getLiveMarketData(fullName);
+            const priceEl = document.getElementById(`${id}-price`);
+            const trendEl = document.getElementById(`${id}-trend`);
+
+            if (priceEl) {
+                priceEl.textContent = `$${Number(data.price).toLocaleString()}`;
+            }
+            if (trendEl) {
+                const isUp = data.arrow === 'green';
+                trendEl.className = `trend ${isUp ? 'up' : 'down'}`;
+                trendEl.textContent = `${isUp ? '▲' : '▼'} ${data.percent}%`;
+            }
+        }
+    }
+
+    // 4. ЛОГІКА АВТОРИЗАЦІЇ
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            loadUserData(user.uid);
+            // Оновлюємо кожні 5 секунд
+            setInterval(refreshMarketUI, 5000);
+            refreshMarketUI();
+        } else {
+            window.location.href = "login.html";
+        }
+    });
+
+    function loadUserData(uid) {
+        onValue(ref(db, `crypto/user/${uid}`), (snapshot) => {
+            const data = snapshot.val() || {};
+            const balance = Number(data.balance || 0);
+            const balanceEl = document.getElementById('user-balance');
+            if (balanceEl) balanceEl.textContent = `${balance.toFixed(2)} USDT`;
+            
+            const userCoins = data['user-coin'] || {};
+            let assetsHtml = "";
+            
+            for (const [name, amount] of Object.entries(userCoins)) {
+                if (amount > 0) {
+                    const market = getLiveMarketData(name);
+                    const totalValue = (amount * Number(market.price)).toFixed(2);
+                    
+                    assetsHtml += `
+                        <div style="margin-right:15px; margin-bottom:5px; display:inline-block;">
+                            <small style="display:block; font-size:10px; color:#848e9c">${name.toUpperCase()}</small>
+                            <b>${amount}</b> <span style="font-size:10px; color:#fcd535">($${totalValue})</span>
+                        </div>`;
+                }
+            }
+            const listEl = document.getElementById('assets-list');
+            if (listEl) listEl.innerHTML = assetsHtml || "Активів немає";
+        });
+    }
+</script>
+</body>
+</html>

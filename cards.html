@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title id="page_title" data-i18n="market_title">CARDS MARKET</title>
+<script>(function(){const e=localStorage.getItem("theme");if(e==="dark")document.documentElement.classList.add("dark-mode");else document.documentElement.classList.remove("dark-mode")})()</script>
+<style>
+    :root{--background-color:#f7f9fc;--text-color:#333;--secondary-bg:#e0e0e0;--balance-color:#2e86de;--error-color:#dc3545;--card-bg:#fff;--shadow-color:rgba(0,0,0,.1);--button-color-primary:#4f46e5;--button-color-text:#fff;--button-color-secondary:#000;--disabled-button-color:#b0b0b0;--placeholder-color:#666}
+    html.dark-mode{--background-color:#121212;--text-color:#f0f0f0;--secondary-bg:#282828;--balance-color:#7986cb;--error-color:#f87171;--card-bg:#1e1e1e;--shadow-color:rgba(0,0,0,.5);--button-color-primary:#4f46e5;--button-color-text:#fff;--button-color-secondary:#fff;--disabled-button-color:#3a3a3a;--placeholder-color:#aaa}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background-color:var(--background-color);margin:0;padding:0;color:var(--text-color);display:flex;flex-direction:column;align-items:center;min-height:100vh;transition:background-color .3s,color .3s}
+    .container{width:90%;max-width:390px;padding:20px}
+    .header{display:flex;align-items:center;justify-content:flex-start;padding:10px 0 30px}
+    .back-button-circle{width:40px;height:40px;background-color:var(--secondary-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:20px;transition:background-color .3s}
+    .back-button-circle svg{width:20px;height:20px;fill:var(--text-color);transition:fill .3s}
+    .title{font-size:24px;font-weight:700;text-align:center;flex-grow:1;margin-left:-60px;color:var(--text-color);transition:color .3s}
+    #balance-info{font-size:16px;font-weight:600;color:var(--balance-color);text-align:center;margin-bottom:25px;padding:10px;border-radius:10px;background-color:var(--secondary-bg);transition:all .3s}
+    #error-message{font-size:14px;color:var(--error-color);text-align:center;margin-bottom:15px}
+    .style-list{display:flex;flex-direction:column;gap:20px}
+    .style-item{background-color:var(--card-bg);border-radius:20px;box-shadow:0 4px 12px var(--shadow-color);overflow:hidden;transition:transform 0.2s,box-shadow 0.2s}
+    .style-item:hover{transform:translateY(-2px);box-shadow:0 6px 15px var(--shadow-color)}
+    .card-preview{position:relative;overflow:hidden;border-bottom:2px solid var(--secondary-bg)}
+    .card-preview img{width:100%;height:auto;display:block;border-radius:20px 20px 0 0}
+    .price-overlay{position:absolute;bottom:0;left:0;right:0;background-color:rgba(128,128,128,0.8);padding:15px 0;text-align:center;font-size:22px;font-weight:700;color:#37d740}
+    .style-details{padding:15px;display:flex;justify-content:space-between;align-items:center}
+    .style-info h3{margin:0 0 5px 0;font-size:18px;font-weight:700;color:var(--text-color)}
+    .style-info p{margin:0;font-size:14px;color:var(--placeholder-color)}
+    .buy-button{padding:12px 25px;background-color:var(--button-color-primary);color:var(--button-color-text);border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:background-color .3s}
+    .buy-button.applied{background-color:var(--secondary-bg);color:var(--text-color);cursor:default}
+    .buy-button:disabled{background-color:var(--disabled-button-color);cursor:not-allowed;color:var(--text-color)}
+</style>
+</head>
+<body>
+<div class="container">
+    <div id="statusMessage" style="text-align:center;margin-top:50px" data-i18n="market_auth_check">Перевірка автентифікації...</div>
+    <div id="marketContent" style="display:none;">
+        <div class="header">
+            <a href="card.html" class="back-button-circle">
+                <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg>
+            </a>
+            <h1 class="title" data-i18n="market_title">CARDS MARKET</h1>
+        </div>
+        <div id="balance-info" data-i18n="market_loading">Ваш баланс: Завантаження...</div>
+        <div id="error-message" style="display:none;"></div>
+        <div class="style-list" id="styleList"></div>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import { getDatabase, ref, onValue, runTransaction, push, update, get } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+    authDomain: "ar-bank-dbfd9.firebaseapp.com",
+    databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "ar-bank-dbfd9",
+    storageBucket: "ar-bank-dbfd9.firebasestorage.app",
+    messagingSenderId: "635449421773",
+    appId: "1:635449421773:web:bc7261cc5a4238c3649e84",
+    measurementId: "G-R2B0H618QQ"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+const marketContent = document.getElementById("marketContent");
+const statusMessage = document.getElementById("statusMessage");
+const balanceInfo = document.getElementById("balance-info");
+const errorMessage = document.getElementById("error-message");
+const styleList = document.getElementById("styleList");
+
+let currentBalance = 0;
+let senderUID = null;
+let userCardData = null;
+
+// Повідомлення (будуть перезаписані через translate.js)
+window.MESSAGES = {
+    STATUS_APPLIED: "Застосовано",
+    BUTTON_APPLY: "Застосувати",
+    BUTTON_BUY: "Купити",
+    BUTTON_FREE: "Безкоштовно",
+    BUTTON_INSUFFICIENT: "Недостатньо коштів",
+    ERROR_BALANCE_SHORT: "Недостатньо коштів на рахунку.",
+    PROCESSING_BUY: "Обробка покупки...",
+    PROCESSING_APPLY: "Застосування стилю...",
+    ERROR_TRANSACTION_FAILED: "Помилка транзакції.",
+    ERROR_GENERAL: "Невідома помилка.",
+    TRANSACTION_BUY_DESC: "Купівля стилю:",
+    TRANSACTION_SALE_DESC: "Продаж стилю:",
+    BALANCE_CURRENT: "Ваш баланс: {balance} €",
+    AUTH_NOT_LOGGED_IN: 'Ви не увійшли.',
+    ALERT_DATA_ERROR: "Помилка даних.",
+    ALERT_RECEIVER_NOT_FOUND: "Отримувача не знайдено."
+};
+
+const CHERNIHIV_CARD_ID = 'chernihiv-rp';
+const CHERNIHIV_CARD_PRICE = 970;
+const CHERNIHIV_RECEIVER = '7777777777777777';
+const CLASSIC_CARDS_IDS = ['class1','class2','class3','class4'];
+const CLASSIC_RECEIVER = '4747474747474747';
+
+const AVAILABLE_STYLES = [
+    {id:'default', price:0, image:'card.png', name:'Класичний Стиль', desc:'Базовий дизайн.'},
+    {id:'central-rp1', price:0, image:'card4.png', name:'Central rp', desc:'Унікальна картка.'},
+    {id:'central-rp', price:800, image:'cardC.jpg', name:'Central rp', desc:'Новорічна картка.'},
+    {id:CHERNIHIV_CARD_ID, price:CHERNIHIV_CARD_PRICE, image:'card5.png', name:'Chernihiv rp', desc:'Універсальна картка.'},
+    {id:'class1', price:800, image:'card7.png', name:'Класика', desc:'Технології.'},
+    {id:'class2', price:800, image:'card6.png', name:'Класика', desc:'Технології.'},
+    {id:'class3', price:800, image:'card8.png', name:'Класика', desc:'Золоті смужки.'},
+    {id:'class4', price:800, image:'card9.png', name:'Класика', desc:'Темно-синя.'}
+];
+
+function displayError(e){errorMessage.textContent=e;errorMessage.style.display=e?'block':'none'}
+
+async function getUidByCardNumber(e){
+    const t=ref(database,`cards_index/${e}`);
+    try{const n=await get(t); return n.exists()?n.val().uid:null}catch(e){return null}
+}
+
+function createBuyButton(style, isOwned, isApplied) {
+    const btn = document.createElement('button');
+    btn.classList.add('buy-button');
+    
+    if (isApplied) {
+        btn.textContent = MESSAGES.STATUS_APPLIED;
+        btn.classList.add('applied');
+        btn.disabled = true;
+    } else if (isOwned) {
+        btn.textContent = MESSAGES.BUTTON_APPLY;
+        btn.addEventListener('click', () => applyStyle(style.id));
+    } else {
+        if (style.price === 0) {
+            btn.textContent = MESSAGES.BUTTON_FREE;
+            btn.addEventListener('click', () => buyStyle(style));
+        } else if (currentBalance < style.price) {
+            btn.textContent = MESSAGES.BUTTON_INSUFFICIENT;
+            btn.disabled = true;
+        } else {
+            btn.textContent = MESSAGES.BUTTON_BUY;
+            btn.addEventListener('click', () => buyStyle(style));
+        }
+    }
+    return btn;
+}
+
+window.renderStyles = function() {
+    styleList.innerHTML = '';
+    const currentStyle = userCardData?.style_id || 'default';
+    let owned = userCardData?.owned_styles || ['default'];
+    if (!Array.isArray(owned)) owned = [owned];
+
+    AVAILABLE_STYLES.forEach(style => {
+        const isOwned = owned.includes(style.id);
+        const isApplied = style.id === currentStyle;
+        
+        const item = document.createElement('div');
+        item.classList.add('style-item');
+        item.innerHTML = `
+            <div class="card-preview">
+                <img src="${style.image}" alt="${style.name}">
+                ${style.price > 0 && !isOwned ? `<div class="price-overlay">${style.price}€</div>` : ''}
+            </div>
+            <div class="style-details">
+                <div class="style-info">
+                    <h3>${style.name}</h3>
+                    <p>${style.desc}</p>
+                </div>
+            </div>`;
+        
+        item.querySelector('.style-details').appendChild(createBuyButton(style, isOwned, isApplied));
+        styleList.appendChild(item);
+    });
+}
+
+async function buyStyle(style) {
+    displayError(MESSAGES.PROCESSING_BUY);
+    try {
+        const price = style.price;
+        const result = await runTransaction(ref(database, `user/${senderUID}/card`), card => {
+            if (card) {
+                if (!card.owned_styles) card.owned_styles = ['default'];
+                if (price > 0 && card.balance < price) return; 
+                if (!card.owned_styles.includes(style.id)) card.owned_styles.push(style.id);
+                card.style_id = style.id;
+                if (price > 0 && !style.receiver) card.balance = parseFloat((card.balance - price).toFixed(2));
+                return card;
+            }
+        });
+
+        if (result.committed) {
+            if (price > 0) {
+                await push(ref(database, `user/${senderUID}/card/history`), {
+                    amount: -price,
+                    description: `${MESSAGES.TRANSACTION_BUY_DESC} ${style.name}`,
+                    timestamp: Date.now(),
+                    currency: '€'
+                });
+            }
+            displayError("");
+        }
+    } catch (e) { displayError(MESSAGES.ERROR_GENERAL); }
+}
+
+async function applyStyle(id) {
+    displayError(MESSAGES.PROCESSING_APPLY);
+    try {
+        await update(ref(database, `user/${senderUID}/card`), { style_id: id });
+        displayError("");
+    } catch (e) { displayError(MESSAGES.ERROR_GENERAL); }
+}
+
+onAuthStateChanged(auth, user => {
+    if (user) {
+        senderUID = user.uid;
+        statusMessage.style.display = "none";
+        marketContent.style.display = "block";
+        onValue(ref(database, `user/${user.uid}/card`), snapshot => {
+            userCardData = snapshot.val();
+            if (userCardData) {
+                currentBalance = Number(userCardData.balance) || 0;
+                const lang = localStorage.getItem('user_lang') || 'uk';
+                balanceInfo.textContent = MESSAGES.BALANCE_CURRENT.replace('{balance}', currentBalance.toFixed(2));
+                renderStyles();
+            }
+        });
+    } else {
+        statusMessage.innerHTML = MESSAGES.AUTH_NOT_LOGGED_IN;
+    }
+});
+</script>
+
+<script src="translate.js"></script>
+
+<script>
+    // Додаткова функція для динамічного оновлення повідомлень маркету
+    window.updateMarketMessages = function(lang) {
+        if (!window.translations || !window.translations[lang]) return;
+        const t = window.translations[lang];
+        
+        MESSAGES.STATUS_APPLIED = t.market_applied || "Applied";
+        MESSAGES.BUTTON_APPLY = t.market_apply || "Apply";
+        MESSAGES.BUTTON_BUY = t.market_buy || "Buy";
+        MESSAGES.BUTTON_FREE = t.market_free || "Free";
+        MESSAGES.BUTTON_INSUFFICIENT = t.market_no_funds || "No funds";
+        MESSAGES.ERROR_BALANCE_SHORT = t.market_error_low_balance || "Low balance";
+        MESSAGES.PROCESSING_BUY = t.market_processing_buy || "Buying...";
+        MESSAGES.PROCESSING_APPLY = t.market_processing_apply || "Applying...";
+        MESSAGES.BALANCE_CURRENT = t.market_balance || "Balance: {balance} €";
+        MESSAGES.AUTH_NOT_LOGGED_IN = t.market_auth_error || "Login required";
+
+        const balInfo = document.getElementById('balance-info');
+        if (balInfo && typeof currentBalance !== 'undefined') {
+            balInfo.textContent = MESSAGES.BALANCE_CURRENT.replace('{balance}', currentBalance.toFixed(2));
+        }
+        
+        if (typeof renderStyles === 'function') renderStyles();
+    };
+</script>
+</body>
+</html>

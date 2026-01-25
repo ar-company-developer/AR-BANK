@@ -1,0 +1,101 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #fafafa;
+    color: #333;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Заголовок */
+.header {
+    display: flex;
+    align-items: center;
+    padding: 15px 15px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.back-icon {
+    display: block;
+    padding-right: 15px;
+    color: #000;
+}
+.page-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+    transform: translateX(-12px); /* Компенсуємо іконку назад для центрування */
+}
+
+/* Контейнер форми */
+.form-container {
+    padding: 20px;
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.form-description {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+/* Стилі полів форми */
+form label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    color: #000;
+}
+
+form input {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: 2px solid #000; /* Чорна рамка, як на кнопках */
+    border-radius: 10px;
+    box-sizing: border-box;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+form input:focus {
+    border-color: #007bff; /* Легка синя підсвітка при фокусі */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+/* Кнопка відправки */
+.submit-button {
+    width: 100%;
+    padding: 18px;
+    margin-top: 40px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.submit-button:hover {
+    background-color: #333;
+}
+
+.submit-button:active {
+    transform: scale(0.99);
+}
+
+/* Повідомлення про помилку */
+.error-message {
+    color: red;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 15px;
+    font-weight: bold;
+}

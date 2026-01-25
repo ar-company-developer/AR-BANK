@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="page_title" data-i18n="about">Про AR Bank</title> 
+  
+  <script>
+    (function(){
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Стилі без змін, як у вашому коді */
+    :root{--primary:#4f46e5;--accent:#22c55e;--bg:#f7f9fc;--panel:#ffffff;--text:#1f2937;--muted:#6b7280;--border:#e5e7eb;--shadow:0 10px 30px rgba(0,0,0,.08);}
+    html.dark-mode{--primary:#a5b4fc;--accent:#22c55e;--bg:#0b0f14;--panel:#111827;--text:#e5e7eb;--muted:#9ca3af;--border:#1f2937;--shadow:0 10px 30px rgba(0,0,0,.4);}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto;background:radial-gradient(800px 400px at 10% -20%, rgba(79,70,229,.12), transparent), var(--bg);color:var(--text);display:flex;justify-content:center;transition:.3s;}
+    .app{width:100%;max-width:480px;min-height:100vh;}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:blur(12px);background:color-mix(in srgb, var(--panel) 85%, transparent);border-bottom:1px solid var(--border);}
+    .header-inner{display:flex;align-items:center;gap:12px;padding:14px 16px;}
+    .back{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg, var(--primary), #6366f1);color:#fff;font-size:20px;font-weight:700;text-decoration:none;box-shadow:var(--shadow);}
+    .title{flex:1;text-align:center;font-size:18px;font-weight:800;margin-right:42px;}
+    main{padding:24px 16px 40px}
+    .hero{background:linear-gradient(160deg, var(--primary), #6366f1);border-radius:26px;padding:28px;color:#fff;box-shadow:var(--shadow);margin-bottom:28px;}
+    .hero h2{font-size:26px;margin-bottom:10px}
+    .hero p{opacity:.9;line-height:1.6}
+    .section{margin-bottom:32px}
+    .section h3{font-size:20px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:22px;padding:20px;box-shadow:var(--shadow);}
+    .benefits{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .benefit{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:18px;text-align:center;transition:.25s}
+    .benefit:hover{transform:translateY(-4px)}
+    .benefit span{font-size:26px;display:block;margin-bottom:6px}
+    .benefit b{font-size:14px}
+    .benefit p{font-size:12px;color:var(--muted);margin-top:4px}
+    .news{display:flex;flex-direction:column;gap:14px}
+    .news-item{background:var(--panel);border:1px solid var(--border);border-radius:22px;padding:18px;box-shadow:var(--shadow);}
+    .news-item .date{font-size:12px;font-weight:600;color:var(--primary)}
+    .news-item h4{margin:6px 0 6px;font-size:15px}
+    .news-item p{font-size:13px;color:var(--muted);line-height:1.5}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="header-inner">
+      <a href="setting.html" class="back">‹</a>
+      <div class="title" data-i18n="about">Про AR Bank</div>
+    </div>
+  </header>
+  
+  <main>
+    <div class="hero">
+      <h2 data-i18n="about_hero_title">Фінанси нового покоління</h2>
+      <p data-i18n="about_hero_desc">
+        AR Bank — цифровий банк для гравців, які цінують швидкість,
+        безпеку та повний контроль над фінансами.
+      </p>
+    </div>
+
+    <div class="section">
+      <h3 data-i18n="about_mission_title">🚀 Наша місія</h3>
+      <div class="card">
+        <p data-i18n="about_mission_text" style="color:var(--muted);line-height:1.6">
+          Ми створили AR Bank, щоб зробити внутрішньоігрові фінансові операції
+          простими, швидкими та максимально прозорими — без зайвих дій і затримок.
+        </p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 data-i18n="about_why_title">💎 Чому AR Bank</h3>
+      <div class="benefits">
+        <div class="benefit">
+          <span>🔒</span>
+          <b data-i18n="benefit_security">Безпека</b>
+          <p data-i18n="benefit_security_desc">Захист і перевірки</p>
+        </div>
+        <div class="benefit">
+          <span>⚡</span>
+          <b data-i18n="benefit_speed">Швидкість</b>
+          <p data-i18n="benefit_speed_desc">Миттєві перекази</p>
+        </div>
+        <div class="benefit">
+          <span>🎨</span>
+          <b data-i18n="benefit_design">Дизайн</b>
+          <p data-i18n="benefit_design_desc">CARDS MARKET</p>
+        </div>
+        <div class="benefit">
+          <span>📊</span>
+          <b data-i18n="benefit_control">Контроль</b>
+          <p data-i18n="benefit_control_desc">Історія операцій</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 data-i18n="about_news_title">📰 Останні новини</h3>
+      <div class="news">
+        <div class="news-item">
+          <span class="date" data-i18n="news_date_jan">01 січня 2026</span>
+          <h4 data-i18n="news_jan_title">Новорічне оновлення v2.0</h4>
+          <p data-i18n="news_jan_desc">Додано темну тему, нові налаштування безпеки та запуск CARDS MARKET.</p>
+        </div>
+        <div class="news-item">
+          <span class="date" data-i18n="news_date_dec">27 грудня 2025</span>
+          <h4 data-i18n="news_dec_title">Покращення стабільності</h4>
+          <p data-i18n="news_dec_desc">Оптимізовано роботу з великими транзакціями та навантаженням.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="translate.js"></script>
+
+</body>
+</html>

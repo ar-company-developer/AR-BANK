@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мої Штрафи</title>
+    
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+            }
+        })();
+    </script>
+
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js"></script>
+    
+    <style>
+        /* === 1. ЗМІННІ СВІТЛОЇ ТЕМИ (ЧИСТИЙ БІЛИЙ ФОН) === */
+        :root {
+            --background-color: #ffffff;   /* Замінено на білий */
+            --card-background: #f9f9f9;
+            --button-pay: #dc3545;
+            --button-text: #ffffff;
+            --text-color: #333333;
+            --secondary-text: #777;
+            --accent-color: #2e86de;
+            --back-button-bg: #f0f0f0;
+            --shadow-color: rgba(0, 0, 0, 0.05);
+        }
+
+        /* === 2. ЗМІННІ ТЕМНОЇ ТЕМИ === */
+        html.dark-mode {
+            --background-color: #121212;
+            --card-background: #1e1e1e;
+            --button-pay: #e74c3c;
+            --button-text: #ffffff;
+            --text-color: #f0f0f0;
+            --secondary-text: #aaaaaa;
+            --accent-color: #7986cb;
+            --back-button-bg: #282828;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        /* ==================== Основні стилі ==================== */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 390px;
+            padding: 20px;
+        }
+
+        /* ==================== Header ==================== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px 0 30px;
+        }
+
+        .back-button-circle {
+            width: 40px;
+            height: 40px;
+            background-color: var(--back-button-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .back-button-circle svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-color);
+            transition: fill 0.3s;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            flex-grow: 1;
+            margin-left: -60px;
+            color: var(--text-color);
+        }
+        
+        /* ==================== Список штрафів ==================== */
+        #finesList {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-bottom: 20px;
+        }
+
+        .fine-card {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .fine-details {
+            flex-grow: 1;
+        }
+
+        .fine-description {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+
+        .fine-sum {
+            font-size: 18px;
+            color: var(--button-pay);
+            font-weight: 700;
+        }
+
+        /* ==================== Кнопки та повідомлення ==================== */
+        .pay-button {
+            padding: 8px 15px;
+            background-color: var(--button-pay);
+            color: var(--button-text);
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            margin-left: 15px;
+        }
+
+        .pay-button:active {
+            transform: scale(0.95);
+        }
+
+        .pay-button:disabled {
+            background-color: #b0b0b0;
+            cursor: not-allowed;
+        }
+        
+        #balanceInfo, #statusMessage {
+            font-size: 14px;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            text-align: center;
+            transition: color 0.3s;
+        }
+
+        #errorMessage {
+            font-size: 14px;
+            color: var(--button-pay);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .no-fines-message {
+            text-align: center;
+            color: var(--secondary-text);
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="statusMessage">Перевіркa...</div>
+
+        <div id="finesContent" style="display: none;">
+            
+            <div class="header">
+                <a href="inshe.html" class="back-button-circle">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/>
+                    </svg>
+                </a>
+                <h1 class="title">Мої Штрафи</h1>
+            </div>
+
+            <div id="balanceInfo">Баланс: Завантаження...</div>
+            <div id="errorMessage" style="display: none;"></div>
+
+            <div id="finesList"></div>
+            
+            <div id="noFines" class="no-fines-message" style="display: none;">
+             У вас немає несплачених штрафів.
+            </div>
+
+        </div>
+    </div>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getDatabase, ref, runTransaction, onValue, push, remove, get } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+        // === КОНФІГУРАЦІЯ FIREBASE (ЗАЛИШЕНО БЕЗ ЗМІН) ===
+        const firebaseConfig = {
+          apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+          authDomain: "ar-bank-dbfd9.firebaseapp.com",
+          databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "ar-bank-dbfd9",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth(app); 
+        
+        const ADMIN_CARD_NUMBER = "4472473724933732"; 
+        
+        const finesContent = document.getElementById('finesContent');
+        const statusMessage = document.getElementById('statusMessage');
+        const finesList = document.getElementById('finesList');
+        const balanceInfo = document.getElementById('balanceInfo');
+        const errorMessage = document.getElementById('errorMessage');
+        const noFinesMessage = document.getElementById('noFines');
+
+        let currentBalance = 0;
+        let senderUID = null;
+        let receiverUID = null;
+
+        function displayError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = message ? 'block' : 'none';
+        }
+
+        function listenForSenderBalance(uid) {
+            const cardRef = ref(database, `user/${uid}/card/balance`);
+            onValue(cardRef, (snapshot) => {
+                currentBalance = Number(snapshot.val()) || 0; 
+                balanceInfo.textContent = `Ваш поточний баланс: ${currentBalance.toFixed(2)} €`;
+            });
+        }
+        
+        async function findAdminUID() {
+            const cardsIndexRef = ref(database, `cards_index/${ADMIN_CARD_NUMBER}`);
+            try {
+                const snapshot = await get(cardsIndexRef);
+                if (snapshot.exists() && snapshot.val().uid) {
+                    receiverUID = snapshot.val().uid;
+                    return receiverUID;
+                } else {
+                    displayError(`❌ Картка адміністратора не знайдена.`);
+                    return null;
+                }
+            } catch (e) {
+                displayError("❌ Помилка пошуку адміністратора.");
+                return null;
+            }
+        }
+
+        async function handlePayFine(fineKey, amount, description, button) {
+            if (!senderUID || !receiverUID) {
+                displayError("Система не готова.");
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = '...';
+            displayError('');
+
+            if (amount > currentBalance || amount <= 0) {
+                displayError('Недостатньо коштів.');
+                button.disabled = false;
+                button.textContent = 'Сплатити';
+                return;
+            }
+            
+            try {
+                const senderResult = await runTransaction(ref(database, `user/${senderUID}/card/balance`), (current) => {
+                    const currentVal = Number(current) || 0; 
+                    if (currentVal >= amount) { 
+                        return parseFloat((currentVal - amount).toFixed(2));
+                    }
+                    return; 
+                });
+
+                if (senderResult.committed) {
+                    await runTransaction(ref(database, `user/${receiverUID}/card/balance`), (current) => {
+                        const currentVal = Number(current) || 0;
+                        return parseFloat((currentVal + amount).toFixed(2));
+                    });
+                    
+                    const historyData = {
+                        amount: -amount,
+                        description: `Оплата штрафу: ${description}`,
+                        timestamp: Date.now(),
+                        currency: "€"
+                    };
+                    await push(ref(database, `user/${senderUID}/card/history`), historyData);
+                    await remove(ref(database, `user/${senderUID}/fine/${fineKey}`));
+                    
+                    button.textContent = 'Сплачено';
+                    button.disabled = true;
+
+                } else {
+                    displayError('Помилка списання.');
+                    button.disabled = false;
+                    button.textContent = 'Сплатити';
+                }
+            } catch (error) {
+                displayError('Спробуйте пізніше.');
+                button.disabled = false;
+                button.textContent = 'Сплатити';
+            }
+        }
+
+        function renderFine(key, fine) {
+            const fineSum = Number(fine.sum) || 0;
+            const fineDescription = fine.description || 'Штраф';
+
+            const fineCard = document.createElement('div');
+            fineCard.className = 'fine-card';
+
+            fineCard.innerHTML = `
+                <div class="fine-details">
+                    <div class="fine-description">${fineDescription}</div>
+                    <div class="fine-sum">${fineSum.toFixed(2)} €</div>
+                </div>
+                <button class="pay-button">Сплатити</button>
+            `;
+            
+            const payButton = fineCard.querySelector('.pay-button');
+            payButton.addEventListener('click', () => handlePayFine(key, fineSum, fineDescription, payButton));
+            
+            finesList.appendChild(fineCard);
+        }
+
+        function listenForFines(uid) {
+            const finesRef = ref(database, `user/${uid}/fine`);
+            onValue(finesRef, (snapshot) => {
+                const finesData = snapshot.val();
+                finesList.innerHTML = ''; 
+
+                if (finesData) {
+                    noFinesMessage.style.display = 'none';
+                    Object.keys(finesData).forEach(key => renderFine(key, finesData[key]));
+                } else {
+                    noFinesMessage.style.display = 'block';
+                }
+            });
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                senderUID = user.uid;
+                await findAdminUID(); 
+                statusMessage.style.display = 'none';
+                finesContent.style.display = 'block';
+                listenForSenderBalance(user.uid); 
+                listenForFines(user.uid);
+            } else {
+                statusMessage.innerHTML = 'Ви не увійшли. <a href="login.html">Увійти</a>';
+            }
+        });
+    </script>
+
+</body>
+</html>

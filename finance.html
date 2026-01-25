@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фінанси та Баланс</title>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js"></script>
+    <script src="translate.js"></script>
+    <style>
+:root {
+    --primary-color: #000000; 
+    --background-color: #f7f9fc;
+    --card-background: #ffffff; 
+    --text-color: #333333;
+    --light-text: #6c757d;
+    --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.1);
+    --border-color: #eeeeee;
+    --balance-shadow: 0 10px 16px rgba(79, 70, 229, 0.4); 
+    --balance-bg: linear-gradient(135deg, white, white); 
+    --icon-fill-color: var(--primary-color);
+    --icon-stroke-color: var(--primary-color); 
+}
+        .dark-mode {
+            --primary-color: white;
+            --background-color: #121212; 
+            --card-background: #1e1e1e; 
+            --text-color: #f0f0f0; 
+            --light-text: #aaaaaa; 
+            --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.6);
+            --border-color: #333333; 
+            --balance-shadow: 0 10px 16px rgba(46, 134, 222, 0.4); 
+            --balance-bg: linear-gradient(135deg, #2a2a2a, #1e1e1e); 
+            --icon-fill-color: #f0f0f0; 
+            --icon-stroke-color: #f0f0f0; 
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color); 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        #mainDashboard {
+            width: 100%;
+        }
+        #statusMessage {
+            color: var(--text-color);
+        }
+        .back-button { 
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 0;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .back-button:hover {
+            color: gray; 
+        }
+
+        .back-button svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            fill: var(--primary-color);
+        }
+        .balance-card {
+            background: var(--balance-bg); 
+            color: var(--text-color);
+            padding: 25px;
+            border-radius: 20px; 
+            margin-bottom: 30px;
+            box-shadow: var(--balance-shadow); 
+            text-align: center;
+            font-size: 10px;
+            transition: transform 0.3s;
+            margin-top:20px;
+        }
+        .operations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+        .operation-button {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color); 
+            padding: 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 14px; 
+            height: 110px; 
+            display: flex;
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            box-shadow: var(--shadow-light);
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        }
+        .operation-button:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-color);
+        }
+        .operation-button svg {
+            width: 32px; 
+            height: 32px;
+            margin-bottom: 5px; 
+            color: var(--icon-fill-color);
+            
+            transition: color 0.3s; 
+        }
+        .operation-button svg.credit-icon path {
+             stroke: var(--icon-stroke-color);
+             fill: none;
+             transition: stroke 0.3s; 
+        }
+
+        .balance-card:hover {
+            transform: translateY(-3px);
+        }
+        .balance-title {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+        .balance-amount {
+            font-size: 52px;
+            font-weight: 700;
+            line-height: 1.1;
+            min-height: 55px;
+        }
+        .currency {
+            font-size: 28px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        .inshe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+        .inshe-button {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            padding: 5px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 14px; 
+            height: 80px; 
+            width: 340px;
+            display: flex;
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            margin-top: 10px;
+            box-shadow: var(--shadow-light);
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        }
+        .inshe-button:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-color);
+        }
+        .inshe-button svg {
+            width: 32px; 
+            height: 32px;
+            margin-bottom: 5px; 
+            color: var(--icon-fill-color); 
+            transition: color 0.3s;
+        }
+
+        .inshe-button svg path {
+             stroke: currentColor; 
+             fill: none;
+        }
+        .history-section {
+            margin-top: 30px;
+        }
+        .history-section h3 {
+            font-size: 18px;
+            color: var(--text-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .transaction-details {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        .transaction-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .transaction-date {
+            font-size: 12px;
+            color: var(--light-text);
+        }
+        .transaction-amount {
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .amount-positive {
+            color: #28a745;
+        }
+        .amount-negative {
+            color: #dc3545;
+        }
+    </style>
+    </head>
+<body>
+    <div class="container">
+        <div id="statusMessage" data-i18n="wait">
+        </div>
+        <div id="mainDashboard">
+            <a href="card.html" class="back-button">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="currentColor" d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/>
+                </svg>
+                <span data-i18n="back">Назад</span> 
+            </a>
+            <div class="balance-card">
+                <div class="balance-title" data-i18n="current_balance">Ваш поточний баланс</div>
+                <div class="balance-amount" id="userBalance" data-i18n="load">
+                    0
+                </div>
+            </div>
+            <div class="operations-grid">
+               <a href="replenishment.html" class="operation-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88">
+                        <path fill="currentColor" d="M84.322 69.363a5.072 5.072 0 0 0-5.944-2.34l-17.773 5.521A5.491 5.491 0 0 0 55.503 65H37.472l-.674-.809a14.43 14.43 0 0 0-20.098-2.03L15.652 63H4a1 1 0 0 0-1 1v22a1 1 0 0 0 1 1h48.579a12.94 12.94 0 0 0 4.693-.877l24.462-9.469a5.104 5.104 0 0 0 2.588-7.29zM5 65h10v20H5zm76.012 9.79L56.55 84.257a10.957 10.957 0 0 1-3.97.742H17V64.484l.95-.76a12.43 12.43 0 0 1 17.313 1.748l.973 1.168a.998.998 0 0 0 .768.36h18.5a3.5 3.5 0 0 1 0 7H37a1 1 0 0 0 0 2h18.503a5.464 5.464 0 0 0 2.184-.455l21.285-6.613a3.103 3.103 0 0 1 2.04 5.857z"/>
+                        <path fill="currentColor" d="M10 67a3 3 0 1 0 3 3 3.003 3.003 0 0 0-3-3zm0 4a1 1 0 1 1 1-1 1 1 0 0 1-1 1zM54 43a19 19 0 1 0-19-19 19.022 19.022 0 0 0 19 19zm0-36a17 17 0 1 1-17 17A17.019 17.019 0 0 1 54 7z"/>
+                        <path fill="currentColor" d="M54 47a23 23 0 1 0-23-23 23.026 23.026 0 0 0 23 23zm0-44a21 21 0 1 1-21 21A21.024 21.024 0 0 1 54 3zM53 51v11a1 1 0 0 0 2 0V51a1 1 0 0 0-2 0zM60 49v9a1 1 0 0 0 2 0v-9a1 1 0 0 0-2 0zM46 49v9a1 1 0 0 0 2 0v-9a1 1 0 0 0-2 0z"/>
+                        <path fill="currentColor" d="M43 26a1 1 0 0 0 1 1h2.461A10.017 10.017 0 0 0 56 34a9.786 9.786 0 0 0 4.45-1.058 1 1 0 1 0-.9-1.785A7.81 7.81 0 0 1 56 32a8.009 8.009 0 0 1-7.411-5H55a1 1 0 0 0 0-2h-6.93a7.229 7.229 0 0 1 0-2H55a1 1 0 0 0 0-2h-6.411A8.009 8.009 0 0 1 56 16a7.81 7.81 0 0 1 3.55.843 1 1 0 1 0 .9-1.785A9.786 9.786 0 0 0 56 14a10.017 10.017 0 0 0-9.539 7H44a1 1 0 0 0 0 2h2.05a10.045 10.045 0 0 0 0 2H44a1 1 0 0 0-1 1z"/>
+                    </svg>
+                    <span data-i18n="replenishment">Поповнення</span>
+                </a>
+                <a href="transfer.html" class="operation-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                        <path fill="currentColor" d="M129.62 161a32.89 32.89 0 1 1 4.51-65.46 32.89 32.89 0 0 1 28 37.12A33 33 0 0 1 129.62 161zm-.08-61.78a28.89 28.89 0 0 0-4 57.5 29.29 29.29 0 0 0 4 .28 29 29 0 0 0 28.57-24.9 28.89 28.89 0 0 0-24.61-32.6 29.31 29.31 0 0 0-3.96-.29z"/>
+                        <path fill="currentColor" d="M139.83 134.84c0 4.5-3.17 7.67-8.53 8.1v5.34h-3v-5.38a15.38 15.38 0 0 1-9-4.33l2.3-2.76a12.53 12.53 0 0 0 8.51 3.66c3.25 0 5.66-1.62 5.66-4.39 0-3.17-2.54-4.22-6.61-5.49-4.82-1.55-9.22-3.06-9.22-8.31 0-4.29 3-7.54 8.38-7.8v-5.58h2.95v5.77a18 18 0 0 1 7.52 3.21l-2.22 2.73a13.7 13.7 0 0 0-7.43-2.61c-3.08 0-5.23 1.44-5.23 4 0 2.76 2.67 3.77 6.35 5 5.43 1.72 9.54 3.17 9.54 8.83z"/>
+                        <path fill="currentColor" d="M74.14 136.33v-23.11A54.88 54.88 0 0 1 129 58.4h41.86V37.47l29 35.83-29 35.83V86.78h-41.6A50.87 50.87 0 0 0 82.8 116.9zM129 62.4a50.88 50.88 0 0 0-50.82 50.82v4.32l1-2.26a54.88 54.88 0 0 1 50.07-32.5h45.6v15l19.78-24.48-19.81-24.51V62.4zM85.18 218.53l-29-35.83 29-35.83v22.36h41.6a50.87 50.87 0 0 0 46.42-30.13l8.66-19.42v23.11A54.88 54.88 0 0 1 127 197.61H85.18zM61.37 182.7l19.81 24.52v-13.61H127a50.88 50.88 0 0 0 50.82-50.82v-4.31l-1 2.26a54.88 54.88 0 0 1-50.07 32.5H81.18v-15z"/>
+                    </svg>
+                    <span data-i18n="transfer">Переказ</span>
+                </a>
+                <a href="pin2.html" class="operation-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                        <path fill="currentColor" d="M217 187.55h-4v4.82h-17a19.28 19.28 0 0 1 1.15-4.82h-4.23a22.45 22.45 0 0 0-.92 4.82H64a22.45 22.45 0 0 0-.92-4.82H58.9a19.27 19.27 0 0 1 1.1 4.82H43v-4.82h-4v8.82h178zM213 178.31v4.83-4.83zM213 178.31v4.83h-17a18.47 18.47 0 0 1 .43-2.49 20.41 20.41 0 0 1 .72-2.34h-4.22a22.78 22.78 0 0 0-1 5.24H64.08a22.77 22.77 0 0 0-1-5.24H58.9a22.3 22.3 0 0 1 .72 2.32 20.86 20.86 0 0 1 .43 2.51H43v-4.83h-4v9.24h178v-9.24zM213 169.08v4.83h-17a19.52 19.52 0 0 1 1.15-4.83h-4.22a22.59 22.59 0 0 0-1 5.23H64.08a22.59 22.59 0 0 0-1-5.23H58.9a22.3 22.3 0 0 1 .72 2.32 20.53 20.53 0 0 1 .43 2.51H43v-4.83h-4v9.23h178v-9.23zM213 169.08v4.83-4.83z"/>
+                        <path fill="currentColor" d="M213 159.84v4.83h-17a20.18 20.18 0 0 1 .42-2.47 22.86 22.86 0 0 1 .73-2.35h-4.22a22.78 22.78 0 0 0-1 5.24H64.1a22.78 22.78 0 0 0-1-5.24h-4.2a19.71 19.71 0 0 1 .72 2.33 18.91 18.91 0 0 1 .43 2.5H43v-4.83h-4v9.24h178v-9.24zM213 150.61v4.83h-17a18.46 18.46 0 0 1 .43-2.49 20.42 20.42 0 0 1 .72-2.34h-4.22a22.6 22.6 0 0 0-1 5.23H64.1a22.59 22.59 0 0 0-1-5.23h-4.2a22.32 22.32 0 0 1 .72 2.32 20.86 20.86 0 0 1 .43 2.51H43v-4.83h-4v9.23h178v-9.23zM213 150.61v4.83-4.83z"/>
+                        <path fill="currentColor" d="M217 84.78V59.63H39v91h178V84.78zm-4-21.15v17a19 19 0 0 1-13.44-7.81 18.23 18.23 0 0 1-2.24-4 18.68 18.68 0 0 1-1.32-5.19zm-170 0h17a18.69 18.69 0 0 1-1.32 5.23 19 19 0 0 1-2.22 4A19.17 19.17 0 0 1 43 80.68zm0 82.58v-17a19.11 19.11 0 0 1 16.62 14.49 20.53 20.53 0 0 1 .43 2.51zm21.1.4A23.11 23.11 0 0 0 52.28 128a21.93 21.93 0 0 0-5.07-2.1 22.52 22.52 0 0 0-4.21-.76V84.69a23.23 23.23 0 0 0 14.26-6.59 21.22 21.22 0 0 0 2.36-2.73 21.45 21.45 0 0 0 1.62-2.51 22.35 22.35 0 0 0 1.76-4 22.7 22.7 0 0 0 1.07-5.23h127.88a22.7 22.7 0 0 0 1.05 5.23 22.36 22.36 0 0 0 1.76 4 20.34 20.34 0 0 0 1.61 2.49 22.18 22.18 0 0 0 2.37 2.75 23.41 23.41 0 0 0 5.46 4 22.74 22.74 0 0 0 8.8 2.58v40.48a22.61 22.61 0 0 0-9.22 2.85 23.11 23.11 0 0 0-11.82 18.6zm131.86-.4a18.46 18.46 0 0 1 .43-2.49 19.27 19.27 0 0 1 12.39-13.63 18.65 18.65 0 0 1 4.18-.92v17z"/>
+                        <path fill="currentColor" d="M154.89 100.56a25.42 25.42 0 0 0-1-4 25.75 25.75 0 0 0-2.38-5.23 27.28 27.28 0 0 0-47.07 0 25.75 25.75 0 0 0-2.38 5.23 25.42 25.42 0 0 0-1 4 26.39 26.39 0 0 0-.39 4.56v.68a24.35 24.35 0 0 0 .38 3.94.13.13 0 0 0 0 .06 25.59 25.59 0 0 0 1.2 4.55 26 26 0 0 0 2.18 4.62c.16.29.33.56.52.84s.36.57.56.84c.47.68 1 1.33 1.49 2 .28.34.57.66.86 1a26 26 0 0 0 2.92 2.73 24.37 24.37 0 0 0 2.64 1.89 25 25 0 0 0 4.24 2.18 22.19 22.19 0 0 0 2.91 1 1.3 1.3 0 0 0 .28.08 2 2 0 0 0 .33.09h.08a26.16 26.16 0 0 0 5.56.8h1.1c.37 0 1 0 1.56-.05s.83 0 1.25-.09a24.39 24.39 0 0 0 2.56-.4c.49-.09 1-.2 1.45-.32.82-.22 1.63-.47 2.42-.76.35-.12.69-.25 1-.4a25.42 25.42 0 0 0 4.25-2.18 24.39 24.39 0 0 0 2.64-1.89 26.87 26.87 0 0 0 2.92-2.73c.29-.32.58-.64.86-1 .52-.63 1-1.28 1.49-2 .2-.27.39-.56.56-.84s.36-.55.52-.84a26 26 0 0 0 2.18-4.62 25.57 25.57 0 0 0 1.2-4.55.13.13 0 0 0 0-.06 24.35 24.35 0 0 0 .38-3.94v-.68a26.39 26.39 0 0 0-.27-4.51zm-3.63 5.24a21.14 21.14 0 0 1-.29 3.1q-.06.42-.15.84v.06a23.49 23.49 0 0 1-1.44 4.56c-.14.32-.29.65-.45 1a23.31 23.31 0 0 1-2.23 3.64 21.61 21.61 0 0 1-1.56 1.88 23.42 23.42 0 0 1-3 2.74 23 23 0 0 1-3.91 2.43c-.59.29-1.2.56-1.82.8a21.79 21.79 0 0 1-3.79 1.12q-.8.17-1.62.27c-.33.05-.67.08-1 .11a3.74 3.74 0 0 1-.47 0q-.78.06-1.56.06h-1.1c-.65 0-1.3-.08-1.94-.17s-1.31-.2-2-.34a21.87 21.87 0 0 1-3.66-1.13q-.82-.33-1.62-.72a23.24 23.24 0 0 1-6.88-5.17 21.65 21.65 0 0 1-1.56-1.88 23.3 23.3 0 0 1-2.22-3.64c-.16-.32-.31-.65-.45-1a23.5 23.5 0 0 1-1.44-4.56v-.06q-.09-.42-.15-.84a21.11 21.11 0 0 1-.29-3.1v-.68a22.9 22.9 0 0 1 .45-4.56c.12-.59.26-1.18.42-1.75a21.28 21.28 0 0 1 .76-2.25 23.54 23.54 0 0 1 6.71-9.23 23.24 23.24 0 0 1 30 0 23.54 23.54 0 0 1 6.65 9.23 21.21 21.21 0 0 1 .76 2.25c.16.57.3 1.16.42 1.75a22.89 22.89 0 0 1 .45 4.56c0 .23 0 .45-.02.68z"/>
+                        <path fill="currentColor" d="M137 109.8a5.79 5.79 0 0 0-2.11-3.2c-.13-.09-.26-.19-.39-.27a5.72 5.72 0 0 0-.85-.53 28.26 28.26 0 0 0-5-2 18.34 18.34 0 0 1-4.1-1.71 3.58 3.58 0 0 1-1.3-1.36.9.9 0 0 1-.11-.22 3.06 3.06 0 0 1-.23-1.2 3.19 3.19 0 0 1 1.49-2.8 5.86 5.86 0 0 1 3.2-.81 10.71 10.71 0 0 1 3.78.79h.11a12.42 12.42 0 0 1 2.82 1.52l.69-.86.54-.66.77-1a16.32 16.32 0 0 0-6.78-2.9V87.5h-2.66v5c-3.49.16-5.87 1.72-6.92 4a5.57 5.57 0 0 0-.4 1.08 7.22 7.22 0 0 0-.25 1.94 6.18 6.18 0 0 0 .07 1 5.39 5.39 0 0 0 1.79 3.48 9.87 9.87 0 0 0 2.91 1.76l.15.06c.83.36 1.72.67 2.63 1l.75.24c.69.22 1.32.42 1.91.64a7 7 0 0 1 3.37 2.08 2 2 0 0 1 .21.3 3.77 3.77 0 0 1 .48 1.94v.42a3.33 3.33 0 0 1-.95 2.06 2.68 2.68 0 0 1-.62.53.62.62 0 0 1-.17.11 5.59 5.59 0 0 1-2.3.77 7.12 7.12 0 0 1-1 .07 8.86 8.86 0 0 1-1.61-.15 10.26 10.26 0 0 1-2.57-.78h-.11a11.75 11.75 0 0 1-2.91-1.88c-.17-.14-.32-.29-.48-.44l-.09.11-2 2.38c.28.27.57.53.87.77a.44.44 0 0 0 .11.09 13.64 13.64 0 0 0 3.19 2 13.08 13.08 0 0 0 2.7.87c.42.09.85.16 1.28.21V124h2.66v-4.83a10.75 10.75 0 0 0 1.32-.18 8.51 8.51 0 0 0 1.58-.43 7.27 7.27 0 0 0 3.14-2.07 4.5 4.5 0 0 0 .4-.49 7 7 0 0 0 1.26-4.14v-.37a8.13 8.13 0 0 0-.27-1.69z"/>
+                    </svg>
+                    <span data-i18n="withdraw">Виведення</span>
+                </a>
+<a href="pin3.html" class="operation-button">
+                           <svg class="credit-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:2">
+                        <path d="M32 46.867a19.49 19.49 0 0 0-5.944-14.013l-2.76-2.668a4.742 4.742 0 0 0-6.592 0l-2.76 2.668A19.49 19.49 0 0 0 8 46.867v.001c0 2.422.962 4.745 2.675 6.457A9.129 9.129 0 0 0 17.132 56h5.736a9.129 9.129 0 0 0 6.457-2.675A9.129 9.129 0 0 0 32 46.868v-.001zM52.5 7H19a3.995 3.995 0 0 0-2.828 1.172A3.995 3.995 0 0 0 15 11v14" style="fill:none;stroke:currentColor;stroke-width:2px"/>
+                        <path d="M30 53h15a3.995 3.995 0 0 0 2.828-1.172A3.995 3.995 0 0 0 49 49V10.5a3.5 3.5 0 1 1 7 0V26a4 4 0 0 1-4 4h-2.9" style="fill:none;stroke:currentColor;stroke-width:2px"/>
+                        <path d="M40 49h1.653A2.347 2.347 0 0 0 44 46.653V40M18 28.933l.18-1.621a5.047 5.047 0 0 1 2.967-4.055l.585-.26a2.363 2.363 0 0 1 2.378.269l1.603 1.202a.995.995 0 0 1-.152 1.685l-.002.001a.579.579 0 0 0-.237.815l.5.834a1.46 1.46 0 0 1-.377 1.921l-.945.709M22 39.5a2.5 2.5 0 1 0-2 4 2.5 2.5 0 0 1 0 5 2.5 2.5 0 0 1-2-1M20 38.5v-2M20 50.5v-2" style="fill:none;stroke:currentColor;stroke-width:2px"/>
+                    </svg>
+                    <span data-i18n="credit">Кредит</span>
+                </a>
+            </div>
+            <div class="inshe-grid">
+                 <a href="inshe.html" class="inshe-button">
+                    <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 6L21 6.00078M8 12L21 12.0008M8 18L21 18.0007M3 6.5H4V5.5H3V6.5ZM3 12.5H4V11.5H3V12.5ZM3 18.5H4V17.5H3V18.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span data-i18n="other">Інше</span>
+                </a>
+            </div>
+            <div class="history-section">
+                <h3 data-i18n="recent_actions">Останні дії</h3>
+                <ul id="historyList" class="history-list">
+                    </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+    function applyThemeOnLoad() {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    }
+    applyThemeOnLoad();
+</script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getDatabase, ref, onValue, query, limitToLast } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+        const firebaseConfig = {
+  apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+  authDomain: "ar-bank-dbfd9.firebaseapp.com",
+  databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "ar-bank-dbfd9",
+  storageBucket: "ar-bank-dbfd9.firebasestorage.app",
+  messagingSenderId: "635449421773",
+  appId: "1:635449421773:web:bc7261cc5a4238c3649e84",
+  measurementId: "G-R2B0H618QQ"
+};
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth(app); 
+        const mainDashboard = document.getElementById('mainDashboard');
+        const statusMessage = document.getElementById('statusMessage');
+        const balanceElement = document.getElementById('userBalance');
+        const historyList = document.getElementById('historyList');
+        function listenForBalanceChanges(uid) {
+            balanceElement.innerHTML = i18next.t("loading") || "Завантаження балансу...";
+            const userCardRef = ref(database, `user/${uid}/card`);
+            onValue(userCardRef, (snapshot) => {
+                const cardData = snapshot.val(); 
+                if (cardData && typeof cardData === 'object') {
+                    if (cardData.hasOwnProperty('balance')) {
+                        const balanceValue = Number(cardData.balance); 
+                        if (isNaN(balanceValue) || balanceValue === null) {
+                             balanceElement.innerHTML = "";
+                             return;
+                        }
+                        let currencySymbol = cardData.currency === "UAN" ? "€" : (cardData.currency || '€');
+                        const formattedBalance = balanceValue.toLocaleString('uk-UA', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2
+                        });
+                        
+                        balanceElement.innerHTML = `
+                            ${formattedBalance}<span class="currency"> ${currencySymbol}</span>
+                        `;
+                    } else {
+                        balanceElement.innerHTML = ``;
+                    }
+                } else {
+                    balanceElement.innerHTML = ``;
+                }
+            }, (error) => {
+                console.error("Помилка читання даних Firebase:", error);
+                balanceElement.innerHTML = i18next.t("db_error") || "Помилка зв'язку з базою.";
+            });
+        }
+        function listenForTransactionHistory(uid) {
+            historyList.innerHTML = `<li><div class="transaction-title">${i18next.t("loading_history") || "Завантаження історії..."}</div></li>`;
+            const historyRef = ref(database, `user/${uid}/card/history`);
+            const recentHistoryQuery = query(historyRef, limitToLast(3));
+            onValue(recentHistoryQuery, (snapshot) => {
+                const transactions = snapshot.val();
+                historyList.innerHTML = ''; 
+                if (!transactions) {
+                    historyList.innerHTML = `<li><div class="transaction-title">${i18next.t("no_history") || "Історія транзакцій відсутня."}</div></li>`;
+                    return;
+                }
+                const transactionArray = Object.values(transactions).reverse(); 
+                transactionArray.forEach(tx => {
+                    const amount = Number(tx.amount);
+                    const isPositive = amount >= 0;
+                    const amountClass = isPositive ? 'amount-positive' : 'amount-negative';
+                    const sign = isPositive ? '+' : '-';
+                    const formattedAmount = `${sign}${Math.abs(amount).toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    const currencySymbol = tx.currency === "UAN" ? "€" : (tx.currency || '€');
+                    const date = new Date(tx.timestamp || Date.now()); 
+                    const formattedDate = date.toLocaleDateString('uk-UA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    li.innerHTML = `
+                        <div class="transaction-details">
+                            <div class="transaction-title">${tx.description || i18next.t("transaction") || 'Транзакція'}</div>
+                            <div class="transaction-date">${formattedDate}</div>
+                        </div>
+                        <div class="transaction-amount ${amountClass}">
+                            ${formattedAmount} ${currencySymbol}
+                        </div>
+                    `;
+                    historyList.appendChild(li);
+                });
+            }, (error) => {
+                console.error("Помилка читання історії транзакцій:", error);
+                historyList.innerHTML = `<li><div class="transaction-title amount-negative">${i18next.t("history_error") || "Помилка завантаження історії."}</div></li>`;
+            });
+        }
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                statusMessage.style.display = 'none';
+                mainDashboard.style.display = 'block';
+                listenForBalanceChanges(user.uid); 
+                listenForTransactionHistory(user.uid); 
+            } else {
+                mainDashboard.style.display = 'none';
+                statusMessage.style.display = 'block'; 
+                statusMessage.innerHTML = `${i18next.t("not_logged_in") || "Ви не увійшли. Будь ласка, "} <a href="login.html" style="color:var(--primary-color)">${i18next.t("go_to_login") || "перейдіть на сторінку входу."}</a>`;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page_title" data-i18n="page_title_settings">Налаштування AR Bank</title>
+    
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') document.documentElement.classList.add('dark-mode');
+        })();
+    </script>
+
+    <style>
+        /* Додаємо селектор html для темної теми, щоб працювало з :root */
+        :root{--primary-color:#4f46e5;--background-color:#f4f7f9;--text-color:#1f2937;--subtle-text-color:#6b7280;--border-color:#e5e7eb;--red-color:#dc2626;--card-background:white;--main-background:#f9fafb;--modal-background: rgba(0, 0, 0, 0.5);}
+        html.dark-mode{--background-color:#1a1a1a;--text-color:#f0f0f0;--subtle-text-color:#a0a0a0;--border-color:#333333;--card-background:#242424;--main-background:#1a1a1a;--red-color:#f87171}
+        
+        body{margin:0;padding:0;height:100vh;width:100%;box-sizing:border-box;background-color:var(--background-color);font-family:Arial,sans-serif;transition:background-color .3s}
+        .container{max-width:420px;margin-left:auto;margin-right:auto;background-color:var(--card-background);min-height:100vh;transition:background-color .3s}
+        .header{padding:24px;background-color:var(--card-background);border-bottom:1px solid var(--border-color);display:flex;align-items:center;gap:16px;transition:background-color .3s,border-color .3s}
+        .profile-photo{width:64px;height:64px;background-color:#333333;border-radius:50%;flex-shrink:0;overflow:hidden}
+        .profile-photo img{width:100%;height:100%;object-fit:cover}
+        .name{font-size:20px;font-weight:bold;color:var(--text-color);margin:0;transition:color .3s}
+        .username{font-size:14px;color:var(--subtle-text-color);margin:0;transition:color .3s}
+        .main-content{padding:16px;background-color:var(--main-background);transition:background-color .3s}
+        .section-title{font-size:18px;font-weight:600;color:var(--subtle-text-color);margin-bottom:8px;transition:color .3s}
+        .settings-group{border-radius:8px;box-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px 0 rgba(0,0,0,.06);overflow:hidden;margin-bottom:24px}
+        .setting-item{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border-color);background-color:var(--card-background);cursor:pointer;transition:background-color .15s,border-color .3s}
+        .setting-item:hover{background-color:var(--main-background)}
+        .setting-item:last-child{border-bottom:none}
+        .setting-label{color:var(--text-color);transition:color .3s}
+        .setting-value{color:var(--subtle-text-color);display:flex;align-items:center;font-size:14px;transition:color .3s}
+        .logout .setting-label{color:var(--red-color);font-weight:500}
+        .icon-arrow,.icon-exit{width:20px;height:20px;color:var(--subtle-text-color);margin-left:4px;transition:color .3s}
+        .logout .icon-exit{color:var(--red-color)}
+        .toggle-switch{position:relative;display:inline-block;width:50px;height:24px}
+        .toggle-switch input{opacity:0;width:0;height:0}
+        .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.4s;border-radius:24px}
+        .slider:before{position:absolute;content:"";height:16px;width:16px;left:4px;bottom:4px;background-color:white;transition:.4s;border-radius:50%}
+        input:checked+.slider{background-color:var(--primary-color)}
+        input:checked+.slider:before{transform:translateX(26px)}
+        .back-button { display: inline-flex;align-items: center;padding: 5px 0;margin-left: 16px;margin-top: 10px;text-decoration: none;color: var(--primary-color);font-weight: 500;}
+        .back-button svg {width: 20px;height: 20px;margin-right: 8px;fill: var(--primary-color);}
+        .modal {display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-background);}
+        .modal-content {background-color: var(--card-background); margin: 15% auto; padding: 20px; border-radius: 12px; max-width: 300px;}
+        .modal-title {font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--text-color); text-align: center;}
+        .language-option {padding: 12px; margin-bottom: 8px; border-radius: 6px; cursor: pointer; color: var(--text-color); background-color: var(--main-background);}
+        .language-option.active {background-color: var(--primary-color); color: white;}
+        .profile-data-item {display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color);}
+        .data-label {font-size: 14px; color: var(--subtle-text-color);}
+        .data-value {font-size: 14px; font-weight: 600; color: var(--text-color);}
+        .close-button {display: block; width: 100%; padding: 10px; margin-top: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer;}
+    </style>
+</head>
+<body id="pageBody">
+
+    <a href="card.html" class="back-button">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg>
+        <span data-i18n="back_button">Назад</span> 
+    </a>
+    <div class="container">
+        <header class="header">
+            <div class="profile-photo"><img src="ArBank.png"></div>
+            <div>
+                <p id="holder_name" class="name">Завантаження...</p>
+                <p id="email" class="username">@...</p>
+            </div>
+        </header>
+        <main class="main-content">
+            <h2 class="section-title" data-i18n="section_main">Основні</h2>
+            <div class="settings-group">
+                <div class="setting-item" id="profile-data-setting">
+                    <span class="setting-label" data-i18n="edit_profile">Мої дані</span>
+                    <svg class="icon-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+                <div class="setting-item">
+                    <span class="setting-label" data-i18n="dark_theme">Темна тема</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="dark-mode-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item" id="language-setting-item">
+                    <span class="setting-label" data-i18n="language">Мова</span>
+                    <span class="setting-value">
+                        <span id="lang-name-ui">Українська</span>
+                        <svg class="icon-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </span>
+                </div>
+            </div>
+
+            <h2 class="section-title" data-i18n="section_security">Безпека</h2>
+            <div class="settings-group">
+                <div class="setting-item" onclick="window.location.href= 'pin9.html'" >
+                    <span class="setting-label" data-i18n="change_pin">Змінити PIN-код</span>
+                    <svg class="icon-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+                <div class="setting-item" onclick="window.location.href='https://t.me/ArBank2025_bot'">
+                    <span class="setting-label" data-i18n="support">Підтримка</span>
+                    <svg class="icon-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+                <div id="logout-button" class="setting-item logout">
+                    <span class="setting-label" data-i18n="logout">Вийти з облікового запису</span>
+                    <svg class="icon-exit" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                </div>
+            </div>
+            
+            <h2 class="section-title" data-i18n="section_extra">Додатково</h2>
+            <div class="settings-group">
+                <div class="setting-item" onclick="window.location.href='rules.html'">
+                    <span class="setting-label" data-i18n="rules">Правила</span>
+                    <svg class="icon-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+                <div class="setting-item" onclick="window.location.href='update.html'">
+                    <span class="setting-label" data-i18n="updates">Оновлення</span>
+                    <svg class="icon-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+                <div class="setting-item" onclick="window.location.href='about.html'">
+                    <span class="setting-label" data-i18n="about">Про AR BANK</span>
+                    <svg class="icon-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="languageModal" class="modal">
+        <div class="modal-content">
+            <p class="modal-title" data-i18n="choose_language">Виберіть мову</p>
+            <div id="langOptionsContainer"></div>
+            <button class="close-button" onclick="document.getElementById('languageModal').style.display='none'">Скасувати</button>
+        </div>
+    </div>
+    
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <p class="modal-title" data-i18n="edit_profile">Мої дані</p>
+            <div id="modalDataContainer">
+                <div class="profile-data-item"><span class="data-label">Email</span><span class="data-value" id="modalEmail">...</span></div>
+                <div class="profile-data-item"><span class="data-label" data-i18n="name_label">Ім'я</span><span class="data-value" id="modalFullName">...</span></div>
+                <div class="profile-data-item"><span class="data-label">Username</span><span class="data-value" id="modalUsername">...</span></div>
+            </div>
+            <button class="close-button" onclick="document.getElementById('profileModal').style.display='none'">Закрити</button>
+        </div>
+    </div>
+
+<script src="translate.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
+    const firebaseConfig={apiKey:"AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",authDomain:"ar-bank-dbfd9.firebaseapp.com",databaseURL:"https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",projectId:"ar-bank-dbfd9",storageBucket:"ar-bank-dbfd9.firebasestorage.app",messagingSenderId:"635449421773",appId:"1:635449421773:web:bc7261cc5a4238c3649e84"};
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const langs = [
+        {code: 'uk', name: 'Українська'}, 
+        {code: 'en', name: 'English'}, 
+        {code: 'ru', name: 'Русский'}
+    ];
+
+    // Функція оновлення напису мови в інтерфейсі
+    function updateLangUI() {
+        const currentCode = localStorage.getItem('user_lang') || 'uk';
+        const currentLangObj = langs.find(l => l.code === currentCode);
+        if (currentLangObj) {
+            document.getElementById('lang-name-ui').textContent = currentLangObj.name;
+        }
+    }
+
+    // Рендер модалки
+    window.renderLanguageOptions = function() {
+        const container = document.getElementById('langOptionsContainer');
+        container.innerHTML = '';
+        const current = localStorage.getItem('user_lang') || 'uk';
+        
+        langs.forEach(l => {
+            const div = document.createElement('div');
+            div.className = `language-option ${l.code === current ? 'active' : ''}`;
+            div.textContent = l.name;
+            div.onclick = () => {
+                if (typeof window.changeLanguage === 'function') {
+                    window.changeLanguage(l.code);
+                    updateLangUI(); // Оновлюємо текст відразу
+                }
+                document.getElementById('languageModal').style.display = 'none';
+            };
+            container.appendChild(div);
+        });
+    }
+
+    // Тема
+    const darkToggle = document.getElementById('dark-mode-toggle');
+    darkToggle?.addEventListener('change', (e) => {
+        document.documentElement.classList.toggle('dark-mode', e.target.checked);
+        localStorage.setItem('theme', e.target.checked ? 'dark' : 'light');
+    });
+
+    // Ініціалізація інтерфейсу
+    document.addEventListener('DOMContentLoaded', () => {
+        updateLangUI();
+        if(localStorage.getItem('theme') === 'dark' && darkToggle) {
+            darkToggle.checked = true;
+        }
+    });
+
+    document.getElementById('language-setting-item').onclick = () => {
+        window.renderLanguageOptions();
+        document.getElementById('languageModal').style.display = 'block';
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            get(ref(db, `user/${user.uid}`)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    document.getElementById('holder_name').textContent = data.card?.holder_name || 'No Name';
+                    document.getElementById('email').textContent = data.email || '';
+                    document.getElementById('profile-data-setting').onclick = () => {
+                        document.getElementById('modalEmail').textContent = data.email;
+                        document.getElementById('modalFullName').textContent = data.full_name;
+                        document.getElementById('modalUsername').textContent = data.username;
+                        document.getElementById('profileModal').style.display = 'block';
+                    };
+                }
+            });
+        } else { 
+            window.location.href = "welcome.html"; 
+        }
+    });
+
+    document.getElementById('logout-button').onclick = () => signOut(auth).then(() => window.location.href = "welcome.html");
+</script>
+</body>
+</html>

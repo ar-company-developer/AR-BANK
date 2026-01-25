@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="success_page_title">Запит успішний</title>
+    
+    <script>
+        (function() {
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const storedTheme = localStorage.getItem('theme');
+            
+            if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark-mode');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+            }
+        })();
+    </script>
+    
+    <style>
+        /* (Ваші стилі залишаються без змін) */
+        :root {
+            --background-color: #ffffff;
+            --text-color: #000;
+            --secondary-text-color: #555;
+            --button-bg: #000;
+            --button-text: #fff;
+            --button-hover-bg: #333;
+        }
+
+        html.dark-mode {
+            --background-color: #121212;
+            --text-color: #f0f0f0; 
+            --secondary-text-color: #aaaaaa;
+            --button-bg: #3793ff;
+            --button-text: #f0f0f0;
+            --button-hover-bg: #4a9aff;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: var(--background-color); 
+            color: var(--secondary-text-color);
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .confirmation-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex; 
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh; 
+        }
+
+        .check-icon {
+            width: 120px; 
+            height: 120px;
+            margin: 160px auto 30px auto; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            color: var(--text-color);
+            transition: color 0.3s;
+        }
+        
+        .check-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .status-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--text-color);
+            margin-bottom: 15px;
+            line-height: 1.2;
+            transition: color 0.3s;
+        }
+
+        .status-message {
+            font-size: 16px;
+            color: var(--secondary-text-color);
+            line-height: 1.5;
+            margin-bottom: auto; 
+            padding: 0 15px; 
+            transition: color 0.3s;
+        }
+
+        .home-button {
+            display: block;
+            width: 100%; 
+            padding: 18px 0; 
+            margin: 40px 0 0 0; 
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s, color 0.2s;
+            flex-shrink: 0; 
+            box-sizing: border-box; 
+        }
+
+        .home-button:hover { background-color: var(--button-hover-bg); }
+        .home-button:active { transform: scale(0.99); }
+    </style>
+</head>
+
+<body>
+    <div class="confirmation-container">
+        
+        <div class="check-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <g data-name="4.Check mark">
+                    <path d="M12 24a12 12 0 1 1 12-12 12.013 12.013 0 0 1-12 12zm0-22a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2z"/>
+                    <path d="m10 17.414-3.707-3.707 1.414-1.414L10 14.586l7.293-7.293 1.414 1.414L10 17.414z"/>
+                </g>
+            </svg>
+        </div>
+        
+        <h1 class="status-title" data-i18n="success_title">Успішно!</h1>
+        
+        <p class="status-message" data-i18n="success_message">
+            Ви успішно надіслали запит на отримання картки від AR BANK!
+        </p>
+
+        <a href="welcome.html" class="home-button" data-i18n="btn_to_home">
+            На початок
+        </a>
+    </div>
+
+    <script src="translate.js"></script>
+</body>
+</html>

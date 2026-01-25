@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title data-i18n="tasks_page_title">Завдання - AR BANK</title>
+<script>(function(){const t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark-mode');})();</script>
+<script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js"></script>
+<style>
+:root{--background-color:#f7f9fc;--card-background:#fff;--text-color:#333;--secondary-text-color:#666;--accent-color:#4CAF50;--checking-color:#ffc107;--danger-color:#dc3545;--primary-color:#007bff;--shadow-color:rgba(57,57,57,0.2)}
+html.dark-mode{--background-color:#121212;--card-background:#1e1e1e;--text-color:#f0f0f0;--secondary-text-color:#aaa;--accent-color:#58D68D;--checking-color:#ff9800;--danger-color:#ff6b6b;--primary-color:#3793ff;--shadow-color:rgba(0,0,0,0.7)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background-color:var(--background-color);margin:0;padding:0;color:var(--text-color);display:flex;flex-direction:column;align-items:center;min-height:100vh;transition:.3s}.container{width:100%;max-width:600px;padding:20px}.header{padding:10px 0 20px}h1.title{text-align:center;color:var(--text-color)}.task-card{background-color:var(--card-background);padding:20px;border-radius:12px;box-shadow:0 8px 20px var(--shadow-color);display:flex;justify-content:space-between;align-items:center;margin-top:15px;transition:.3s}.task-info h3{margin:0 0 5px;font-size:18px;font-weight:600;color:var(--text-color)}.task-info p{margin:0;font-size:14px;color:var(--secondary-text-color)}.reward{font-size:16px;font-weight:700;color:var(--accent-color);margin-right:20px;white-space:nowrap}.check-button{padding:10px 15px;background-color:var(--primary-color);color:#fff;border:none;border-radius:15px;cursor:pointer;font-weight:600;transition:.3s}.check-button.checking{background-color:var(--checking-color);color:var(--text-color)}.check-button:disabled{background-color:#b0b0b0;color:#777;cursor:not-allowed}.checking-task{border-left:5px solid var(--checking-color)}.not-logged-in,#loadingMessage{text-align:center;padding:50px;font-size:18px;color:var(--secondary-text-color)}#message{text-align:center;margin-top:20px;font-weight:600;padding:10px}.back-button{display:inline-flex;align-items:center;padding:5px 0;margin-bottom:25px;text-decoration:none;color:var(--primary-color);font-weight:500;transition:.2s}.back-button:hover{opacity:.8}.back-button svg{width:20px;height:20px;margin-right:8px;fill:var(--primary-color)}#message.error{color:var(--danger-color)}#message.success{color:var(--accent-color)}
+</style>
+</head>
+<body>
+<div class="container">
+<a href="earning.html" class="back-button">
+<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg>
+<span data-i18n="back_button">Назад</span>
+</a>
+<div class="header"><h1 class="title" data-i18n="tasks_title">Завдання</h1></div>
+<div id="loadingMessage" data-i18n="loading_tasks">Завантаження завдання...</div>
+<div id="tasksList"></div>
+<div id="notLoggedIn" class="not-logged-in" style="display:none;" data-i18n="login_required_tasks">
+Будь ласка, <a href="login.html" style="color:var(--primary-color);">увійдіть</a>, щоб побачити свої завдання.
+</div>
+<p id="message"></p>
+</div>
+<script src="translate.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+const firebaseConfig={apiKey:"AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",authDomain:"ar-bank-dbfd9.firebaseapp.com",databaseURL:"https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",projectId:"ar-bank-dbfd9"};
+const app=initializeApp(firebaseConfig);
+const database=getDatabase(app);
+const auth=getAuth(app);
+const tasksList=document.getElementById('tasksList');
+const loadingMessage=document.getElementById('loadingMessage');
+const notLoggedIn=document.getElementById('notLoggedIn');
+const messageElement=document.getElementById('message');
+let uid=null;
+function t(k){return window.i18next?window.i18next.t(k):k}
+function showStatus(txt,type){messageElement.textContent=txt;messageElement.className=type==='error'?'error':'success'}
+async function sendForCheck(id){if(!uid){showStatus(t('error_auth'),'error');return}
+const btn=document.querySelector(`button[data-task-id="${id}"]`);
+btn.disabled=true;btn.textContent=t('btn_processing');
+try{await update(ref(database,`user/${uid}/tasks/${id}`),{status:'checking'});
+showStatus(t('msg_task_sent'),'success');
+const card=btn.closest('.task-card');card.classList.add('checking-task');
+btn.textContent=t('btn_checking');btn.classList.add('checking')}catch(e){
+showStatus(t('error_generic'),'error');btn.disabled=false;btn.textContent=t('btn_send_check')}}
+function renderTasks(data){tasksList.innerHTML='';if(!data||Object.keys(data).length===0){tasksList.innerHTML=`<div style="text-align:center;padding:30px;color:var(--secondary-text-color);">${t('no_tasks')}</div>`;return}
+Object.entries(data).forEach(([id,task])=>{const isC=task.status==='checking';
+const el=document.createElement('div');el.className=isC?'task-card checking-task':'task-card';
+el.innerHTML=`<div class="task-info"><h3>${task.description}</h3><p>${t('status_label')}: ${isC?t('btn_checking'):t('status_active')}</p></div><div class="reward">${task.sum} €</div><button class="check-button ${isC?'checking':''}" data-task-id="${id}" ${isC?'disabled':''}>${isC?t('btn_checking'):t('btn_send_check')}</button>`;
+tasksList.appendChild(el);if(!isC)el.querySelector('.check-button').onclick=()=>sendForCheck(id)})}
+onAuthStateChanged(auth,async(u)=>{loadingMessage.style.display='none';if(u){uid=u.uid;notLoggedIn.style.display='none';
+try{const s=await get(ref(database,`user/${uid}/tasks`));if(s.exists())renderTasks(s.val());else tasksList.innerHTML=`<div style="text-align:center;padding:30px;color:var(--secondary-text-color);">${t('no_tasks')}</div>`}
+catch(e){tasksList.innerHTML=`<div style="text-align:center;padding:30px;color:var(--danger-color);">${t('error_load_tasks')}</div>`}}else notLoggedIn.style.display='block'})
+</script>
+</body>
+</html>

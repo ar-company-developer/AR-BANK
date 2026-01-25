@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title data-i18n="page_title_charity">Благодійність</title>
+    <script>
+        (function(){
+            const e=localStorage.getItem("theme");
+            if(e==="dark")document.documentElement.classList.add("dark-mode");
+            else document.documentElement.classList.remove("dark-mode")
+        })()
+    </script>
+    <style>
+        :root{--background-color:#f7f9fc;--input-background:#eee;--button-color:#000;--button-text:#fff;--text-color:#333;--placeholder-color:#a0a0a0;--secondary-bg:#e0e0e0;--balance-color:#2e86de;--error-color:#dc3545;--shadow-color:rgba(0,0,0,.05);--disabled-button-color:#b0b0b0}
+        html.dark-mode{--background-color:#121212;--input-background:#1e1e1e;--button-color:#4f46e5;--button-text:#fff;--text-color:#f0f0f0;--placeholder-color:#777;--secondary-bg:#282828;--balance-color:#7986cb;--error-color:#f87171;--shadow-color:rgba(0,0,0,.3);--disabled-button-color:#3a3a3a}
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background-color:var(--background-color);margin:0;padding:0;color:var(--text-color);display:flex;flex-direction:column;align-items:center;min-height:100%;transition:background-color .3s,color .3s}
+        .container{width:90%;max-width:390px;padding:20px}
+        .header{display:flex;align-items:center;justify-content:flex-start;padding:10px 0 30px}
+        .back-button-circle{width:40px;height:40px;background-color:var(--secondary-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:20px;transition:background-color .3s}
+        .back-button-circle svg{width:20px;height:20px;fill:var(--text-color);transition:fill .3s}
+        .title{font-size:24px;font-weight:700;text-align:center;flex-grow:1;margin-left:-60px;color:var(--text-color);transition:color .3s}
+        .form-group{margin-bottom:25px}
+        label{display:block;font-size:16px;font-weight:600;margin-bottom:10px;color:var(--text-color)}
+        .input-wrapper{background-color:var(--input-background);border-radius:12px;padding:15px 20px;position:relative;transition:background-color .3s}
+        input[type=number],input[type=text]{width:100%;border:none;background:0 0;font-size:18px;font-weight:500;color:var(--text-color);padding:0;outline:0}
+        input::placeholder{color:var(--placeholder-color);transition:color .3s}
+        #balanceInfo{font-size:14px;color:var(--balance-color);margin-bottom:20px;text-align:center;transition:color .3s}
+        #errorMessage{font-size:14px;color:var(--error-color);text-align:center;margin-bottom:20px;transition:color .3s}
+        .footer-button-area{position:fixed;bottom:0;left:0;right:0;padding:15px 20px;background-color:var(--background-color);box-shadow:0 -5px 15px var(--shadow-color);max-width:600px;margin:0 auto;transition:background-color .3s,box-shadow .3s}
+        button#confirmButton{width:100%;max-width:350px;padding:20px;background-color:var(--button-color);color:var(--button-text);border:none;border-radius:15px;font-size:18px;font-weight:700;cursor:pointer;transition:background-color .3s;display:block;margin:0 auto}
+        button#confirmButton:disabled{background-color:var(--disabled-button-color);cursor:not-allowed}</style> 
+</head>
+<body>
+    <div class="container">
+        <div id="statusMessage" style="text-align:center;margin-top:50px" data-i18n="auth_checking">Перевірка автентифікації...</div>
+        
+        <div id="charityForm" style="display:none">
+            <div class="header">
+                <a href="inshe.html" class="back-button-circle">
+                    <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg>
+                </a>
+                <h1 class="title" data-i18n="page_title_charity">Благодійність</h1>
+            </div>
+            <div class="form-content">
+                <div id="balanceInfo" data-i18n="balance_loading">Завантаження балансу...</div>
+                <div id="errorMessage" style="display:none"></div>
+                
+                <div class="form-group">
+                    <label for="amount" data-i18n="sum_label">Сума внеску (€):</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="amount" data-i18n-placeholder="placeholder_amount" placeholder="Від 100" min="100" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="telegramId" data-i18n="label_telegram">Ваш Telegram Username:</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="telegramId" placeholder="@username" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer-button-area" id="footerButtonArea" style="display:none">
+        <button id="confirmButton" disabled data-i18n="charity_confirm_button">Підтвердити внесок</button>
+    </div>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getDatabase, ref, runTransaction, onValue, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+        
+        const firebaseConfig={apiKey:"AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",authDomain:"ar-bank-dbfd9.firebaseapp.com",databaseURL:"https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",projectId:"ar-bank-dbfd9",storageBucket:"ar-bank-dbfd9.firebasestorage.app",messagingSenderId:"635449421773",appId:"1:635449421773:web:bc7261cc5a4238c3649e84",measurementId:"G-R2B0H618QQ"};
+        const app=initializeApp(firebaseConfig),
+            database=getDatabase(app),
+            auth=getAuth(app),
+            charityForm=document.getElementById("charityForm"),
+            statusMessage=document.getElementById("statusMessage"),
+            amountInput=document.getElementById("amount"),
+            telegramIdInput=document.getElementById("telegramId"),
+            confirmButton=document.getElementById("confirmButton"),
+            balanceInfo=document.getElementById("balanceInfo"),
+            errorMessage=document.getElementById("errorMessage"),
+            footerButtonArea=document.getElementById("footerButtonArea");
+
+        let currentBalance=0, senderUID=null;
+
+        function getT() {
+            const lang = localStorage.getItem('user_lang') || 'uk';
+            // Захист: якщо translations не завантажився
+            return (typeof translations !== 'undefined' && translations[lang]) ? translations[lang] : {};
+        }
+
+        window.updateCharityMessages = function() {
+            if (senderUID) {
+                const t = getT();
+                const balanceText = t.current_balance || "Ваш баланс: {balance} €";
+                balanceInfo.textContent = balanceText.replace('{balance}', currentBalance.toFixed(2));
+                updateButtonState();
+            }
+        };
+
+        function displayError(e){
+            errorMessage.textContent=e;
+            errorMessage.style.display=e?"block":"none";
+        }
+        
+        function updateButtonState(){
+            const e=Number(amountInput.value),
+                t=telegramIdInput.value.trim(),
+                msg = getT();
+            let n=!1;
+            displayError("");
+            
+            const r=e>=100;
+            const o=t.startsWith('@') && t.length > 4;
+            
+            if (e > currentBalance) displayError(msg.err_not_enough_money || "Недостатньо коштів");
+            else if (e > 0 && !r) displayError(msg.err_min_amount || "Мінімальна сума 100");
+            else if (t.length > 0 && !o) displayError(msg.err_username_at || "Username має починатися з @");
+            
+            if(r && o && e <= currentBalance) n=!0;
+            confirmButton.disabled=!n;
+        }
+
+        amountInput.addEventListener("input",updateButtonState);
+        telegramIdInput.addEventListener("input",updateButtonState);
+        
+        confirmButton.addEventListener("click",async()=>{
+            const t = getT();
+            confirmButton.disabled=!0;
+            displayError(t.loading || "Обробка...");
+            
+            const e=Number(amountInput.value),
+                tg=telegramIdInput.value.trim();
+            
+            try{
+                const n=await runTransaction(ref(database,`user/${senderUID}/card`),card=>{
+                    if(card){
+                        const b=Number(card.balance)||0;
+                        if(b>=e) {
+                            card.balance=parseFloat((b-e).toFixed(2));
+                            return card;
+                        }
+                    }
+                });
+                
+                if(n.committed){
+                    await push(ref(database,`user/${senderUID}/card/history`), {
+                        amount:-e,
+                        description: (t.other_charity || "Благодійність") + " (" + tg + ")",
+                        timestamp:Date.now(),
+                        currency:"€"
+                    });
+                    window.location.href="ok5.html";
+                } else {
+                    displayError(t.err_not_enough_money);
+                }
+            } catch(err){
+                displayError(t.err_critical);
+            } finally { confirmButton.disabled=!1; }
+        });
+        
+        onAuthStateChanged(auth,e=>{
+            if(e){
+                senderUID=e.uid;
+                statusMessage.style.display="none";
+                charityForm.style.display="block";
+                footerButtonArea.style.display="block";
+                onValue(ref(database,`user/${e.uid}/card`),snap=>{
+                    const val=snap.val();
+                    if (val) {
+                        currentBalance=Number(val.balance)||0;
+                        updateCharityMessages();
+                    }
+                });
+            } else {
+                const t = getT();
+                statusMessage.innerHTML = (t.auth_not_logged_in || "Ви не увійшли").replace('{login_link}', `<a href="login.html">${t.auth_login_link || "Вхід"}</a>`);
+            }
+        });
+    </script>
+    <script src="translate.js"></script>
+</body>
+</html>

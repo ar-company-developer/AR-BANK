@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title data-i18n="page_title_chats">Мої Чати</title>
+    <script>(function(){const e=localStorage.getItem("theme");if(e==="dark")document.documentElement.classList.add("dark-mode");else document.documentElement.classList.remove("dark-mode")})()</script>
+    <style>:root{--background-color:#e5e5e5;--card-background:#fff;--border-color:#ddd;--text-color:#1e1e1e;--secondary-text:#6c757d;--primary-color:#007aff;--primary-text-color:#fff;--success-color:#34c759;--warning-bg:#fff0d4;--warning-text:#8e5804;--error-color:#ff3b30;--system-bg:#e9efff;--system-text:#005aa3;--incoming-bubble-text:var(--text-color);--outgoing-bubble-text:var(--primary-text-color);--input-border:#ddd;--input-focus-shadow:var(--primary-color)}html.dark-mode{--background-color:#121212;--card-background:#1e1e1e;--border-color:#363636;--text-color:#f0f0f0;--secondary-text:#aaa;--primary-color:#4f46e5;--primary-text-color:#fff;--success-color:#4cd964;--error-color:#ff453a;--system-bg:#2a2a3a;--system-text:#8da4ff;--incoming-bubble-text:var(--text-color);--outgoing-bubble-text:var(--primary-text-color);--input-border:#444;--input-focus-shadow:var(--primary-color)}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background-color:var(--background-color);margin:0;padding:0;color:var(--text-color);display:flex;flex-direction:column;align-items:center;height:100vh;overflow:hidden;transition:background-color .3s,color .3s}.main-container{width:100%;max-width:450px;background-color:var(--card-background);height:100vh;box-shadow:0 0 20px rgba(0,0,0,.1);display:flex;flex-direction:column;position:relative;transition:background-color .3s}.back-button{display:inline-flex;align-items:center;padding:10px 20px;text-decoration:none;color:var(--primary-color);font-weight:500;background-color:var(--card-background);border-bottom:1px solid var(--border-color);z-index:10;transition:background-color .3s}.back-button svg{width:22px;height:22px;margin-right:6px;fill:var(--primary-color);transition:fill .3s}.header{font-size:28px;font-weight:700;padding:20px 15px 15px;box-shadow:0 1px 0 rgba(0,0,0,.05);z-index:10;color:var(--text-color);background-color:var(--card-background);transition:color .3s,background-color .3s}html.dark-mode .header{box-shadow:none;border-bottom:1px solid var(--border-color)}#chatListPanel{flex-grow:1;display:flex;flex-direction:column;min-height:0}#chatListContainer{padding:0;overflow-y:auto}.chat-list-item{display:flex;align-items:center;padding:15px;border-bottom:1px solid var(--border-color);cursor:pointer;transition:background-color .2s}.chat-list-item:hover,.chat-list-item.active{background-color:var(--background-color)}.chat-name{font-size:17px;font-weight:600;line-height:1.2;flex-grow:1;color:var(--text-color)}.chat-status{font-size:13px;color:var(--secondary-text)}.no-chats-message{text-align:center;padding:40px 20px;color:var(--secondary-text);font-size:16px}#chatView{display:none;flex-direction:column;flex-grow:1;min-height:0}.chat-header{display:flex;align-items:center;padding:10px 15px;border-bottom:1px solid var(--border-color);box-shadow:0 1px 2px rgba(0,0,0,.05);background-color:var(--card-background);z-index:10;transition:background-color .3s}html.dark-mode .chat-header{box-shadow:none}.chat-header-back{padding:5px;margin-right:8px;cursor:pointer;fill:var(--primary-color);transition:fill .3s}.chat-header-name{font-size:18px;font-weight:600;color:var(--text-color)}#messagesContainer {
+    flex-grow: 1;
+    padding: 11px 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-color);
+    transition: background-color .3s;
+}
+#messagesContainer::before {
+    content: '';
+    margin-top: auto;
+}
+.message-bubble{display:flex;margin-bottom:8px;max-width:90%;word-break:break-word;font-size:15px;box-shadow:0 1px 1px rgba(0,0,0,.08);transition:box-shadow .3s}.message-bubble.outgoing{align-self:flex-end;background-color:var(--primary-color);color:var(--outgoing-bubble-text);border-radius:18px 18px 5px 18px;box-shadow:0 1px 1px rgba(0,0,0,.15)}.message-bubble.incoming{align-self:flex-start;background-color:var(--card-background);color:var(--incoming-bubble-text);border-radius:18px 18px 18px 5px}.message-bubble>div{padding:2px 17px;line-height:1.1;margin-top:5px}.message-info{font-size:11px;color:rgba(255,255,255,.8);text-align:right}.incoming .message-info{color:var(--secondary-text)}.message-bubble.system{align-self:center;text-align:center;margin:15px auto;max-width:70%;background-color:var(--system-bg);color:var(--system-text);font-size:13px;border-radius:12px;padding:5px 10px;box-shadow:none}.message-bubble.system .system-text{font-weight:500}#messageInputForm{display:flex;align-items:flex-end;padding:8px 15px;border-top:1px solid var(--border-color);background-color:var(--card-background);z-index:10;transition:background-color .3s}#messageInput{flex-grow:1;padding:12px 18px;border:1px solid var(--input-border);border-radius:24px;margin-right:10px;font-size:16px;outline:0;background-color:var(--card-background);color:var(--text-color);transition:border-color .2s,box-shadow .2s}#messageInput:focus{border-color:var(--primary-color);box-shadow:0 0 0 1px var(--primary-color)}html.dark-mode #messageInput::placeholder{color:var(--secondary-text);opacity:.7}#sendMessageButton{background-color:var(--primary-color);color:var(--primary-text-color);border:none;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;justify-content:center;align-items:center}#sendMessageButton svg{width:24px;height:24px;fill:#fff}#sendMessageButton:disabled{background-color:var(--secondary-text);cursor:not-allowed}#confirmPaymentButtonContainer{padding:12px 15px;background-color:color-mix(in srgb,var(--success-color) 10%,var(--card-background));border-bottom:1px solid color-mix(in srgb,var(--success-color) 50%,var(--border-color));text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;z-index:10}.chat-status-message{font-size:15px;color:color-mix(in srgb,var(--success-color) 90%,var(--text-color));line-height:1.4;margin:0;padding:5px 0}.confirm-payment-btn,.status-confirmed{background-color:var(--success-color);color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:17px;font-weight:600;width:100%;max-width:300px}.confirm-payment-btn{cursor:pointer;box-shadow:0 2px 4px rgba(0,0,0,.1)}.confirm-payment-btn:disabled,.status-confirmed{background-color:var(--secondary-text);cursor:not-allowed}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.5);backdrop-filter:blur(3px);align-items:center;justify-content:center}.modal.active{display:flex}.modal-content{background-color:var(--card-background);padding:30px 25px;border-radius:20px;width:90%;max-width:350px;text-align:center;transform:scale(.95);opacity:0;transition:.3s}.modal.active .modal-content{transform:scale(1);opacity:1}.modal-title{font-size:22px;font-weight:700;margin-bottom:10px;color:var(--text-color)}.modal-message{font-size:16px;color:var(--secondary-text);margin-bottom:20px}.modal-close-btn{background-color:var(--primary-color);color:#fff;border:none;padding:12px 30px;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}.modal-icon{font-size:40px;margin-bottom:15px}.modal-type-success .modal-icon{color:var(--success-color)}.modal-type-error .modal-icon{color:var(--error-color)}.modal-type-info .modal-icon{color:var(--primary-color)}#authMessage{text-align:center;padding:20px;color:var(--secondary-text)}
+.unread-badge {
+    background-color: #ff3b30;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    margin-left: 10px;
+}
+</style>
+</head>
+<body>
+    <div class="main-container">
+        <a href="market.html" class="back-button">
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg> 
+            <span data-i18n="back_button">Назад</span>
+        </a>
+
+        <div id="authMessage" data-i18n="auth_checking">Перевірка авторизації...</div>
+
+        <div id="chatListPanel" style="display:none">
+            <div class="header" data-i18n="chats_header">Мої Чати</div>
+            <div id="chatListContainer">
+                <div class="no-chats-message" data-i18n="no_chats_message">Поки що немає активних чатів.</div>
+            </div>
+        </div>
+
+        <div id="chatView" style="display:none">
+            <div class="chat-header">
+                <svg id="chatHeaderBack" class="chat-header-back" viewBox="0 0 24 24" width="24" height="24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg>
+                <div class="chat-header-name" id="currentChatTitle">Співрозмовник</div>
+            </div>
+            <div id="confirmPaymentButtonContainer">
+                <p class="chat-status-message" data-i18n="chat_select_prompt">Виберіть чат для початку спілкування.</p>
+            </div>
+            <div id="messagesContainer"></div>
+            <form id="messageInputForm">
+                <input type="text" id="messageInput" data-i18n-placeholder="chat_input_placeholder" placeholder="Ваше повідомлення..." autocomplete="off" disabled> 
+                <button type="submit" id="sendMessageButton" disabled>
+                    <svg viewBox="0 0 24 24"><path d="m20.447 11.105-16-8A1 1 0 0 0 3.152 4.53L7.82 12l-4.668 7.47a1 1 0 0 0 1.3 1.425l16-8a1 1 0 0 0 0-1.79zM6.731 17.517 9.554 13H12a1 1 0 0 0 0-2H9.554L6.731 6.483 17.764 12z"/></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <div id="modalIcon" class="modal-icon"></div>
+            <div id="modalTitle" class="modal-title"></div>
+            <div id="modalMessage" class="modal-message"></div>
+            <button id="modalCloseBtn" class="modal-close-btn" data-i18n="modal_close">Закрити</button>
+        </div>
+    </div>
+
+    <script src="translate.js"></script>
+    <script type="module" src="chats.js"></script>
+</body>
+</html>
+

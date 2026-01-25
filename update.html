@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title data-i18n="updates_page_title">Оновлення AR Bank (v2.0)</title>
+<script>(function(){if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark-mode');})();</script>
+<style>
+:root{--primary-color:black;--body-bg:#f7f9fc;--text-color:#1f2937;--header-bg:#fff;--card-bg:#fff;--feature-icon-color:#10b981;--shadow-color:rgba(0,0,0,.1);--subtle-text:#6b7280;--button-bg:var(--primary-color);--button-text:#fff;--back-button-bg:#e5e7eb;--back-button-text:#374151}
+.dark-mode{--primary-color:white;--body-bg:#121212;--text-color:#e5e7eb;--header-bg:#1f2937;--card-bg:#1f2937;--feature-icon-color:#34d399;--shadow-color:rgba(255,255,255,.05);--subtle-text:#9ca3af;--button-bg:var(--primary-color);--button-text:#fff;--back-button-bg:#374151;--back-button-text:#f3f4f6}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;margin:0;padding:0;background:var(--body-bg);color:var(--text-color);transition:background .3s,color .3s;display:flex;flex-direction:column;align-items:center;min-height:100vh}.container{width:90%;max-width:450px;padding:20px 0}.header{text-align:center;padding:20px 0 30px}.header h1{font-size:28px;font-weight:800;margin:0;color:var(--primary-color)}.header p{font-size:16px;color:var(--subtle-text);margin-top:5px;font-weight:600}.update-section{background:var(--card-bg);border-radius:16px;padding:20px;margin-bottom:20px;box-shadow:0 4px 12px var(--shadow-color);transition:.3s}.section-title{font-size:20px;font-weight:700;margin-top:0;margin-bottom:15px;padding-bottom:8px;border-bottom:1px solid var(--back-button-bg)}.feature-list{list-style:none;padding:0;margin:0}.feature-list li{font-size:15px;margin-bottom:12px;display:flex;align-items:flex-start;line-height:1.4}.feature-list li:last-child{margin-bottom:0}.feature-list li::before{content:'•';color:var(--primary-color);font-weight:bold;display:inline-block;width:1em;margin-left:-1em;margin-right:.5em}.feature-subtitle{font-weight:600;color:var(--text-color);margin-top:0;margin-bottom:5px}.back-button-wrapper{width:100%;max-width:450px;padding:10px 0 30px;text-align:center}.back{width:100%;padding:15px;background:var(--back-button-bg);color:var(--back-button-text);border:none;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;transition:.3s}.back:active{transform:scale(0.98)}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header"><h1>AR BANK (v2.0)</h1><p data-i18n="updates_subtitle">Перелік нових функцій та змін</p></div>
+<div class="update-section">
+<h2 class="section-title" data-i18n="new_features_title">Нові функції</h2>
+<h3 class="feature-subtitle" data-i18n="settings_menu_subtitle">Меню налаштувань:</h3>
+<ul class="feature-list">
+<li data-i18n="feat_dark_mode">Темна тема;</li>
+<li data-i18n="feat_languages">Англійська мова (beta);</li>
+<li data-i18n="feat_pin">Можливість змінювати пін-код;</li>
+<li data-i18n="feat_support">Кнопка Підтримки;</li>
+<li data-i18n="feat_logout">Кнопка Вийти з акаунту;</li>
+<li data-i18n="feat_rules">Можливість переглядати правила прямо в банку;</li>
+<li data-i18n="feat_updates">Перегляд оновлень;</li>
+<li data-i18n="feat_website">Веб-сайт банку;</li>
+</ul>
+</div>
+<div class="update-section">
+<h2 class="section-title" data-i18n="card_shop_title">Магазин карток</h2>
+<ul class="feature-list"><li data-i18n="feat_skins">Можливість купувати та застосовувати різні скіни для картки;</li></ul>
+</div>
+<div class="update-section">
+<h2 class="section-title" data-i18n="transfers_title">Перекази</h2>
+<ul class="feature-list"><li data-i18n="feat_limits">Збільшено ліміти переказів до 48 000€;</li></ul>
+</div>
+<div class="update-section">
+<h2 class="section-title" data-i18n="market_title">AR MARKET</h2>
+<ul class="feature-list">
+<li data-i18n="feat_char_limit">Обмежена кількість символів для назви товару (8);</li>
+<li data-i18n="feat_desc">Додано поле для опису товару;</li>
+</ul>
+</div>
+<div class="back-button-wrapper">
+<button class="back" onclick="location.href='setting.html'" data-i18n="back">Назад</button>
+</div>
+</div>
+<script src="translate.js"></script>
+</body>
+</html>

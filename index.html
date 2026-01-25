@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Bank - Завантаження</title>
+    
+    <script>
+        function isMobileDevice() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            return /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+        }
+
+        function blockDesktopAccess() { 
+            if (typeof window.Telegram !== 'undefined' && typeof window.Telegram.WebApp !== 'undefined') {
+                return; 
+            }
+
+            if (!isMobileDevice()) {
+                document.body.style.display = 'none';
+                const desktopBlocker = document.createElement('div');
+                desktopBlocker.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background-color: #1a1a2e;
+                    color: white;
+                    display: flex; flex-direction: column; justify-content: center; align-items: center;
+                    padding: 20px; text-align: center;
+                    font-family: 'Inter', sans-serif; font-size: 20px;
+                    z-index: 99999;
+                `;
+                desktopBlocker.innerHTML = `
+                    <h2 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 1rem;">Доступ заборонено</h2>
+                    <p style="margin-bottom: 0.5rem;">Для безпеки цю програму можна відкрити лише на мобільному пристрої.</p>
+                    <p style="font-size: 14px; opacity: 0.7; margin-top: 15px;">
+                        (Або використовуйте <span style="font-weight: 600;">Telegram Mini App</span>.)
+                    </p>
+                `;
+                document.body.appendChild(desktopBlocker);
+                throw new Error("Доступ заблоковано");
+            }
+        }
+        blockDesktopAccess();
+    </script>
+
+<style>
+    :root {
+        --primary-color: #000000; 
+        --background-color: #f7f9fc; 
+        --text-color: #333333;
+    }
+
+    .dark-mode { 
+        --primary-color: #ffffff; 
+        --background-color: #0a0a0c; 
+        --text-color: #f0f0f0; 
+    }
+    
+    html, body {
+        margin: 0; padding: 0;
+        height: 100vh; width: 100%;
+        background-color: var(--background-color); 
+        color: var(--text-color);
+        font-family: 'Inter', sans-serif;
+        display: flex; justify-content: center; align-items: center;
+        overflow: hidden;
+    }
+
+    .loader-container { position: relative; z-index: 2; text-align: center; }
+    .card-pulse {
+        width: 65px;
+        height: 42px;
+        border-radius: 8px;
+        background-color: var(--primary-color);
+        position: relative;
+        margin: 0 auto 1.5rem;
+        animation: pulse-grow 1.5s infinite ease-in-out, wave-motion 3s infinite ease-in-out;
+        box-shadow: 0 0 20px rgba(0, 150, 255, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    @keyframes pulse-grow {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    @keyframes wave-motion {
+        0%, 100% { transform: translateY(0) rotate(3deg); }
+        50% { transform: translateY(-5px) rotate(-3deg); } 
+    }
+
+    .loader-container h1 {
+        color: var(--text-color);
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: 3px;
+    }
+
+    .dot-container { display: flex; justify-content: center; margin-top: 0.8rem; }
+    .dot {
+        width: 10px; height: 10px; border-radius: 50%; margin: 0 5px;
+        background-color: var(--primary-color);
+        animation: bounce 1.4s infinite ease-in-out both;
+    }
+    
+    .dot:nth-child(1) { animation-delay: -0.32s; background-color: var(--primary-color); }
+    .dot:nth-child(2) { animation-delay: -0.16s; background-color: var(--primary-color); }
+    .dot:nth-child(3) { background-color:var(--primary-color) ; }
+
+    @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1.2); }
+    }
+</style>
+</head>
+<body>
+    <div class="loader-container"> 
+        <div class="card-pulse">
+
+        </div>
+        <h1>AR BANK</h1> 
+        <div class="dot-container">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+            authDomain: "ar-bank-dbfd9.firebaseapp.com",
+            databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "ar-bank-dbfd9",
+            storageBucket: "ar-bank-dbfd9.firebasestorage.app",
+            messagingSenderId: "635449421773",
+            appId: "1:635449421773:web:bc7261cc5a4238c3649e84",
+            measurementId: "G-R2B0H618QQ"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        document.addEventListener('DOMContentLoaded', () => {
+            onAuthStateChanged(auth, (user) => {
+                setTimeout(() => {
+                    if (user) {
+                        window.location.href = "pin.html";
+                    } else {
+                        window.location.href = "welcome.html";
+                    }
+                }, 100); 
+            });
+        });
+    </script>
+        <script>function applyThemeOnLoad(){if(localStorage.getItem('theme')==='dark'){document.body.classList.add('dark-mode');}}applyThemeOnLoad();</script>
+</body>
+</html>

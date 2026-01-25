@@ -1,0 +1,495 @@
+:root {
+    --body-bg: #fafafa;
+    --text-color: #191919;
+    --header-bg: #fff;
+    --element-bg: #f8f8f8;
+    --element-bg-hover: #eaeaea;
+    --shadow-color: rgba(0, 0, 0, .1);
+    --shadow-button: rgba(0, 0, 0, .2);
+    --subtle-text: #888;
+}
+.dark-mode {
+    --body-bg: #1a1a1a;
+    --text-color: #f0f0f0;
+    --header-bg: #242424;
+    --element-bg: #333;
+    --element-bg-hover: #444;
+    --shadow-color: rgba(255, 255, 255, .05);
+    --shadow-button: rgba(0, 0, 0, .6);
+    --subtle-text: #888;
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: var(--body-bg);
+    color: var(--text-color);
+    transition: background .3s, color .3s;
+}
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--header-bg);
+    padding: 10px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    transition: background .3s, box-shadow .3s;
+}
+
+.title-1 {
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+    font-size: 18px;
+    color: var(--text-color);
+    transition: color .3s;
+}
+
+.profile-icon svg,
+.gear-icon svg {
+    display: block;
+    width: 32px;
+    height: 32px;
+    fill: var(--text-color);
+    transition: fill .3s;
+}
+.card {
+    width: 330px;
+    height: 200px;
+    perspective: 1000px;
+    margin: 20px auto; 
+    cursor: pointer;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform .8s;
+}
+
+.card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px var(--shadow-color);
+    transition: box-shadow .3s, background-image 0.5s ease;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    color: #fff;
+    overflow: hidden;
+}
+
+/* Відео-фон (генерується через JS) */
+#card-bg-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Контент картки піднімаємо вище відео та додаємо тінь для читабельності */
+.chip-logo-container,
+.card-number,
+.card-details,
+.bank-name-back,
+.magnetic-stripe,
+.signature-cvv-area,
+.back-text {
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+.card-front {
+    justify-content: space-between;
+}
+
+.chip-logo-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.card-chip svg {
+    width: 55px;
+    height: 50px;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.bank-logo {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.card-number {
+    color: #ffffff;
+    height: 24px;
+    font-size: 22px;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-top: 5px;
+    text-align: center;
+    text-shadow: 
+        0 1px 0 black,
+        0 2px 0 black,
+        0 3px 0 black,
+        0 4px 0 black,
+        0 5px 10px rgba(0, 0, 0, 0.4);
+}
+
+.card-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.card-expiry {
+    font-size: .65em;
+    line-height: 1.1;
+    text-transform: uppercase;
+    font-weight: 400;
+}
+
+.expiry-date {
+    font-size: 1.2em;
+    font-weight: 600;
+    display: block;
+}
+
+.card-name {
+    font-size: .9em;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: right;
+    line-height: 1.2;
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    padding: 0;
+    justify-content: flex-start;
+    align-items: center;
+    background: ; /* Колір за замовчуванням */
+}
+
+.bank-name-back {
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 10px;
+    align-self: flex-start;
+    margin-left: 20px;
+}
+
+.magnetic-stripe {
+    width: 100%;
+    height: 40px;
+    background: #000;
+    margin-top: 5px;
+    text-shadow: none;
+}
+
+.signature-cvv-area {
+    width: calc(100% - 40px);
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.signature-line {
+    flex-grow: 1;
+    height: 30px;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+.cvv-box {
+    width: 50px;
+    height: 28px;
+    background: #fff;
+    border: 1px solid #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: .9em;
+    font-weight: 700;
+    color: #000;
+    margin-left: 10px;
+    text-shadow: none;
+    font-family: Monospace;
+}
+
+.back-text {
+    width: calc(100% - 40px);
+    text-align: center;
+    margin-top: 10px;
+    font-size: .75em;
+    color: black;
+    opacity: 0.9;
+}
+
+/* --- Кнопки налаштувань --- */
+.separator {
+    width: 90%;
+    max-width: 390px;
+    border: none;
+    border-top: 1px solid var(--element-bg-hover);
+    margin: 10px auto;
+}
+
+.setting-button {
+    position: relative; 
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 14px 18px;
+    margin: 18px 12px;
+    background: var(--element-bg);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .25s ease;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-color);
+    box-shadow: 0 4px 8px var(--shadow-button);
+    overflow: visible; 
+}
+
+.setting-button:hover {
+    background: var(--element-bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px var(--shadow-color);
+}
+
+.setting-button:active {
+    transform: scale(.97);
+}
+
+.setting-button .icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+.setting-button .icon svg {
+    display: block;
+    fill: var(--text-color);
+    transition: fill .3s;
+}
+
+.setting-button .arrow {
+    font-size: 20px;
+    color: var(--subtle-text);
+    margin-left: auto;
+    transition: transform .25s, color .3s;
+}
+
+.setting-button:hover .arrow {
+    transform: translateX(4px);
+}
+
+.setting-button .label {
+    margin-left: 12px;
+    flex: 1;
+    color: var(--text-color);
+    z-index: 2;
+}
+.slider-container {
+    width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Приховати скролбар Firefox */
+}
+.slider-container::-webkit-scrollbar {
+    display: none; /* Приховати скролбар Chrome/Safari */
+}
+
+.card-slider {
+    display: flex;
+    width: max-content;
+    padding: 0 20px; /* Відступи по боках */
+}
+
+.card {
+    flex: 0 0 330px; /* Фіксована ширина картки */
+    margin: 20px 10px;
+    scroll-snap-align: center;
+    transition: transform 0.3s;
+}
+
+.slider-dots {
+    text-align: center;
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+.dot {
+    height: 8px;
+    width: 8px;
+    background-color: var(--subtle-text);
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 5px;
+    transition: background-color 0.3s;
+}
+
+.dot.active {
+    background-color: var(--text-color);
+    transform: scale(1.2);
+}
+.card2-container {
+    position: relative;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Пружна анімація */
+    z-index: 10;
+}
+.menu-under-btn {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 20px; 
+    width: 80%;
+    height: 45px;
+    z-index: -1; 
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+.menu-under-btn1 {
+    position: absolute;
+    left: 80%;
+    transform: translateX(-50%);
+    bottom: 20px; 
+    width: 40%;
+    height: 45px;
+    z-index: -1; 
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+.card2-container.shrunk {
+    transform: scale(0.85) translateY(-40px);
+}
+
+.card2-container.shrunk .menu-under-btn {
+    opacity: 1;
+    bottom: -60px; 
+    pointer-events: auto; 
+}
+.menu-under-btn:active {
+    transform: translateX(-50%) scale(0.95);
+    background: #c0392b;
+}
+.second-card-style {
+    background: var(--text-color) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Контейнер сітки */
+.quick-actions-grid {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10px;
+    width: 330px; /* Ширина як у карти */
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 колонки */
+    gap: 10px;
+    z-index: -1;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Компактні кнопки */
+.grid-btn {
+    height: 45px;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+
+.grid-btn:active {
+    transform: scale(0.95);
+}
+
+/* СТАН ПРИ НАТИСКАННІ */
+.card2-container.shrunk {
+    transform: scale(0.8) translateY(-60px); /* Картка трохи вгору */
+}
+
+.card2-container.shrunk .quick-actions-grid {
+    opacity: 1;
+    visibility: visible;
+    bottom: -110px; /* Виїжджають знизу */
+}
+
+/* Темна тема для другої карти */
+.second-card-style {
+    background: var(--text-color) !important;
+    color: var(--body-bg) !important;
+}
+.add-card-btn {
+  padding: 10px;
+  border:none;
+  height: 40px;
+  width: 40px;
+  border-radius: 100px;
+  background:var(--body-bg) ;
+  color: var(--text-color);
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  box-shadow: 0 4px 10px var(--shadow-color);
+}
+  

@@ -1,0 +1,435 @@
+<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Trade | AR Bank</title><script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0b0e11;
+            --card-bg: #1e2329;
+            --text-main: #eaecef;
+            --text-gray: #848e9c;
+            --green: #2ebd85;
+            --red: #f6465d;
+            --overlay: rgba(0, 0, 0, 0.8);
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden;
+            padding-bottom: 110px; 
+        }
+        .back-nav {
+            position: absolute; top: 20px; left: 15px; z-index: 10;
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; background: var(--card-bg);
+            border-radius: 10px; color: var(--text-main); text-decoration: none;
+        }
+        .header { 
+            width: 100%; max-width: 600px; padding: 20px 20px 20px 65px;
+            display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; 
+        }
+        .current-price { font-size: 26px; font-weight: 700; display: block; }
+        .chart-view-viewport {
+            width: 95%; max-width: 600px; background: var(--card-bg);
+            border-radius: 16px; overflow-x: auto; position: relative;
+        }
+        .chart-view-viewport::-webkit-scrollbar { height: 4px; }
+        .chart-view-viewport::-webkit-scrollbar-thumb { background: #3b424a; border-radius: 10px; }
+        .chart-wrapper { height: 280px; min-width: 100%; padding: 10px; box-sizing: border-box; }
+        .stats-container {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            width: 95%; max-width: 600px; margin-top: 15px;
+        }
+        .stat-card {
+            background: var(--card-bg); padding: 12px; border-radius: 12px;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .stat-label { color: var(--text-gray); font-size: 10px; text-transform: uppercase; }
+        .stat-value { font-size: 16px; font-weight: 700; }
+        .recent-trades-box {
+        width: 95%; max-width: 600px; margin: 15px auto; background: var(--card-bg);
+        border-radius: 16px; padding: 15px; box-sizing: border-box;
+        height: 250px; display: flex; flex-direction: column;
+    }
+    .trades-header { font-size: 14px; font-weight: 700; margin-bottom: 10px; color: var(--text-gray); display: flex; justify-content: space-between; align-items: center; }
+    #coin-trades-list { 
+        flex: 1; 
+        overflow-y: auto; 
+        display: flex; 
+        flex-direction: column; 
+        margin-top: 5px;
+    }
+    #coin-trades-list::-webkit-scrollbar { width: 3px; }
+    #coin-trades-list::-webkit-scrollbar-thumb { background: #3b424a; border-radius: 10px; }
+    .trade-item { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        padding: 8px 0; 
+        border-bottom: 1px solid #2b3139; 
+        font-size: 12px;
+    }
+    .trade-name { flex: 1; font-weight: 600; color: #eaecef; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .trade-info { flex: 1; text-align: center; font-weight: 700; }
+    .trade-price { flex: 1; text-align: right; color: #848e9c; font-family: monospace; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--overlay); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal {
+            background: var(--card-bg); width: 90%; max-width: 380px;
+            border-radius: 24px; padding: 25px; box-sizing: border-box;
+            transform: translateY(100px); opacity: 0; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal.active { transform: translateY(0); opacity: 1; }
+        .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 15px; display: block; text-align: center; }
+        .input-group { 
+            background: var(--bg-dark); border-radius: 12px; padding: 12px; 
+            margin: 15px 0 5px 0; border: 1px solid #2b3139; position: relative;
+        }
+        .input-group input { background: transparent; border: none; color: white; width: 100%; font-size: 18px; font-weight: 700; outline: none; }
+        .max-btn {
+            background: #3b424a; color: #fcd535; border: none; border-radius: 6px;
+            padding: 4px 8px; font-size: 10px; font-weight: 700; cursor: pointer;
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+        }
+        .trade-actions { 
+            width: 100%; max-width: 600px; padding: 20px; display: grid; 
+            grid-template-columns: 1fr 1fr; gap: 15px; position: fixed; bottom: 0; 
+            background: var(--bg-dark); border-top: 1px solid #2b3139; box-sizing: border-box; z-index: 100;
+        }
+        .btn { border: none; border-radius: 12px; padding: 16px; font-size: 16px; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; outline: none; }.btn-buy { background-color: var(--green); }.btn-sell { background-color: var(--red); }.btn-gray { background-color: #3b424a; }.btn:active { transform: scale(0.95); }.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+<a href="crypto.html" class="back-nav">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+</a>
+<div class="header">
+    <div class="coin-info">
+        <h1 id="coin-title" style="margin:0; font-size: 22px;">...</h1>
+        <span style="color: var(--text-gray); font-size: 13px;">USDT Market</span>
+    </div>
+    <div class="price-info">
+        <span class="current-price" id="price-val">...</span>
+        <span id="change-val" style="font-size:15px; font-weight:600;">...</span>
+    </div>
+</div>
+<div class="chart-view-viewport" id="viewport">
+    <div class="chart-wrapper" id="wrapper">
+        <canvas id="mainChart"></canvas>
+    </div>
+</div>
+<div class="stats-container">
+    <div class="stat-card">
+        <span class="stat-label">Ваш актив</span>
+        <span class="stat-value" id="user-asset-qty">0.00</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Еквівалент $</span>
+        <span class="stat-value" id="user-asset-usd">$0.00</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">24г Макс.</span>
+        <span class="stat-value" id="24h-max" style="color: var(--green)">---</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">24г Мін.</span>
+        <span class="stat-value" id="24h-min" style="color: var(--red)">---</span>
+    </div>
+</div>
+<div class="recent-trades-box">
+    <div class="trades-header">
+        <span id="trades-title">Угоди монети</span>
+        <span style="font-size: 10px; font-weight: 400; color: var(--green);">● Live</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #2b3139; font-size: 11px; color: #848e9c; text-transform: uppercase;">
+        <span style="flex: 1;">Ім'я</span>
+        <span style="flex: 1; text-align: center;">Тип/Кількість</span>
+        <span style="flex: 1; text-align: right;">По ціні</span>
+    </div>
+    <div id="coin-trades-list">
+        <div style="text-align:center; color:#848e9c; font-size:12px; margin-top:20px;">Завантаження...</div>
+    </div>
+</div>
+</div>
+<div class="trade-actions">
+    <button class="btn btn-buy" onclick="openTradeModal('buy')">Купити</button>
+    <button class="btn btn-sell" onclick="openTradeModal('sell')">Продати</button>
+</div>
+<div class="modal-overlay" id="trade-modal-overlay">
+    <div class="modal" id="trade-modal">
+        <span id="modal-title" class="modal-title">Операція</span>
+        <div style="font-size: 12px; opacity: 0.8; display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <span>Ціна: <b id="modal-price">$0</b></span>
+            <span>Доступно: <b id="modal-available">0</b></span>
+        </div>
+        <div class="input-group">
+            <label style="font-size: 11px; color: var(--text-gray);">Кількість монет</label>
+            <input type="number" id="trade-amount" value="1" min="0" step="any" oninput="updateModalTotal()">
+            <button class="max-btn" onclick="setMaxAmount()">НА ВСІ</button>
+        </div>
+        <div style="margin-bottom: 20px; font-size: 15px;">Разом: <b id="modal-total" style="color: #fcd535;">$0</b></div>
+        <div class="modal-actions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn btn-gray" onclick="closeTradeModal()">Скасувати</button>
+            <button class="btn btn-buy" id="modal-confirm-btn">Підтвердити</button>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.0.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.1.1"></script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, onValue, query, limitToLast, update, push, get } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    const firebaseConfig = {
+        apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+        authDomain: "ar-bank-dbfd9.firebaseapp.com",
+        databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "ar-bank-dbfd9"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const EUR_USD_RATE = 1.08; 
+    const urlParams = new URLSearchParams(window.location.search);
+    const coinName = urlParams.get('coin') || 'Bitcoin';
+    const isTether = coinName.toLowerCase() === 'tether' || coinName.toLowerCase() === 'usdt';
+    const bases = { 'Bitcoin': 92000, 'Ethereum': 3700, 'Toncoin': 5.20, 'ARcoin': 12.50, 'Solana': 105.00, 'XRP': 0.62 };
+    const coinSeeds = { 'Bitcoin': 123.45, 'Ethereum': 678.90, 'Toncoin': 432.10, 'ARcoin': 999.99, 'Solana': 555.55, 'XRP': 111.11 };
+    let coinMultiplier = 1;
+    let currentPrice = 0;
+    let currentMode = 'buy';
+    let currentUser = null;
+    let userFullName = "Користувач"; 
+    let userUsdtBalance = 0; 
+    let userCardBalance = 0; 
+    let userCoinQty = 0;     
+    function getPriceAtTime(timeMs) {
+        if (isTether) return 1.00;
+        const base = (bases[coinName] || 100) * coinMultiplier;
+        const seed = coinSeeds[coinName] || 1.0;
+        const t = Math.floor(timeMs / 10000);
+        const calc = (step) => {
+            const s = step + (seed * 500);
+            const wave1 = Math.sin(s * 0.02) * (base * 0.04);
+            const wave2 = Math.sin(s * 0.15) * (base * 0.01);
+            const noise = Math.sin(Math.tan(Math.sin(s * 0.5))) * (base * 0.005);
+            const trend = Math.cos(s * 0.011 + Math.sin(s * 0.002)) * (base * 0.06);
+            return base + wave1 + wave2 + noise + trend;
+        };
+        return Number(calc(t).toFixed(2));
+    }
+    function getCandleData(timeMs) {
+        const open = getPriceAtTime(timeMs - 10000);
+        const close = getPriceAtTime(timeMs);
+        const rawHigh = Math.max(open, close) + (Math.random() * (open * 0.002));
+        const rawLow = Math.min(open, close) - (Math.random() * (open * 0.002));
+        return { x: timeMs, o: open, h: rawHigh, l: rawLow, c: close };
+    }
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'candlestick',
+        data: {
+            datasets: [{
+                label: coinName,
+                data: [],
+                color: { up: '#2ebd85', down: '#f6465d', unchanged: '#999' },
+                wickColor: { up: '#2ebd85', down: '#f6465d', unchanged: '#242424' }
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            plugins: { 
+                legend: { display: false },
+                zoom: {
+                    pan: { enabled: true, mode: 'x', threshold: 5 },
+                    zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }
+                }
+            },
+            scales: {
+                x: { 
+                    display: true, 
+                    type: 'time', 
+                    time: { unit: 'minute', displayFormats: { minute: 'HH:mm' } },
+                    grid: { color: 'rgba(255,255,255,0.03)' },
+                    ticks: { color: '#848e9c', font: { size: 10 } }
+                },
+                y: { position: 'right', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#848e9c' } }
+            }
+        }
+    });
+    function updateUserAssetsUI() {
+        const assetQtyEl = document.getElementById('user-asset-qty');
+        const assetUsdEl = document.getElementById('user-asset-usd');
+        if (isTether) {
+            if (assetQtyEl) assetQtyEl.textContent = `${userUsdtBalance.toLocaleString()} USDT`;
+            if (assetUsdEl) assetUsdEl.textContent = `$${userUsdtBalance.toLocaleString()}`;
+        } else {
+            const equivalentUsd = userCoinQty * currentPrice;
+            if (assetQtyEl) assetQtyEl.textContent = `${userCoinQty.toFixed(6)} ${coinName}`;
+            if (assetUsdEl) assetUsdEl.textContent = `$${equivalentUsd.toLocaleString()}`;
+        }
+    }
+    function updateMarketUI() {
+        const now = Math.floor(Date.now() / 10000) * 10000;
+        currentPrice = getPriceAtTime(now);
+        const history = [];
+        for (let i = 65; i >= 0; i--) {
+            history.push(getCandleData(now - (i * 10000)));
+        }
+        chart.data.datasets[0].data = history;
+        chart.update('none');
+        const prevPrice = getPriceAtTime(now - 10000);
+        const isUp = currentPrice >= prevPrice;
+        const color = isUp ? '#2ebd85' : '#f6465d';
+        const percent = Math.abs(((currentPrice - prevPrice) / prevPrice) * 100).toFixed(2);
+        if (document.getElementById('price-val')) {
+            document.getElementById('price-val').textContent = `$${currentPrice.toLocaleString()}`;
+            document.getElementById('price-val').style.color = color;
+        }
+        if (document.getElementById('change-val')) {
+            document.getElementById('change-val').textContent = `${isUp ? '▲' : '▼'} ${percent}%`;
+            document.getElementById('change-val').style.color = color;
+        }
+        update24hStats();
+        updateUserAssetsUI();
+        if(document.getElementById('trade-modal-overlay').style.display === 'flex') {
+            document.getElementById('modal-price').textContent = `$${currentPrice.toLocaleString()}`;
+            window.updateModalTotal();
+        }
+    }
+    function update24hStats() {
+        const now = Math.floor(Date.now() / 10000) * 10000;
+        let max = 0, min = Infinity;
+        for (let i = 0; i <= 96; i++) {
+            const p = getPriceAtTime(now - (i * 15 * 60 * 1000));
+            if (p > max) max = p;
+            if (p < min) min = p;
+        }
+        if(document.getElementById('24h-max')) document.getElementById('24h-max').textContent = `$${max.toLocaleString()}`;
+        if(document.getElementById('24h-min')) document.getElementById('24h-min').textContent = `$${min.toLocaleString()}`;
+    }
+    window.openTradeModal = (mode) => {
+        currentMode = mode;
+        document.getElementById('modal-title').textContent = mode === 'buy' ? 'Купити' : 'Продати';
+        document.getElementById('modal-price').textContent = `$${currentPrice.toLocaleString()}`;
+        const availableEl = document.getElementById('modal-available');
+        if (mode === 'buy') {
+            availableEl.textContent = isTether ? `${userCardBalance.toLocaleString()} €` : `$${userUsdtBalance.toLocaleString()}`;
+        } else {
+            availableEl.textContent = isTether ? `$${userUsdtBalance.toLocaleString()}` : `${userCoinQty} ${coinName}`;
+        }
+        document.getElementById('trade-modal-overlay').style.display = 'flex';
+        setTimeout(() => document.getElementById('trade-modal').classList.add('active'), 10);
+        window.updateModalTotal();
+    };
+    window.closeTradeModal = () => {
+        document.getElementById('trade-modal').classList.remove('active');
+        setTimeout(() => document.getElementById('trade-modal-overlay').style.display = 'none', 300);
+    };
+    window.updateModalTotal = () => {
+        const amount = Number(document.getElementById('trade-amount').value) || 0;
+        const totalUsd = amount * currentPrice;
+        let info = `$${totalUsd.toFixed(2)}`;
+        if (isTether) info += ` (${(totalUsd / EUR_USD_RATE).toFixed(2)} €)`;
+        document.getElementById('modal-total').textContent = info;
+    };
+    window.setMaxAmount = () => {
+        const inp = document.getElementById('trade-amount');
+        if (currentMode === 'buy') {
+            const bUsd = isTether ? (userCardBalance * EUR_USD_RATE) : userUsdtBalance;
+            inp.value = (bUsd / currentPrice).toFixed(isTether ? 2 : 6);
+        } else {
+            inp.value = isTether ? userUsdtBalance : userCoinQty;
+        }
+        window.updateModalTotal();
+    };
+    document.getElementById('modal-confirm-btn').onclick = async () => {
+        const amount = Number(document.getElementById('trade-amount').value);
+        if (!amount || amount <= 0) return alert("Вкажіть кількість");
+        const btn = document.getElementById('modal-confirm-btn');
+        btn.disabled = true;
+        const totalUsd = amount * currentPrice;
+        const updates = {};
+        try {
+            if (currentMode === 'buy') {
+                if (isTether) {
+                    const costEur = totalUsd / EUR_USD_RATE;
+                    if (userCardBalance < costEur) throw "Недостатньо € на картці";
+                    updates[`user/${currentUser.uid}/card/balance`] = userCardBalance - costEur;
+                    updates[`crypto/user/${currentUser.uid}/balance`] = userUsdtBalance + amount;
+                } else {
+                    if (userUsdtBalance < totalUsd) throw "Недостатньо USDT";
+                    updates[`crypto/user/${currentUser.uid}/balance`] = userUsdtBalance - totalUsd;
+                    updates[`crypto/user/${currentUser.uid}/user-coin/${coinName}`] = userCoinQty + amount;
+                }
+            } else {
+                if (isTether) {
+                    if (userUsdtBalance < amount) throw "Недостатньо USDT";
+                    updates[`crypto/user/${currentUser.uid}/balance`] = userUsdtBalance - amount;
+                    updates[`user/${currentUser.uid}/card/balance`] = userCardBalance + (totalUsd / EUR_USD_RATE);
+                } else {
+                    if (userCoinQty < amount) throw "Недостатньо монет";
+                    updates[`crypto/user/${currentUser.uid}/user-coin/${coinName}`] = userCoinQty - amount;
+                    updates[`crypto/user/${currentUser.uid}/balance`] = userUsdtBalance + totalUsd;
+                }
+            }
+            const newHistoryRef = push(ref(db, `crypto/coin_history/${coinName}`));
+            updates[`crypto/coin_history/${coinName}/${newHistoryRef.key}`] = {
+                userName: userFullName, 
+                type: currentMode,
+                amount: amount,
+                price: currentPrice,
+                timestamp: Date.now()
+            };
+            await update(ref(db), updates);
+            closeTradeModal();
+            alert("Операція успішна!");
+        } catch (e) { alert(e); } finally { btn.disabled = false; }
+    };
+    function loadTradeHistory() {
+        const historyRef = query(ref(db, `crypto/coin_history/${coinName}`), limitToLast(10));
+        onValue(historyRef, (snapshot) => {
+            const listEl = document.getElementById('coin-trades-list');
+            if (!listEl) return;
+            let html = "";
+            if (snapshot.exists()) {
+                Object.values(snapshot.val()).reverse().forEach(t => {
+                    const isBuy = t.type === 'buy';
+                    html += `<div class="trade-item" style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:12px;">
+                        <span style="color:#eaecef; flex:1;">${t.userName}</span>
+                        <span style="color:${isBuy?'#2ebd85':'#f6465d'}; flex:1; text-align:center;">${t.type.toUpperCase()} ${t.amount}</span>
+                        <span style="color:#eaecef; flex:1; text-align:right;">$${t.price}</span>
+                    </div>`;
+                });
+            } else { html = "<div style='text-align:center; color:#848e9c; padding:10px;'>Немає угод</div>"; }
+            listEl.innerHTML = html;
+        });
+    }
+    onAuthStateChanged(auth, async (user) => { 
+        if(user) { 
+            currentUser = user;
+            if (document.getElementById('coin-title')) document.getElementById('coin-title').textContent = coinName;
+            const userSnap = await get(ref(db, `user/${user.uid}`));
+            if(userSnap.exists()) userFullName = userSnap.val().full_name || user.displayName || "Користувач";
+            onValue(ref(db, `crypto/user/${user.uid}/balance`), s => { userUsdtBalance = Number(s.val()) || 0; updateUserAssetsUI(); });
+            onValue(ref(db, `user/${user.uid}/card/balance`), s => userCardBalance = Number(s.val()) || 0);
+            onValue(ref(db, `crypto/user/${user.uid}/user-coin/${coinName}`), s => { userCoinQty = Number(s.val()) || 0; updateUserAssetsUI(); });
+            onValue(ref(db, `crypto/settings/multipliers/${coinName}`), s => {
+                coinMultiplier = s.exists() ? Number(s.val()) : 1;
+                updateMarketUI();
+            });
+            loadTradeHistory(); 
+            setInterval(updateMarketUI, 5000); 
+            updateMarketUI();
+        } else { window.location.href = "login.html"; }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="other_page_title">Фінанси та Баланс</title>
+    
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+            }
+        })();
+    </script>
+    
+    <style>
+        /* Стилі залишаються без змін... */
+        :root { --primary-color: #2e86de; --background-color: #ffffff; --card-background: #ffffff; --text-color: #333333; --light-text: #6c757d; --border-color: #e0e0e0; --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05); --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.1); }
+        html.dark-mode { --background-color: #121212; --card-background: #1e1e1e; --text-color: #f0f0f0; --light-text: #aaaaaa; --border-color: #333333; --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.3); --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.5); }
+        body { font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: var(--background-color); margin: 0; padding: 20px; color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
+        .container { width: 100%; max-width: 600px; }
+        #mainDashboard { display: none; width: 100%; }
+        #statusMessage { margin-top: 50px; font-size: 18px; color: var(--text-color); text-align: center; }
+        .back-button { display: inline-flex; align-items: center; padding: 5px 0; margin-bottom: 25px; text-decoration: none; color: var(--primary-color); font-weight: 500; transition: color 0.2s; }
+        .back-button svg { width: 20px; height: 20px; margin-right: 8px; fill: var(--primary-color); }
+        .operations-grid { display: flex; flex-direction: column; gap: 15px; width: 100%; align-items: center; }
+        .inshe-button { background-color: var(--card-background); border: 1px solid var(--border-color); padding: 15px; border-radius: 16px; text-decoration: none; color: var(--text-color); font-weight: 600; font-size: 16px; width: 100%; max-width: 400px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; box-shadow: var(--shadow-light); transition: all 0.2s ease; }
+        .inshe-button:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: var(--primary-color); }
+        .inshe-button svg { width: 32px; height: 32px; margin-right: 15px; fill: var(--text-color); transition: fill 0.2s; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="statusMessage" data-i18n="wait">Зачекайте...</div>
+        
+        <div id="mainDashboard">
+            
+            <a href="finance.html" class="back-button">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/>
+                </svg>
+                <span data-i18n="back">Назад</span>
+            </a>
+
+            <div class="operations-grid">
+                 <a href="charity.html" class="inshe-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 492 492">
+                        <path d="M351.8 226.46c-13.536-13.536-31.56-21-50.712-21s-37.176 7.464-50.712 21l-4.128 4.128-4.128-4.128c-13.536-13.56-31.56-21-50.712-21s-37.176 7.464-50.712 21c-13.536 13.536-21 31.56-21 50.712 0 19.152 7.464 37.176 21 50.712L242.168 429.38a5.72 5.72 0 0 0 4.08 1.68 5.72 5.72 0 0 0 4.08-1.68l101.496-101.496c13.536-13.536 21-31.56 21-50.712 0-19.152-7.464-37.176-21.024-50.712zm-8.136 93.288-97.416 97.416-97.416-97.416c-11.376-11.376-17.64-26.496-17.64-42.576 0-16.08 6.264-31.2 17.64-42.576 11.376-11.376 26.496-17.64 42.576-17.64s31.2 6.264 42.576 17.64l8.208 8.208a5.756 5.756 0 0 0 4.08 1.68c1.536 0 3-.6 4.08-1.68l8.208-8.208c11.376-11.376 26.496-17.64 42.576-17.64s31.2 6.264 42.576 17.64c11.376 11.376 17.64 26.496 17.64 42.576-.048 16.08-6.312 31.2-17.688 42.576z" style="fill: var(--text-color);"/>
+                        <path d="M184.4 217.34c-1.536 0-3.072-.6-4.2-1.824-15.888-16.92-24.648-39.024-24.648-62.256 0-12.264 2.4-24.168 7.128-35.352 4.56-10.824 11.112-20.544 19.44-28.872 8.328-8.352 18.024-14.904 28.824-19.464 11.184-4.752 23.064-7.152 35.304-7.152 12.24 0 24.12 2.4 35.304 7.152 10.8 4.584 20.496 11.136 28.824 19.464 8.328 8.352 14.856 18.048 19.44 28.872 4.728 11.208 7.128 23.088 7.128 35.352 0 22.968-8.592 44.904-24.168 61.752-.024.024-.168.192-.288.312l-.168.168c-2.16 2.328-5.808 2.472-8.136.312-2.328-2.16-2.472-5.808-.312-8.136l.456-.48c13.608-14.712 21.096-33.864 21.096-53.928 0-21.192-8.232-41.112-23.184-56.088-14.952-14.976-34.824-23.232-55.968-23.232-21.144 0-41.016 8.256-55.968 23.232-14.952 14.976-23.184 34.896-23.184 56.088 0 20.304 7.632 39.6 21.528 54.36a5.74 5.74 0 0 1-.264 8.136c-1.152 1.056-2.568 1.584-3.984 1.584z" style="fill: var(--text-color);"/>
+                    </svg>
+                    <span data-i18n="other_charity">Благодійність</span>
+                </a>
+
+                 <a href="fine.html" class="inshe-button">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                      <path d="M48 41a3 3 0 0 0-3-3H35a3 3 0 0 0-3 3v7.051a7.5 7.5 0 0 0 4.425 6.841L40 56.5l3.575-1.608A7.5 7.5 0 0 0 48 48.051V41z" style="fill:none;stroke:var(--text-color);stroke-width:2px"/>
+                      <path d="m36.75 46.748 2.5 2 4-3.5" style="fill:none;stroke:var(--text-color);stroke-width:2px"/>
+                      <path d="M43 34V15a3.995 3.995 0 0 0-1.172-2.828A3.995 3.995 0 0 0 39 11H17a3.995 3.995 0 0 0-2.828 1.172A3.995 3.995 0 0 0 13 15v35c0 1.061.421 2.078 1.172 2.828A3.995 3.995 0 0 0 17 54h17.5" style="fill:none;stroke:var(--text-color);stroke-width:2px"/>
+                      <path d="M47 34V11a3.995 3.995 0 0 0-1.172-2.828A3.995 3.995 0 0 0 43 7H21a3.995 3.995 0 0 0-2.828 1.172A3.995 3.995 0 0 0 17 11s0 0 0 0M20 19h16M20 25h16M20 31h16" style="fill:none;stroke:var(--text-color);stroke-width:2px"/>
+                  </svg>
+                    <span data-i18n="other_fines">Мої штрафи</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="translate.js"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+            authDomain: "ar-bank-dbfd9.firebaseapp.com",
+            databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "ar-bank-dbfd9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app); 
+
+        const mainDashboard = document.getElementById('mainDashboard');
+        const statusMessage = document.getElementById('statusMessage');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                statusMessage.style.display = 'none';
+                mainDashboard.style.display = 'block';
+            } else {
+                // Динамічний переклад повідомлення про помилку
+                const loginLink = `<a href="login.html">${window.i18next.t('auth_login_link')}</a>`;
+                statusMessage.innerHTML = window.i18next.t('auth_not_logged_in').replace('{login_link}', loginLink);
+            }
+        });
+    </script>
+
+</body>
+</html>
