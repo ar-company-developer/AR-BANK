@@ -15,7 +15,7 @@ const translations = {
         login_header: "Вхід у кабінет",
         label_email: "Електронна пошта",
         placeholder_email: "example@gmail.com",
-        text-perecas: "Текстовий переказ",
+        text_perecas: "Текстовий переказ",
         label_password: "Пароль",
         placeholder_password: "Ваш пароль",
         btn_login: "УВІЙТИ",
