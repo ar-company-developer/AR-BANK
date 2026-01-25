@@ -325,20 +325,22 @@
     }
     applyThemeOnLoad();
 </script>
-    <script type="module">
+      <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
         import { getDatabase, ref, onValue, query, limitToLast } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
         const firebaseConfig = {
-  apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
-  authDomain: "ar-bank-dbfd9.firebaseapp.com",
-  databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "ar-bank-dbfd9",
-  storageBucket: "ar-bank-dbfd9.firebasestorage.app",
-  messagingSenderId: "635449421773",
-  appId: "1:635449421773:web:bc7261cc5a4238c3649e84",
-  measurementId: "G-R2B0H618QQ"
-};
+            apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+            authDomain: "ar-bank-dbfd9.firebaseapp.com",
+            databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "ar-bank-dbfd9",
+            storageBucket: "ar-bank-dbfd9.firebasestorage.app",
+            messagingSenderId: "635449421773",
+            appId: "1:635449421773:web:bc7261cc5a4238c3649e84",
+            measurementId: "G-R2B0H618QQ"
+        };
+
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
         const auth = getAuth(app); 
@@ -346,64 +348,59 @@
         const statusMessage = document.getElementById('statusMessage');
         const balanceElement = document.getElementById('userBalance');
         const historyList = document.getElementById('historyList');
+
         function listenForBalanceChanges(uid) {
-            balanceElement.innerHTML = i18next.t("loading") || "Завантаження балансу...";
             const userCardRef = ref(database, `user/${uid}/card`);
             onValue(userCardRef, (snapshot) => {
                 const cardData = snapshot.val(); 
-                if (cardData && typeof cardData === 'object') {
-                    if (cardData.hasOwnProperty('balance')) {
-                        const balanceValue = Number(cardData.balance); 
-                        if (isNaN(balanceValue) || balanceValue === null) {
-                             balanceElement.innerHTML = "";
-                             return;
-                        }
-                        let currencySymbol = cardData.currency === "UAN" ? "€" : (cardData.currency || '€');
-                        const formattedBalance = balanceValue.toLocaleString('uk-UA', {
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 2
-                        });
-                        
-                        balanceElement.innerHTML = `
-                            ${formattedBalance}<span class="currency"> ${currencySymbol}</span>
-                        `;
-                    } else {
-                        balanceElement.innerHTML = ``;
-                    }
-                } else {
-                    balanceElement.innerHTML = ``;
+                if (cardData && cardData.balance !== undefined) {
+                    const balanceValue = Number(cardData.balance);
+                    let currencySymbol = cardData.currency === "UAN" ? "€" : (cardData.currency || "€");
+                    const formattedBalance = balanceValue.toLocaleString('uk-UA', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                    });
+                    balanceElement.innerHTML = `${formattedBalance}<span class="currency"> ${currencySymbol}</span>`;
                 }
-            }, (error) => {
-                console.error("Помилка читання даних Firebase:", error);
-                balanceElement.innerHTML = i18next.t("db_error") || "Помилка зв'язку з базою.";
             });
         }
+
         function listenForTransactionHistory(uid) {
-            historyList.innerHTML = `<li><div class="transaction-title">${i18next.t("loading_history") || "Завантаження історії..."}</div></li>`;
             const historyRef = ref(database, `user/${uid}/card/history`);
             const recentHistoryQuery = query(historyRef, limitToLast(3));
+            const TARGET_CARD = "4444 4444 4444 4444".replace(/\s/g, '');
+
             onValue(recentHistoryQuery, (snapshot) => {
                 const transactions = snapshot.val();
                 historyList.innerHTML = ''; 
                 if (!transactions) {
-                    historyList.innerHTML = `<li><div class="transaction-title">${i18next.t("no_history") || "Історія транзакцій відсутня."}</div></li>`;
+                    historyList.innerHTML = `<li><div class="transaction-title">Історія транзакцій відсутня.</div></li>`;
                     return;
                 }
-                const transactionArray = Object.values(transactions).reverse(); 
-                transactionArray.forEach(tx => {
+
+                Object.values(transactions).reverse().forEach(tx => {
                     const amount = Number(tx.amount);
                     const isPositive = amount >= 0;
                     const amountClass = isPositive ? 'amount-positive' : 'amount-negative';
-                    const sign = isPositive ? '+' : '-';
-                    const formattedAmount = `${sign}${Math.abs(amount).toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                    const currencySymbol = tx.currency === "UAN" ? "€" : (tx.currency || '€');
+                    
+                    // Форматування суми без конфліктів токенів
+                    const formattedAmount = (isPositive ? "+" : "") + amount.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const currencySymbol = tx.currency === "UAN" ? "€" : (tx.currency || "€");
+                    
+                    // Логіка призначення (опису)
+                    let displayDesc = tx.description || "Транзакція";
+                    if (isPositive && displayDesc.replace(/\s/g, '').includes(TARGET_CARD)) {
+                        displayDesc = "Поповнення";
+                    }
+
                     const date = new Date(tx.timestamp || Date.now()); 
                     const formattedDate = date.toLocaleDateString('uk-UA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
                     const li = document.createElement('li');
                     li.className = 'history-item';
                     li.innerHTML = `
                         <div class="transaction-details">
-                            <div class="transaction-title">${tx.description || i18next.t("transaction") || 'Транзакція'}</div>
+                            <div class="transaction-title">${displayDesc}</div>
                             <div class="transaction-date">${formattedDate}</div>
                         </div>
                         <div class="transaction-amount ${amountClass}">
@@ -412,11 +409,9 @@
                     `;
                     historyList.appendChild(li);
                 });
-            }, (error) => {
-                console.error("Помилка читання історії транзакцій:", error);
-                historyList.innerHTML = `<li><div class="transaction-title amount-negative">${i18next.t("history_error") || "Помилка завантаження історії."}</div></li>`;
             });
         }
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 statusMessage.style.display = 'none';
@@ -426,7 +421,7 @@
             } else {
                 mainDashboard.style.display = 'none';
                 statusMessage.style.display = 'block'; 
-                statusMessage.innerHTML = `${i18next.t("not_logged_in") || "Ви не увійшли. Будь ласка, "} <a href="login.html" style="color:var(--primary-color)">${i18next.t("go_to_login") || "перейдіть на сторінку входу."}</a>`;
+                statusMessage.innerHTML = `Ви не увійшли. <a href="login.html" style="color:var(--primary-color)">Перейдіть на сторінку входу.</a>`;
             }
         });
     </script>
