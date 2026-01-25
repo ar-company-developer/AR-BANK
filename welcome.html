@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="welcome_page_title">Вітаємо в AR BANK</title>
+    <link rel="stylesheet" href="welcome.css"> 
+    
+    <style>
+        .settings-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .settings-icon {
+            cursor: pointer;
+            transition: transform 0.4s ease;
+            color: var(--text-color, #333);
+            display: block;
+            width: 32px;
+            height: 32px;
+        }
+
+        /* Анімація: проти годинникової при активності */
+        .settings-icon.active { transform: rotate(-90deg); }
+        /* Повернення за годинниковою */
+        .settings-icon.closing { transform: rotate(0deg); }
+
+        .lang-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 150px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .lang-dropdown.show { display: flex; }
+
+        .lang-option {
+            padding: 12px 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #333;
+            text-align: left;
+            border: none;
+            background: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lang-option:hover { background: rgba(0,0,0,0.05); }
+
+        /* ТЕМНА ТЕМА ДЛЯ МЕНЮ */
+        .dark-mode .lang-dropdown { background: #2a2a2a; border-color: #444; }
+        .dark-mode .lang-option { color: #eee; }
+        .dark-mode .lang-option:hover { background: rgba(255,255,255,0.1); }
+        .dark-mode .settings-icon { color: #fff; }
+    </style>
+</head>
+
+<body id="pageBody">
+
+    <div class="settings-container">
+        <svg id="settingsBtn" class="settings-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.21.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.21.07-.47-.12-.61l-2.01-1.58zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" fill="currentColor"/>
+        </svg>
+        <div id="langDropdown" class="lang-dropdown">
+            <button class="lang-option" onclick="selectLanguage('uk')">🇺🇦 Українська</button>
+            <button class="lang-option" onclick="selectLanguage('en')">🇬🇧 English</button>
+            <button class="lang-option" onclick="selectLanguage('ru')">🇷🇺 Русский</button>
+        </div>
+    </div>
+
+    <div class="welcome-container">
+        
+        <h1 class="bank-title">AR BANK</h1>
+        
+        <p class="welcome-message" data-i18n="welcome_message">
+            Вітаємо в AR BANK, ваш надійний партнер у світі фінансів.
+        </p>
+
+        <div class="image-placeholder top-cards-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="80" height="80">
+                <path d="M19 8H5C3.34 8 2 9.34 2 11V20C2 21.66 3.34 23 5 23H19C20.66 23 22 21.66 22 20V11C22 9.34 20.66 8 19 8ZM19 11C19 11.55 18.55 12 18 12H6C5.45 12 5 11.55 5 11V10H19V11Z" fill="currentColor"/>
+                <path d="M16 1C17.66 1 19 2.34 19 4V7H5V4C5 2.34 6.34 1 8 1H16Z" fill="currentColor" opacity="0.7"/> 
+            </svg>
+        </div>
+
+        <div class="image-placeholder central-logo-placeholder">
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88">
+                    <path fill="currentColor" d="M78 38v-3H10v3a1.003 1.003 0 0 0 1 1h66a1.003 1.003 0 0 0 1-1zM10 77h68v-3a1.003 1.003 0 0 0-1-1H11a1.003 1.003 0 0 0-1 1z"/>
+                    <rect x="5" y="79" width="78" height="8" rx="1" ry="1" fill="currentColor"/>
+                    <path fill="currentColor" d="M28 41H14v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM51 41H37v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM74 41H60v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM17 47h8v18h-8zM40 47h8v18h-8zM63 47h8v18h-8zM14 68v3h14v-3a1.003 1.003 0 0 0-1-1H15a1.003 1.003 0 0 0-1 1zM37 68v3h14v-3a1.003 1.003 0 0 0-1-1H38a1.003 1.003 0 0 0-1 1zM60 68v3h14v-3a1.003 1.003 0 0 0-1-1H61a1.003 1.003 0 0 0-1 1zM44 10a8 8 0 1 0 8 8 8.01 8.01 0 0 0-8-8zm-.527 6.618 1.949.975A2.844 2.844 0 0 1 45 22.855V23a1 1 0 0 1-2 0v-.145a2.848 2.848 0 0 1-2-2.71 1 1 0 0 1 2 0 .856.856 0 0 0 .855.855h.29a.854.854 0 0 0 .382-1.618l-1.949-.975A2.844 2.844 0 0 1 43 13.145V13a1 1 0 0 1 2 0v.145a2.848 2.848 0 0 1 2 2.71 1 1 0 1 1-2 0 .856.856 0 0 0-.855-.855h-.29a.854.854 0 0 0-.382 1.618z"/>
+                    <path fill="currentColor" d="m82.466 21.115-38-20a.995.995 0 0 0-.932 0l-38 20A1 1 0 0 0 5 22v10a1 1 0 0 0 1 1h76a1 1 0 0 0 1-1V22a1 1 0 0 0-.534-.885zM44 28a10 10 0 1 1 10-10 10.012 10.012 0 0 1-10 10z"/>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="image-placeholder bottom-cards-placeholder">
+             <svg xmlns="http://www.w3.org/2000/svg" width="74" height="74" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M19.5 11c-2.485 0-4.5 2.015-4.5 4.5s2.015 4.5 4.5 4.5 4.5-2.015 4.5-4.5-2.015-4.5-4.5-4.5zm-.469 6.484l-1.688-1.637.696-.697.991.94 2.116-2.169.696.696-2.811 2.867zm-15.031-2.484h5v1h-5v-1zm8-1h-8v-1h8v1zm1.502 4h-11.002c-.276 0-.5-.224-.5-.5v-6.5h12.82c1.184-1.23 2.842-2 4.68-2 .886 0 1.729.179 2.5.501v-3.501c0-1.104-.896-2-2-2h-18c-1.104 0-2 .896-2 2v12c0 1.104.896 2 2 2h12.82c-.553-.576-1.006-1.251-1.318-2zm-11.502-11.5c0-.276.224-.5.5-.5h17c.276 0 .5.224.5.5v1.5h-18v-1.5z"/>
+            </svg>
+        </div>
+        
+        <div class="button-group">
+            <a href="login.html" class="action-button primary" data-i18n="already_client">
+                Я вже клієнт банку
+            </a>
+            <a href="order.html" class="action-button secondary" data-i18n="order_card">
+                Замовити картку
+            </a>
+        </div>
+    </div>
+
+    <script src="translate.js"></script>
+
+    <script>
+        const settingsBtn = document.getElementById('settingsBtn');
+        const langDropdown = document.getElementById('langDropdown');
+
+        // Відкриття/Закриття меню
+        settingsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = langDropdown.classList.contains('show');
+            if (!isOpen) {
+                langDropdown.classList.add('show');
+                settingsBtn.classList.add('active');
+                settingsBtn.classList.remove('closing');
+            } else {
+                closeMenu();
+            }
+        });
+
+        // Закриття при кліку поза меню
+        document.addEventListener('click', (e) => {
+            if (!langDropdown.contains(e.target)) closeMenu();
+        });
+
+        function closeMenu() {
+            if (langDropdown.classList.contains('show')) {
+                langDropdown.classList.remove('show');
+                settingsBtn.classList.remove('active');
+                settingsBtn.classList.add('closing');
+            }
+        }
+
+        // Функція зміни мови через ВАШ скрипт translate.js
+        function selectLanguage(lang) {
+            if (typeof window.changeLanguage === 'function') {
+                window.changeLanguage(lang); // Виклик вашої функції applyTranslation
+            }
+            closeMenu();
+        }
+
+        // Тема
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+</body>
+</html>

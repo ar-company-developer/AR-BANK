@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title data-i18n="withdrawal_page_title">Виведення коштів - AR BANK</title>
+<script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js"></script>
+<style>
+:root{--background-color:#fff;--input-background:#f0f0f0;--button-color:#000;--button-text:#fff;--text-color:#333;--back-button-bg:#e0e0e0}
+[data-theme="dark"]{--background-color:#1a1a1a;--input-background:#333;--button-color:#fff;--button-text:#1a1a1a;--text-color:#f0f0f0;--back-button-bg:#444}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background-color:var(--background-color);margin:0;padding:0;color:var(--text-color);display:flex;flex-direction:column;align-items:center;min-height:100vh;transition:.3s}.container{width:100%;max-width:600px;padding:20px}.header{display:flex;align-items:center;padding:10px 0 30px}.back-button-circle{width:40px;height:40px;background-color:var(--back-button-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:20px;text-decoration:none}.back-button-circle svg{width:20px;height:20px;fill:var(--text-color)}.title{font-size:26px;font-weight:700;text-align:center;flex-grow:1;margin-left:-60px}h2{font-size:20px;font-weight:600;margin-bottom:30px}.form-group{margin-bottom:25px}label{display:block;font-size:14px;font-weight:500;opacity:.7;margin-bottom:8px}input{width:100%;padding:18px 15px;border:1px solid #e0e0e0;background-color:var(--input-background);color:var(--text-color);border-radius:12px;font-size:16px;outline:none;box-sizing:border-box}input:focus{border-color:var(--button-color)}button[type="submit"]{width:100%;padding:20px;background-color:var(--button-color);color:var(--button-text);border:none;border-radius:15px;font-size:18px;font-weight:700;cursor:pointer;margin-top:30px;box-shadow:0 4px 10px rgba(0,0,0,0.2)}#message{text-align:center;margin-top:20px;font-weight:600}.error{color:#dc3545}.info{color:#28a745}
+</style>
+</head>
+<body id="pageBody">
+<div class="container">
+<div class="header">
+<a href="finance.html" class="back-button-circle"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg></a>
+<h1 class="title" data-i18n="withdrawal_title">Виведення</h1>
+</div>
+<h2 data-i18n="withdrawal_subtitle">Заповніть форму для виведення.</h2>
+<form id="withdrawalForm">
+<div class="form-group">
+<label for="amount" data-i18n="label_enter_amount">Введіть суму:</label>
+<input type="number" id="amount" placeholder="1000 - 20 000€" min="1000" max="20000" required>
+</div>
+<div class="form-group">
+<label for="robloxUsername" data-i18n="label_roblox">Ваш Username з roblox:</label>
+<input type="text" id="robloxUsername" placeholder="@username" required>
+</div>
+<div class="form-group">
+<label for="telegramUsername" data-i18n="label_telegram">Ваш Username з telegram:</label>
+<input type="text" id="telegramUsername" placeholder="@username" required>
+</div>
+<button type="submit" data-i18n="btn_send_request">Надіслати запит</button>
+</form>
+<p id="message"></p>
+</div>
+<script src="translate.js"></script>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";import{getDatabase,ref,push,get,update}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";const firebaseConfig={apiKey:"AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",authDomain:"ar-bank-dbfd9.firebaseapp.com",databaseURL:"https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",projectId:"ar-bank-dbfd9"};const app=initializeApp(firebaseConfig);const database=getDatabase(app);const auth=getAuth(app);const pageBody=document.getElementById('pageBody');const withdrawalForm=document.getElementById('withdrawalForm');const amountInput=document.getElementById('amount');const robloxInput=document.getElementById('robloxUsername');const telegramInput=document.getElementById('telegramUsername');const messageElement=document.getElementById('message');let currentUID=null;const t=(k)=>window.i18next?window.i18next.t(k):k;document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light');onAuthStateChanged(auth,(u)=>{if(u)currentUID=u.uid;else location.href="login.html"});withdrawalForm.addEventListener('submit',async(e)=>{e.preventDefault();messageElement.textContent='';messageElement.className='';if(!currentUID){messageElement.textContent=t('err_auth_retry');messageElement.classList.add('error');return}const amount=Number(amountInput.value);const roblox=robloxInput.value.trim();const telegram=telegramInput.value.trim();if(amount<1000||amount>20000){messageElement.textContent=t('err_withdrawal_limit');messageElement.classList.add('error');return}if(!roblox.startsWith('@')||!telegram.startsWith('@')){messageElement.textContent=t('err_username_at');messageElement.classList.add('error');return}try{messageElement.textContent=t('msg_checking_balance');messageElement.classList.add('info');const snap=await get(ref(database,`user/${currentUID}/card/balance`));const bal=Number(snap.exists()?snap.val():0);if(bal<amount){messageElement.textContent=`${t('err_low_balance_msg')} ${bal} EUR.`;messageElement.classList.add('error');return}messageElement.textContent=t('msg_sending_request');await push(ref(database,`breeding/${currentUID}`),{sum:amount,telegram:telegram,roblox:roblox,timestamp:Date.now(),status:'pending'});await update(ref(database,`user/${currentUID}/card`),{balance:String((bal-amount).toFixed(2))});location.href="ok2.html"}catch(err){messageElement.textContent=t('err_generic');messageElement.classList.add('error')}});
+</script>
+</body>
+</html>

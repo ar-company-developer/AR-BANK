@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title data-i18n="deposit_page_title">Банківський вклад</title>
+<script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js"></script>
+<script type="module" src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js"></script>
+<script type="module" src="vklad.js"></script> 
+<style>
+:root{--background-color:#f7f9fc;--input-background:#eee;--button-color:#000;--button-text:#fff;--text-color:#333;--placeholder-color:#a0a0a0;--error-color:#dc3545;--back-button-bg:#e0e0e0;--balance-color:#2e86de}
+[data-theme="dark"]{--background-color:#1a1a1a;--input-background:#333;--button-color:#fff;--button-text:#1a1a1a;--text-color:#f0f0f0;--placeholder-color:#999;--back-button-bg:#444;--balance-color:#5d9cec}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background-color:var(--background-color);margin:0;padding:0;color:var(--text-color);display:flex;flex-direction:column;align-items:center;min-height:100vh}.container{width:90%;max-width:390px;padding:20px;flex-grow:1}.header{display:flex;align-items:center;padding:10px 0 30px}.back-button-circle{width:40px;height:40px;background-color:var(--back-button-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:20px;text-decoration:none}.back-button-circle svg{width:20px;height:20px;fill:var(--text-color)}.title{font-size:24px;font-weight:700;text-align:center;flex-grow:1;margin-left:-60px}.form-group{margin-bottom:25px}label{display:block;font-size:16px;font-weight:600;margin-bottom:10px}.input-wrapper{background-color:var(--input-background);border-radius:12px;padding:15px 20px}input{width:100%;border:none;background:none;font-size:18px;font-weight:500;color:var(--text-color);outline:none}input::placeholder{color:var(--placeholder-color)}#balanceInfo{font-size:14px;color:var(--balance-color);margin-bottom:20px;text-align:center}#statusMessage{font-size:14px;color:var(--error-color);text-align:center;margin-bottom:20px}.footer-button-area{position:sticky;bottom:0;padding:15px 20px;background-color:var(--background-color);box-shadow:0 -5px 15px rgba(0,0,0,0.05);width:100%;max-width:390px;box-sizing:border-box}button#confirmButton{width:100%;padding:20px;background-color:var(--button-color);color:var(--button-text);border:none;border-radius:15px;font-size:18px;font-weight:700;cursor:pointer}button#confirmButton:disabled{background-color:#b0b0b0;color:#fff;cursor:not-allowed}
+</style>
+</head>
+<body id="pageBody">
+    <script>
+        document.getElementById('pageBody').setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+    </script>
+    <div class="container">
+        <div id="authStatus" style="text-align: center; margin-top: 50px;" data-i18n="auth_checking">Перевірка автентифікації...</div>
+        <div id="vkladForm" style="display: none;">
+            <div class="header">
+                <a href="earning.html" class="back-button-circle">
+                    <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/></svg>
+                </a>
+                <h1 class="title" data-i18n="deposit_title">Банківський вклад</h1>
+            </div>
+            <div class="form-content">
+                <div id="balanceInfo" data-i18n="balance_loading">Ваш поточний баланс: Завантаження...</div>
+                <div id="statusMessage" style="display: none;"></div>
+                <div class="form-group">
+                    <label for="telegramUsername" data-i18n="label_telegram">Telegram Username:</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="telegramUsername" placeholder="@username" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="robloxUsername" data-i18n="label_roblox">Roblox Username:</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="robloxUsername" data-i18n-placeholder="placeholder_roblox" placeholder="Ваш нік у Roblox" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="amount" data-i18n="label_deposit_amount">Сума внеску (€):</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="amount" data-i18n-placeholder="placeholder_min_deposit" placeholder="Мінімальний внесок: 100" min="100" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-button-area" id="footerButtonArea" style="display: none;">
+        <button id="confirmButton" disabled data-i18n="btn_confirm_deposit">Підтвердити внесок</button>
+    </div>
+    <script src="translate.js"></script>
+</body>
+</html>

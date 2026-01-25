@@ -1,0 +1,187 @@
+/* === ЗМІНЕНІ ЗМІННІ КОЛЬОРІВ (СВІТЛА ТЕМА) === */
+:root {
+    --primary-color: #000000; /* Чорний для акцентів та кнопок */
+    --background-color: #f7f9fc; /* Світло-сірий фон */
+    --card-background: #ffffff; /* Білі картки/фони */
+    --text-color: #333333;
+    --light-text: #6c757d;
+    --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
+    --shadow-heavy: 0 8px 15px rgba(0, 0, 0, 0.1);
+    --border-color: #eeeeee; 
+}
+
+/* === ТЕМНА ТЕМА: ПЕРЕЗНАЧЕННЯ ЗМІННИХ === */
+.dark-mode {
+    --primary-color: #ffffff; /* Білий для акцентів та кнопок */
+    --background-color: #121212; /* Темний фон */
+    --card-background: #1e1e1e; /* Темні картки/фони */
+    --text-color: #f0f0f0; /* Світлий текст */
+    --light-text: #aaaaaa; 
+    --shadow-light: 0 4px 10px rgba(0, 0, 0, 0.4);
+    --shadow-heavy: 0 8px 20px rgba(0, 0, 0, 0.6);
+    --border-color: #333333; 
+}
+
+/* --- ОСНОВНІ СТИЛІ --- */
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    background: var(--background-color);
+    color: var(--text-color);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s; /* Плавний перехід теми */
+}
+
+.welcome-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+    position: relative;
+    padding-bottom: 120px; /* Місце для фіксованих кнопок */
+}
+
+/* Заголовок банку */
+.bank-title {
+    font-size: 32px; /* Збільшив для акценту */
+    font-weight: 900;
+    color: var(--primary-color); /* Адаптується до теми */
+    margin-top: 50px;
+    margin-bottom: 20px;
+    transition: color 0.3s;
+}
+
+/* Вітальний текст */
+.welcome-message {
+    font-size: 20px;
+    line-height: 1.4;
+    font-weight: 500;
+    margin-bottom: 50px;
+    text-align: left;
+    color: var(--text-color);
+}
+
+/* Місця для зображень (як на скріншоті) */
+.image-placeholder {
+    position: absolute;
+    /* Використовуємо card-background для фону, якщо він потрібен для контрасту */
+}
+
+/* Стилізація SVG всередині плейсхолдерів */
+.image-placeholder svg {
+    display: block;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    /* Встановлюємо колір заповнення, який буде успадковуватися від .bank-title або theme */
+    color: var(--primary-color);
+    transition: color 0.3s, opacity 0.3s;
+}
+
+.image-placeholder svg path {
+    fill: currentColor; /* Забезпечує, що SVG успадковує колір з CSS */
+    opacity: 1 !important; /* Перезаписуємо opacity="0.3" у першій іконці, щоб темний режим працював */
+}
+
+/* --- ПОЗИЦІОНУВАННЯ ЗОБРАЖЕНЬ (З ВАШОГО КОДУ) --- */
+
+/* Верхній блок карток */
+.top-cards-placeholder {
+    top: 300px;
+    left: 80%;
+    transform: translate(-50%, -50%) rotate(25deg);
+}
+
+/* Центральний логотип (4 квадрати/сітка) */
+.central-logo-placeholder {
+    position: relative;
+    display: inline-block;
+    margin: 30px 0;
+    transform: none;
+    top: 60px;
+    left: 0px;
+}
+
+/* Логотип: SVG (використовуємо його замість складної сітки .grid-logo) */
+.central-logo-placeholder svg {
+    width: 100px; 
+    height: 100px;
+    color: var(--primary-color); /* Основний колір логотипу */
+    position: relative;
+    z-index: 10;
+}
+
+
+/* Нижній блок карток */
+.bottom-cards-placeholder {
+    top: 480px;
+    left: 23%;
+    transform: translate(-80%, -80%) rotate(-20deg);
+}
+
+/* ========================= КНОПКИ ========================= */
+.button-group {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background: var(--background-color); 
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    max-width: 450px;
+    margin: 0 auto;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08); /* Легка тінь нагорі */
+    transition: background-color 0.3s;
+}
+
+.action-button {
+    flex: 1;
+    padding: 18px 10px;
+    border-radius: 12px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: var(--shadow-light);
+}
+
+.primary {
+    /* Основна кнопка (заповнена) */
+    background-color: var(--primary-color);
+    color: var(--background-color); /* Протилежний колір для тексту */
+    border: 2px solid var(--primary-color);
+}
+
+.primary:hover {
+    box-shadow: var(--shadow-heavy);
+    opacity: 0.9;
+}
+
+.secondary {
+    /* Другорядна кнопка (контурна) */
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.secondary:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Легкий фон при наведенні */
+    color: var(--primary-color);
+}
+
+/* Адаптація вторинної кнопки для темного режиму */
+.dark-mode .secondary {
+    background-color: transparent;
+    color: var(--primary-color); /* Білий */
+    border: 2px solid var(--primary-color);
+}
+
+.dark-mode .secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
