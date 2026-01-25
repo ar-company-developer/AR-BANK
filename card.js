@@ -95,7 +95,7 @@ function renderSecondCardUI(data) {
             <div class="quick-actions-grid">
                 <button class="grid-btn" onclick="event.stopPropagation(); window.location.href='rep.html'">Поповнити</button>
                 <button class="grid-btn" onclick="event.stopPropagation(); window.location.href='perecas.html'">Переказ</button>
-                <button class="grid-btn" onclick="event.stopPropagation(); window.location.href='withdraw.html'">Вивести</button>
+                <button class="grid-btn" onclick="event.stopPropagation(); window.location.href='vivid.html'">Вивести</button>
                 <button class="grid-btn" onclick="event.stopPropagation(); window.location.href='card_setting.html'">Налаштування</button>
             </div>
         </div>`;
