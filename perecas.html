@@ -85,23 +85,21 @@
 </div>
 
 <audio id="clickSound" preload="auto"><source src="oplata.mp3" type="audio/mpeg"></audio>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import { getDatabase, ref, get, runTransaction, onValue, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getDatabase, ref, get, runTransaction, onValue, update, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-
     const firebaseConfig = {
         apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
         authDomain: "ar-bank-dbfd9.firebaseapp.com",
         databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
         projectId: "ar-bank-dbfd9"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const auth = getAuth(app);
-
+    const SERVICE_CARDS = ["4444444444444444", "4429533771533005", "7777777777777777", "6767676767676767", "2222222222222222"];
+    const EARNINGS_CARD = "4747474747474747";
     const el = {
         cardInp: document.getElementById('receiverCard'),
         amtInp: document.getElementById('amount'),
@@ -110,86 +108,91 @@
         err: document.getElementById('errorMessage'),
         snd: document.getElementById('clickSound')
     };
+    const urlP = new URLSearchParams(window.location.search);
+    const tKey = urlP.get('key'), eAmt = Number(urlP.get('amount')), isEscrow = !!tKey && !isNaN(eAmt);
 
     let bal2 = 0, sUID = null, sCard2Num = "";
-
-    function showMsg(m, type = 'error') {
-        el.err.textContent = m;
-        el.err.style.color = type === 'success' ? '#10b981' : '#ef4444';
-    }
 
     onAuthStateChanged(auth, u => {
         if (u) {
             sUID = u.uid;
             onValue(ref(db, `user/${u.uid}/card2`), s => {
                 const d = s.val();
-                bal2 = d ? Number(d.balance) || 0 : 0;
-                sCard2Num = d ? (d.number || "").replace(/\s/g, '') : "";
-                el.bal.textContent = `${bal2.toFixed(2)} €`;
+                if (d) {
+                    bal2 = Number(d.balance) || 0;
+                    sCard2Num = (d.number || "").replace(/\s/g, '');
+                    el.bal.textContent = `${bal2.toFixed(2)} €`;
+                    updateUI();
+                }
             });
-        } else { location.href = 'login.html'; }
+        } else location.href = 'login.html';
     });
-
+    function updateUI() {
+        if (isEscrow) {
+            el.btn.disabled = !(eAmt > 0 && eAmt <= bal2);
+        } else {
+            const card = el.cardInp.value.replace(/\s/g, '');
+            const amt = Number(el.amtInp.value);
+            el.btn.disabled = !(card.length === 16 && amt >= 10 && amt <= bal2);
+        }
+    }
     async function handleTransfer() {
-        const rawCard = el.cardInp.value.replace(/\s/g, '');
-        const amount = Number(el.amtInp.value);
-
         if (el.snd) el.snd.play();
         el.btn.disabled = true;
-        showMsg("Обробка...", 'success');
-
+        el.err.textContent = "Обробка...";
         try {
-            // Перевірка отримувача
-            const s = await get(ref(db, `cards_index/${rawCard}`));
-            if (!s.exists()) throw new Error("Картку отримувача не знайдено");
-            
-            const index = s.val();
-            const targetUID = index.uid;
-            const targetNode = index.card_type || 'card';
-
-            // Списання з card2
-            const sRes = await runTransaction(ref(db, `user/${sUID}/card2/balance`), b => {
-                if (b >= amount) return parseFloat((b - amount).toFixed(2));
+            let targetUID, finalAmt, histTo, histFrom, targetNode = 'card';
+            const rawReceiverCard = el.cardInp.value.replace(/\s/g, '');
+            if (isEscrow) {
+                const s = await get(ref(db, `transactions/${tKey}`));
+                if (!s.exists()) throw new Error("Угоду не знайдено");
+                targetUID = s.val().sellerUID;
+                finalAmt = eAmt;
+                histTo = "Оплата (Escrow)";
+                histFrom = "Продаж (Escrow)";
+            } else {
+                finalAmt = Number(el.amtInp.value);
+                const s = await get(ref(db, `cards_index/${rawReceiverCard}`));
+                if (!s.exists()) throw new Error("Картку не знайдено");
+                const index = s.val();
+                targetUID = index.uid;
+                targetNode = index.card_type || 'card';
+                if (SERVICE_CARDS.includes(sCard2Num)) {
+                    histFrom = "Поповнення";
+                } else if (sCard2Num === EARNINGS_CARD) {
+                    histFrom = "Заробіток";
+                } else {
+                    histFrom = `Надходження від **** ${sCard2Num.slice(-4)}`;
+                }
+                histTo = `Переказ на **** ${rawReceiverCard.slice(-4)}`;
+            }
+            const res = await runTransaction(ref(db, `user/${sUID}/card2/balance`), b => {
+                if (b >= finalAmt) return parseFloat((b - finalAmt).toFixed(2));
             });
-
-            if (!sRes.committed) throw new Error("Недостатньо коштів на Картці 2");
-
-            // Зарахування отримувачу
+            if (!res.committed) throw new Error("Недостатньо коштів");
             await runTransaction(ref(db, `user/${targetUID}/${targetNode}/balance`), b => {
-                return parseFloat(((b || 0) + amount).toFixed(2));
+                return parseFloat(((Number(b) || 0) + finalAmt).toFixed(2));
             });
-
-            // Історія
-            const h = { amount: amount, timestamp: Date.now(), currency: "€" };
-            await push(ref(db, `user/${sUID}/card2/history`), { 
-                ...h, amount: -amount, description: `Переказ на **** ${rawCard.slice(-4)}` 
-            });
-            await push(ref(db, `user/${targetUID}/${targetNode}/history`), { 
-                ...h, amount: amount, description: `Надходження з **** ${sCard2Num.slice(-4)}` 
-            });
-
-            showMsg("Транзакція успішна!", 'success');
+            const h = { amount: finalAmt, timestamp: Date.now(), currency: "€" };
+            await push(ref(db, `user/${sUID}/card2/history`), { ...h, amount: -finalAmt, description: histTo });
+            await push(ref(db, `user/${targetUID}/${targetNode}/history`), { ...h, amount: finalAmt, description: histFrom });
+            if (isEscrow) await update(ref(db, `transactions/${tKey}`), { paymentStatus: 'confirmed' });
+            el.err.style.color = "#10b981";
+            el.err.textContent = "Успішно!";
             setTimeout(() => location.href = 'card.html', 1500);
         } catch (e) {
-            showMsg(e.message);
+            el.err.style.color = "#ef4444";
+            el.err.textContent = e.message;
             el.btn.disabled = false;
         }
     }
-
     el.btn.onclick = handleTransfer;
-
-    el.cardInp.oninput = () => {
-        let v = el.cardInp.value.replace(/\s/g, '').substring(0, 16);
-        el.cardInp.value = v.match(/.{1,4}/g)?.join(' ') || v;
-        checkBtn();
+    el.cardInp.oninput = (e) => {
+        let v = e.target.value.replace(/\s/g, '').substring(0, 16);
+        e.target.value = v.match(/.{1,4}/g)?.join(' ') || v;
+        updateUI();
     };
-    el.amtInp.oninput = checkBtn;
-
-    function checkBtn() {
-        const v = el.cardInp.value.replace(/\s/g, '');
-        const a = Number(el.amtInp.value);
-        el.btn.disabled = !(v.length === 16 && a >= 10 && a <= bal2);
-    }
+    el.amtInp.oninput = updateUI;
 </script>
 </body>
 </html>
