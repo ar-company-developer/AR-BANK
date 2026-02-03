@@ -160,35 +160,49 @@
         <div class="label" data-i18n="crypto_button">AR Crypto</div>
         <div class="arrow">›</div>
     </div>
-    <script>
-        function redirectTo(url) {
-            window.location.href = url;
+<script>
+    function redirectTo(url) {
+        const blockedCard = document.querySelector('.card.card-disabled');
+        if (blockedCard) {
+            console.warn("Дія відхилена: Картку заблоковано або термін дії вийшов.");
+            return false;
         }
-        function toggleFlip(cardElement) {
-            cardElement.classList.toggle('flipped');
+        window.location.href = url;
+    }
+    function toggleFlip(cardElement) {
+        if (cardElement.classList.contains('card-disabled')) return;
+        
+        cardElement.classList.toggle('flipped');
+    }
+    (function applyTheme() {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
         }
-        (function applyTheme() {
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-            }
-        })();
-        const slider = document.getElementById('cardSlider');
-        const dots = document.querySelectorAll('.dot');
-        if (slider) {
-            slider.addEventListener('scroll', () => {
-                const index = Math.round(slider.scrollLeft / slider.offsetWidth);
-                dots.forEach((dot, i) => {
-                    dot.classList.toggle('active', i === index);
-                });
+    })();
+    const slider = document.getElementById('cardSlider');
+    const dots = document.querySelectorAll('.dot');
+    if (slider) {
+        slider.addEventListener('scroll', () => {
+            const index = Math.round(slider.scrollLeft / slider.offsetWidth);
+            dots.forEach((dot, i) => {
+                if (dot) dot.classList.toggle('active', i === index);
             });
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('user_lang') || 'uk';
-            if (typeof applyTranslation === 'function') {
-                applyTranslation(savedLang);
-            }
         });
-    </script>
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('user_lang') || 'uk';
+        if (typeof applyTranslation === 'function') {
+            applyTranslation(savedLang);
+        }
+        const checkLock = setInterval(() => {
+            if (document.querySelector('.card.card-disabled')) {
+                document.body.classList.add('global-lock');
+                clearInterval(checkLock);
+            }
+        }, 500);
+    });
+</script>
+
     <script src="translate.js"></script>
 </body>
 </html>

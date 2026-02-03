@@ -492,4 +492,48 @@ body {
   display: flex;
   box-shadow: 0 4px 10px var(--shadow-color);
 }
-  
+/* Стилі для заблокованої картки */
+.card-disabled {
+    cursor: not-allowed !important;
+    filter: grayscale(0.8);
+}
+
+.block-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 20px; z-index: 10;
+    backdrop-filter: blur(4px);
+}
+
+.block-overlay span, .block-overlay-inner span {
+    color: #ff4757;
+    font-weight: 800;
+    font-size: 18px;
+    text-transform: uppercase;
+    border: 2px solid #ff4757;
+    padding: 10px 20px;
+    border-radius: 10px;
+    transform: rotate(-10deg);
+    background: rgba(0,0,0,0.5);
+}
+
+.card-blur {
+    filter: blur(2px);
+}
+
+.block-overlay-inner {
+    position: absolute;
+    z-index: 11;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* Вимкнення кнопок */
+.grid-btn:disabled {
+    background: #333 !important;
+    color: #777 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}
