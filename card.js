@@ -24,6 +24,8 @@ const STATUS_BLOCKED = "bbbb bbbb bbbb bbbb";
 const AVAILABLE_STYLES_MAP = {
     'default': { image: 'card.png' }, 
     'central-rp': { image: 'cardC.jpg'},
+    'ukraine-rp': { image: 'card1.png'},
+    'poltava-rp': { image: 'card2.png'},
     'central-rp1': { image: 'card4.png'},
     'chernihiv-rp': { image: 'card5.png'},
     'class1': { image: "card7.png"},
