@@ -12,15 +12,11 @@ const firebaseConfig = {
     appId: "1:635449421773:web:bc7261cc5a4238c3649e84",
     measurementId: "G-R2B0H618QQ"
 };
-
 const app = initializeApp(firebaseConfig),
     auth = getAuth(app),
     database = getDatabase(app);
-
-// --- Константи статусів ---
 const STATUS_EXPIRED = "aaaa aaaa aaaa aaaa";
 const STATUS_BLOCKED = "bbbb bbbb bbbb bbbb";
-
 const AVAILABLE_STYLES_MAP = {
     'default': { image: 'card.png' }, 
     'central-rp': { image: 'cardC.jpg'},
