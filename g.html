@@ -144,23 +144,16 @@
             
             const receiverData = indexSnap.val();
             if (receiverData.uid === userUID) throw new Error("Не можна надсилати кошти самому собі");
-
-            // 2. Транзакція списання
             const sRes = await runTransaction(ref(db, `user/${userUID}/card/balance`), currentVal => {
                 const b = parseFloat(currentVal) || 0;
                 if (b >= amount) return parseFloat((b - amount).toFixed(2));
                 return; 
             });
-
             if (!sRes.committed) throw new Error("Недостатньо коштів");
-
-            // 3. Зарахування отримувачу
             const targetPath = `user/${receiverData.uid}/${receiverData.card_type || 'card'}/balance`;
             await runTransaction(ref(db, targetPath), currentVal => {
                 return parseFloat(((parseFloat(currentVal) || 0) + amount).toFixed(2));
             });
-
-            // 4. Запис в історію
             const timestamp = Date.now();
             const historyItem = {
                 amount: amount,
@@ -168,19 +161,16 @@
                 timestamp: timestamp,
                 comment: comment
             };
-
-            // Для відправника
             await push(ref(db, `user/${userUID}/card/history`), {
                 ...historyItem,
                 amount: -amount,
                 description: `Переказ на картку **** ${rawCard.slice(-4)}`
             });
-
-            // Для отримувача
+            
             await push(ref(db, `user/${receiverData.uid}/${receiverData.card_type || 'card'}/history`), {
                 ...historyItem,
                 amount: amount,
-                description: `Вхідний переказ (${comment})`
+                description: `Надходження від **** ${receiverCard.slice(-4)}`
             });
 
             showMsg("Переказ успішно надіслано!", "var(--success-color)", "rgba(40,167,69,0.1)");
