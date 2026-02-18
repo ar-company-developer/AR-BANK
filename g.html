@@ -170,10 +170,10 @@
             await push(ref(db, `user/${receiverData.uid}/${receiverData.card_type || 'card'}/history`), {
                 ...historyItem,
                 amount: amount,
-                description: `Надходження від **** ${receiverCard.slice(-4)}`
+                description: `Текстовий переказ`
             });
 
-            showMsg("Переказ успішно надіслано!", "var(--success-color)", "rgba(40,167,69,0.1)");
+            showMsg("Успішно!", "var(--success-color)", "rgba(40,167,69,0.1)");
             
             setTimeout(() => {
                 window.location.href = 'card.html';
