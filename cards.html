@@ -75,6 +75,9 @@ const styleList = document.getElementById("styleList");
 let currentBalance = 0;
 let senderUID = null;
 let userCardData = null;
+
+const LEGACY_RP = '4448322622747567';
+
 window.MESSAGES = {
     STATUS_APPLIED: "Застосовано",
     BUTTON_APPLY: "Застосувати",
@@ -87,75 +90,64 @@ window.MESSAGES = {
     ERROR_TRANSACTION_FAILED: "Помилка транзакції.",
     ERROR_GENERAL: "Невідома помилка.",
     TRANSACTION_BUY_DESC: "Купівля стилю:",
-    TRANSACTION_SALE_DESC: "Продаж стилю:",
     BALANCE_CURRENT: "Ваш баланс: {balance} €",
     AUTH_NOT_LOGGED_IN: 'Ви не увійшли.',
-    ALERT_DATA_ERROR: "Помилка даних.",
-    ALERT_RECEIVER_NOT_FOUND: "Отримувача не знайдено."
+    ALERT_RECEIVER_NOT_FOUND: "Отримувача не знайдено в системі."
 };
-
-const CHERNIHIV_CARD_ID = 'chernihiv-rp';
-const CHERNIHIV_CARD_PRICE = 970;
-const CHERNIHIV_RECEIVER = '7777777777777777';
-const CLASSIC_CARDS_IDS = ['class1','class2','class3','class4'];
-const CLASSIC_RECEIVER = '4747474747474747';
 
 const AVAILABLE_STYLES = [
     {id:'default', price:0, image:'card.png', name:'Класичний Стиль', desc:'Базовий дизайн.'},
-    {id:'central-rp1', price:0, image:'card4.png', name:'Central rp', desc:'Унікальна картка.'},
+    {id:'central-rp1', price:0, image:'card4.png', name:'Central rp', desc:'Унікальна картка серверу.'},
+    {id:'lviv-rp', price:900, image:'card10.png', name:'Legacy rp', desc:'Унікальна картка серверу.', receiver: LEGACY_RP},
     {id:'central-rp', price:800, image:'cardC.jpg', name:'Central rp', desc:'Новорічна картка.'},
-    {id:CHERNIHIV_CARD_ID, price:CHERNIHIV_CARD_PRICE, image:'card5.png', name:'Chernihiv rp', desc:'Універсальна картка.'},
+    {id:'chernihiv-rp', price:970, image:'card5.png', name:'Chernihiv rp', desc:'Універсальна картка серверу.'},
     {id:'class1', price:800, image:'card7.png', name:'Класика', desc:'Технології.'},
-    {id:'ukraine-rp', price:800, image:'card1.png', name:'Ukraine RP', desc:'Унікальна картка.'},
-    {id:'poltava-rp', price:800, image:'card2.png', name:'Poltava RP', desc:'Унікальна картка.'},
+    {id:'ukraine-rp', price:800, image:'card1.png', name:'Ukraine RP', desc:'Унікальна картка серверу.'},
+    {id:'poltava-rp', price:800, image:'card2.png', name:'Poltava RP', desc:'Унікальна картка серверу.'},
     {id:'class2', price:800, image:'card6.png', name:'Класика', desc:'Технології.'},
     {id:'class3', price:800, image:'card8.png', name:'Класика', desc:'Золоті смужки.'},
     {id:'class4', price:800, image:'card9.png', name:'Класика', desc:'Темно-синя.'}
 ];
-
 function displayError(e){errorMessage.textContent=e;errorMessage.style.display=e?'block':'none'}
-
-async function getUidByCardNumber(e){
-    const t=ref(database,`cards_index/${e}`);
-    try{const n=await get(t); return n.exists()?n.val().uid:null}catch(e){return null}
+async function getUidByCardNumber(num){
+    try {
+        const t = ref(database, `cards_index/${num}`);
+        const n = await get(t); 
+        return n.exists() ? n.val().uid : null;
+    } catch(e) { return null; }
 }
-
 function createBuyButton(style, isOwned, isApplied) {
     const btn = document.createElement('button');
     btn.classList.add('buy-button');
-    
     if (isApplied) {
         btn.textContent = MESSAGES.STATUS_APPLIED;
         btn.classList.add('applied');
         btn.disabled = true;
     } else if (isOwned) {
         btn.textContent = MESSAGES.BUTTON_APPLY;
-        btn.addEventListener('click', () => applyStyle(style.id));
+        btn.onclick = () => applyStyle(style.id);
     } else {
         if (style.price === 0) {
             btn.textContent = MESSAGES.BUTTON_FREE;
-            btn.addEventListener('click', () => buyStyle(style));
+            btn.onclick = () => buyStyle(style);
         } else if (currentBalance < style.price) {
             btn.textContent = MESSAGES.BUTTON_INSUFFICIENT;
             btn.disabled = true;
         } else {
             btn.textContent = MESSAGES.BUTTON_BUY;
-            btn.addEventListener('click', () => buyStyle(style));
+            btn.onclick = () => buyStyle(style);
         }
     }
     return btn;
 }
-
 window.renderStyles = function() {
     styleList.innerHTML = '';
     const currentStyle = userCardData?.style_id || 'default';
     let owned = userCardData?.owned_styles || ['default'];
     if (!Array.isArray(owned)) owned = [owned];
-
     AVAILABLE_STYLES.forEach(style => {
         const isOwned = owned.includes(style.id);
         const isApplied = style.id === currentStyle;
-        
         const item = document.createElement('div');
         item.classList.add('style-item');
         item.innerHTML = `
@@ -169,27 +161,34 @@ window.renderStyles = function() {
                     <p>${style.desc}</p>
                 </div>
             </div>`;
-        
         item.querySelector('.style-details').appendChild(createBuyButton(style, isOwned, isApplied));
         styleList.appendChild(item);
     });
 }
-
 async function buyStyle(style) {
     displayError(MESSAGES.PROCESSING_BUY);
     try {
         const price = style.price;
+        let receiverUid = null;
+        if (price > 0 && style.receiver) {
+            receiverUid = await getUidByCardNumber(style.receiver);
+            if (!receiverUid) {
+                displayError(MESSAGES.ALERT_RECEIVER_NOT_FOUND);
+                return;
+            }
+        }
         const result = await runTransaction(ref(database, `user/${senderUID}/card`), card => {
             if (card) {
                 if (!card.owned_styles) card.owned_styles = ['default'];
-                if (price > 0 && card.balance < price) return; 
+                if (price > 0 && (card.balance || 0) < price) return;
                 if (!card.owned_styles.includes(style.id)) card.owned_styles.push(style.id);
                 card.style_id = style.id;
-                if (price > 0 && !style.receiver) card.balance = parseFloat((card.balance - price).toFixed(2));
+                if (price > 0) {
+                    card.balance = parseFloat(((card.balance || 0) - price).toFixed(2));
+                }
                 return card;
             }
         });
-
         if (result.committed) {
             if (price > 0) {
                 await push(ref(database, `user/${senderUID}/card/history`), {
@@ -198,12 +197,33 @@ async function buyStyle(style) {
                     timestamp: Date.now(),
                     currency: '€'
                 });
+                if (receiverUid) {
+                    const receiverRef = ref(database, `user/${receiverUid}/card`);
+                    await runTransaction(receiverRef, recCard => {
+                        if (recCard) {
+                            recCard.balance = parseFloat(((recCard.balance || 0) + price).toFixed(2));
+                            return recCard;
+                        } else {
+                            return { balance: price, owned_styles: ['default'], style_id: 'default' };
+                        }
+                    });
+                    await push(ref(database, `user/${receiverUid}/card/history`), {
+                        amount: price,
+                        description: `Продаж стилю: ${style.name}`,
+                        timestamp: Date.now(),
+                        currency: '€'
+                    });
+                }
             }
             displayError("");
+        } else {
+            displayError(MESSAGES.ERROR_BALANCE_SHORT);
         }
-    } catch (e) { displayError(MESSAGES.ERROR_GENERAL); }
+    } catch (e) { 
+        console.error(e);
+        displayError(MESSAGES.ERROR_GENERAL); 
+    }
 }
-
 async function applyStyle(id) {
     displayError(MESSAGES.PROCESSING_APPLY);
     try {
@@ -211,7 +231,6 @@ async function applyStyle(id) {
         displayError("");
     } catch (e) { displayError(MESSAGES.ERROR_GENERAL); }
 }
-
 onAuthStateChanged(auth, user => {
     if (user) {
         senderUID = user.uid;
@@ -221,7 +240,6 @@ onAuthStateChanged(auth, user => {
             userCardData = snapshot.val();
             if (userCardData) {
                 currentBalance = Number(userCardData.balance) || 0;
-                const lang = localStorage.getItem('user_lang') || 'uk';
                 balanceInfo.textContent = MESSAGES.BALANCE_CURRENT.replace('{balance}', currentBalance.toFixed(2));
                 renderStyles();
             }
@@ -230,34 +248,6 @@ onAuthStateChanged(auth, user => {
         statusMessage.innerHTML = MESSAGES.AUTH_NOT_LOGGED_IN;
     }
 });
-</script>
-
-<script src="translate.js"></script>
-
-<script>
-    // Додаткова функція для динамічного оновлення повідомлень маркету
-    window.updateMarketMessages = function(lang) {
-        if (!window.translations || !window.translations[lang]) return;
-        const t = window.translations[lang];
-        
-        MESSAGES.STATUS_APPLIED = t.market_applied || "Applied";
-        MESSAGES.BUTTON_APPLY = t.market_apply || "Apply";
-        MESSAGES.BUTTON_BUY = t.market_buy || "Buy";
-        MESSAGES.BUTTON_FREE = t.market_free || "Free";
-        MESSAGES.BUTTON_INSUFFICIENT = t.market_no_funds || "No funds";
-        MESSAGES.ERROR_BALANCE_SHORT = t.market_error_low_balance || "Low balance";
-        MESSAGES.PROCESSING_BUY = t.market_processing_buy || "Buying...";
-        MESSAGES.PROCESSING_APPLY = t.market_processing_apply || "Applying...";
-        MESSAGES.BALANCE_CURRENT = t.market_balance || "Balance: {balance} €";
-        MESSAGES.AUTH_NOT_LOGGED_IN = t.market_auth_error || "Login required";
-
-        const balInfo = document.getElementById('balance-info');
-        if (balInfo && typeof currentBalance !== 'undefined') {
-            balInfo.textContent = MESSAGES.BALANCE_CURRENT.replace('{balance}', currentBalance.toFixed(2));
-        }
-        
-        if (typeof renderStyles === 'function') renderStyles();
-    };
 </script>
 </body>
 </html>

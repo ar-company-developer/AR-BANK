@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
-
 const firebaseConfig = {
     apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
     authDomain: "ar-bank-dbfd9.firebaseapp.com",
@@ -27,49 +26,35 @@ const AVAILABLE_STYLES_MAP = {
     'class1': { image: "card7.png"},
     'class2': { image: "card6.png"},
     'class3': { image: "card8.png"},
-    'class4': { image: "card9.png"}
+    'class4': { image: "card9.png"},
+    'lviv-rp': { image: "card10.png"}
 };
-
-// --- Допоміжні функції ---
-
 function getBlockOverlay(cardNumber) {
     if (cardNumber === STATUS_EXPIRED) return "ТЕРМІН ДІЇ ВИЙШОВ";
     if (cardNumber === STATUS_BLOCKED) return "КАРТКУ ЗАБЛОКОВАНО";
     return null;
 }
-
 window.toggleFlip = (element) => {
-    // Якщо карта заблокована (має спец. номер), забороняємо перевертання
     const numDisplay = element.querySelector(".card-number strong");
     if (numDisplay && getBlockOverlay(numDisplay.textContent)) return;
     
     if (element.classList.contains('card2-container')) return;
     element.classList.toggle("flipped");
 };
-
 window.handleCard2Click = (event, element) => {
     event.stopPropagation();
-    // Не даємо розгортати меню, якщо карта заблокована
     const numDisplay = element.querySelector(".card-number strong");
     if (numDisplay && getBlockOverlay(numDisplay.textContent)) return;
-    
     element.classList.toggle('shrunk');
 };
-
 document.addEventListener('click', () => {
     const shrunkCard = document.querySelector('.card2-container.shrunk');
     if (shrunkCard) shrunkCard.classList.remove('shrunk');
 });
-
-// --- Функції рендеру ---
-
 function updateFirstCard(data) {
     const card = document.querySelector('.card:first-child');
     if (!card || !data) return;
-
     const blockText = getBlockOverlay(data.number);
-    
-    // Візуальне блокування
     if (blockText) {
         card.classList.add("card-disabled");
         if (!card.querySelector(".block-overlay")) {
