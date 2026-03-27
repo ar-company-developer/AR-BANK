@@ -27,7 +27,8 @@ const AVAILABLE_STYLES_MAP = {
     'class2': { image: "card6.png"},
     'class3': { image: "card8.png"},
     'class4': { image: "card9.png"},
-    'lviv-rp': { image: "card10.png"}
+    'lviv-rp': { image: "card10.png"},
+    'lv-rp': { image: "card11.jpg"}
 };
 function getBlockOverlay(cardNumber) {
     if (cardNumber === STATUS_EXPIRED) return "ТЕРМІН ДІЇ ВИЙШОВ";
