@@ -17,7 +17,7 @@ const app = initializeApp(firebaseConfig),
 const STATUS_EXPIRED = "aaaa aaaa aaaa aaaa";
 const STATUS_BLOCKED = "bbbb bbbb bbbb bbbb";
 const AVAILABLE_STYLES_MAP = {
-    'default': { image: 'card.png' }, 
+    'default': { image: 'card.jpg' }, 
     'porsche': { image: 'card12.jpg'},
     'ukraine-rp': { image: 'card1.png'},
     'poltava-rp': { image: 'card2.png'},
