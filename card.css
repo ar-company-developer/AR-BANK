@@ -427,24 +427,20 @@ body {
     background: var(--text-color) !important;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
-
-/* Контейнер сітки */
 .quick-actions-grid {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     bottom: 10px;
-    width: 330px; /* Ширина як у карти */
+    width: 330px;
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 колонки */
+    grid-template-columns: 1fr 1fr; 
     gap: 10px;
     z-index: -1;
     opacity: 0;
     visibility: hidden;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-/* Компактні кнопки */
 .grid-btn {
     height: 45px;
     background: linear-gradient(135deg, #e74c3c, #c0392b);
@@ -458,23 +454,17 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     transition: transform 0.2s;
 }
-
 .grid-btn:active {
     transform: scale(0.95);
 }
-
-/* СТАН ПРИ НАТИСКАННІ */
 .card2-container.shrunk {
-    transform: scale(0.8) translateY(-60px); /* Картка трохи вгору */
+    transform: scale(0.8) translateY(-60px); 
 }
-
 .card2-container.shrunk .quick-actions-grid {
     opacity: 1;
     visibility: visible;
-    bottom: -110px; /* Виїжджають знизу */
+    bottom: -110px;
 }
-
-/* Темна тема для другої карти */
 .second-card-style {
     background: var(--text-color) !important;
     color: var(--body-bg) !important;
@@ -492,12 +482,10 @@ body {
   display: flex;
   box-shadow: 0 4px 10px var(--shadow-color);
 }
-/* Стилі для заблокованої картки */
 .card-disabled {
     cursor: not-allowed !important;
     filter: grayscale(0.8);
 }
-
 .block-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -506,7 +494,6 @@ body {
     border-radius: 20px; z-index: 10;
     backdrop-filter: blur(4px);
 }
-
 .block-overlay span, .block-overlay-inner span {
     color: #ff4757;
     font-weight: 800;
@@ -518,22 +505,41 @@ body {
     transform: rotate(-10deg);
     background: rgba(0,0,0,0.5);
 }
-
 .card-blur {
     filter: blur(2px);
 }
-
 .block-overlay-inner {
     position: absolute;
     z-index: 11;
     width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;
 }
-
-/* Вимкнення кнопок */
 .grid-btn:disabled {
     background: #333 !important;
     color: #777 !important;
     cursor: not-allowed !important;
     opacity: 0.6;
 }
+.hidden-helicopter {
+    display: none;
+    position: absolute;
+    cursor: pointer;
+    z-index: 5; 
+    opacity: 0.3; 
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#heli-2 {
+    top: 15px;
+    right: 45px;
+    transform: rotate(-15deg);
+}
+.hidden-helicopter:hover {
+    opacity: 1;
+    transform: scale(1.3) rotate(0deg);
+}
+.heli-fly-away {
+    pointer-events: none;
+    transform: translateY(-200px) translateX(100px) rotate(45deg) scale(0) !important;
+    opacity: 0 !important;
+}
+

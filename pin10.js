@@ -1,13 +1,7 @@
-// pin10.js (Оновлена версія: Встановлює новий PIN-код)
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-// Додаємо імпорт для запису в Realtime Database
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js"; 
+import { getDatabase, ref, set, get, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js"; 
 
-// =========================================================================
-// ВАША КОНФІГУРАЦІЯ FIREBASE
-// =========================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
   authDomain: "ar-bank-dbfd9.firebaseapp.com",
@@ -18,92 +12,93 @@ const firebaseConfig = {
   appId: "1:635449421773:web:bc7261cc5a4238c3649e84",
   measurementId: "G-R2B0H618QQ"
 };
-// =========================================================================
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const database = getDatabase(app); // Ініціалізація бази даних
+const database = getDatabase(app);
 
 const PIN_LENGTH = 4;
 let enteredPin = "";
 let currentUID = null; 
-// actualPin більше не потрібен
 
 const pinIndicators = document.getElementById('pinIndicators'); 
 const errorMessage = document.getElementById('error-message');
 const keypad = document.getElementById('keypad'); 
-const logoutButton = document.getElementById('logoutButton');
+
+// --- ФУНКЦІЯ ЗБОРУ ГЕЛІКОПТЕРА №2 ---
+window.collectHelicopter = async function(id) {
+    if (!currentUID) return;
+    const el = document.getElementById(`heli-${id}`);
+    if (!el || el.classList.contains('heli-fly-away')) return;
+
+    el.classList.add('heli-fly-away');
+    try {
+        await set(ref(database, `user/${currentUID}/collected_heli/${id}`), true);
+        await runTransaction(ref(database, `user/${currentUID}/helicopter`), (current) => {
+            return (current || 0) + 1;
+        });
+        setTimeout(() => el.remove(), 600);
+    } catch (e) {
+        console.error("Помилка збору:", e);
+        el.classList.remove('heli-fly-away');
+    }
+};
 
 document.addEventListener('DOMContentLoaded', () => {
-    
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUID = user.uid;
             
-            // loadPinFromDatabase(currentUID); // Більше не викликаємо
-            
-            if (keypad) {
-                keypad.addEventListener('click', handleKeypadClick);
-            }
-            if (logoutButton) {
-                logoutButton.addEventListener('click', handleLogout);
-            }
+            // Перевірка, чи гелікоптер №2 вже зібраний
+            onValue(ref(database, `user/${currentUID}/collected_heli/2`), (snapshot) => {
+                const isCollected = snapshot.exists() && snapshot.val() === true;
+                const heli = document.getElementById('heli-2');
+                if (heli) {
+                    heli.style.display = isCollected ? 'none' : 'block';
+                    if (!isCollected) {
+                        heli.onclick = () => window.collectHelicopter(2);
+                    }
+                }
+            });
+
+            if (keypad) keypad.addEventListener('click', handleKeypadClick);
         } else {
-            // Перенаправлення, якщо користувач не увійшов
             window.location.href = "welcome.html"; 
         }
     });
-    
     updateIndicators();
 });
+
+// Решта функцій (setNewPinInDatabase, handleKeypadClick, updateIndicators, savePin) залишаються без змін
 async function setNewPinInDatabase(uid, newPin) {
     try {
-        // Шлях для запису: user/{uid}/pin
         await set(ref(database, `user/${uid}/pin`), newPin); 
-        
-        console.log(`Новий PIN-код '${newPin}' успішно встановлено.`);
-        
         if (errorMessage) {
-            // Використовуємо error-message для відображення успіху
-            errorMessage.textContent = '';
-            errorMessage.style.backgroundColor = '#4CAF50'; // Зелений колір для успіху
+            errorMessage.textContent = 'PIN-код успішно змінено!';
+            errorMessage.style.backgroundColor = '#4CAF50';
             errorMessage.style.display = 'block';
         }
-
-        // Перенаправлення після успішної зміни
-        setTimeout(() => {
-            window.location.href = 'setting.html'; 
-        }, 1500);
-
+        setTimeout(() => { window.location.href = 'setting.html'; }, 1500);
     } catch (error) {
-        console.error("Помилка встановлення PIN-коду:", error);
-        
+        console.error("Помилка:", error);
         if (errorMessage) {
-            errorMessage.textContent = 'Помилка встановлення PIN-коду. Спробуйте ще раз.';
-            errorMessage.style.backgroundColor = '#f44336'; // Червоний колір для помилки
+            errorMessage.textContent = 'Помилка встановлення PIN-коду.';
+            errorMessage.style.backgroundColor = '#f44336';
             errorMessage.style.display = 'block';
         }
-        
         enteredPin = "";
-        updateIndicators(); // Очищаємо індикатори
+        updateIndicators();
     }
 }
 
-
-// ===================================================================
-// ФУНКЦІЇ ЛОГІКИ (ЗМІНЕНО)
-// ===================================================================
-
 function handleKeypadClick(event) {
     const key = event.target.closest('.key');
-    if (!key) return; 
+    if (!key || key.classList.contains('placeholder')) return; // Не реагуємо на клік по placeholder (там гелікоптер)
 
     const value = key.dataset.value;
     const action = key.dataset.action;
 
-    if (errorMessage) {
-        errorMessage.style.display = 'none';
-    }
+    if (errorMessage) errorMessage.style.display = 'none';
 
     if (action === 'delete') {
         enteredPin = enteredPin.slice(0, -1);
@@ -112,47 +107,19 @@ function handleKeypadClick(event) {
     }
 
     updateIndicators(); 
-
-    // Викликаємо функцію зміни PIN, як тільки введено 4 цифри
     if (enteredPin.length === PIN_LENGTH && currentUID) {
-        // Записуємо новий PIN до бази даних
         savePin(); 
     }
 }
 
-
 function updateIndicators() {
     if (!pinIndicators) return; 
-
     const dots = pinIndicators.querySelectorAll('.pin-dot'); 
-    
     dots.forEach((dot, index) => {
-        if (index < enteredPin.length) {
-            dot.classList.add('filled'); 
-        } else {
-            dot.classList.remove('filled'); 
-        }
+        dot.classList.toggle('filled', index < enteredPin.length);
     });
 }
 
-/**
- * Ініціює процес збереження нового PIN-коду.
- */
 function savePin() {
-    // enteredPin уже є string (складається з цифр), але зберігається як string
-    const newPinString = enteredPin; 
-    
-    // Встановлюємо новий PIN у Firebase
-    setNewPinInDatabase(currentUID, newPinString); 
-}
-
-async function handleLogout() {
-    try {
-        await signOut(auth);
-        sessionStorage.removeItem('pin_passed');
-        window.location.href = 'welcome.html'; 
-    } catch (error) {
-        console.error("Помилка при виході:", error);
-        alert("Помилка при виході.");
-    }
+    setNewPinInDatabase(currentUID, enteredPin); 
 }

@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+import { getDatabase, ref, onValue, get, runTransaction, set } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 const firebaseConfig = {
     apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
     authDomain: "ar-bank-dbfd9.firebaseapp.com",
@@ -17,7 +17,7 @@ const app = initializeApp(firebaseConfig),
 const STATUS_EXPIRED = "aaaa aaaa aaaa aaaa";
 const STATUS_BLOCKED = "bbbb bbbb bbbb bbbb";
 const AVAILABLE_STYLES_MAP = {
-    'default': { image: 'card.jpg' }, 
+    'default': { image: 'card.png' }, 
     'porsche': { image: 'card12.jpg'},
     'ukraine-rp': { image: 'card1.png'},
     'poltava-rp': { image: 'card2.png'},
@@ -30,6 +30,21 @@ const AVAILABLE_STYLES_MAP = {
     'lviv-rp': { image: "card10.png"},
     'lv-rp': { image: "card11.jpg"}
 };
+window.collectHelicopter = async function(id) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const el = document.getElementById(`heli-${id}`);
+    if (!el || el.classList.contains('heli-fly-away')) return;
+    el.classList.add('heli-fly-away');
+    try {
+        await set(ref(database, `user/${user.uid}/collected_heli/${id}`), true);
+        await runTransaction(ref(database, `user/${user.uid}/helicopter`), (v) => (v || 0) + 1);
+        setTimeout(() => el.remove(), 600);
+    } catch (e) {
+        console.error(e);
+        el.classList.remove('heli-fly-away');
+    }
+};
 function getBlockOverlay(cardNumber) {
     if (cardNumber === STATUS_EXPIRED) return "ТЕРМІН ДІЇ ВИЙШОВ";
     if (cardNumber === STATUS_BLOCKED) return "КАРТКУ ЗАБЛОКОВАНО";
@@ -38,7 +53,6 @@ function getBlockOverlay(cardNumber) {
 window.toggleFlip = (element) => {
     const numDisplay = element.querySelector(".card-number strong");
     if (numDisplay && getBlockOverlay(numDisplay.textContent)) return;
-    
     if (element.classList.contains('card2-container')) return;
     element.classList.toggle("flipped");
 };
@@ -69,32 +83,24 @@ function updateFirstCard(data) {
         const overlay = card.querySelector(".block-overlay");
         if (overlay) overlay.remove();
     }
-
     const numDisplay = card.querySelector(".card-num-display") || card.querySelector(".card-number strong");
     if (numDisplay) numDisplay.textContent = data.number || "#### #### #### ####";
-    
     const nameDisplay = card.querySelector(".card-name-display") || card.querySelector(".card-name span");
     if (nameDisplay) nameDisplay.textContent = (data.holder_name || "NAME SURNAME").toUpperCase();
-    
     const expiryDisplay = card.querySelector(".expiry-date");
     if (expiryDisplay) expiryDisplay.textContent = data.expiry_date || "--/--";
-    
     const style = AVAILABLE_STYLES_MAP[data.style_id] || AVAILABLE_STYLES_MAP['default'];
     const frontSide = card.querySelector(".card-front");
     const backSide = card.querySelector(".card-back");
-
     if (frontSide) frontSide.style.backgroundImage = `url('${style.image}')`;
     if (backSide) backSide.style.backgroundImage = `url('${style.image}')`;
 }
-
 function renderSecondCardUI(data) {
     const container = document.getElementById('secondCardContainer');
     if (!container) return;
-
     const blockText = getBlockOverlay(data.number);
     const isDisabled = blockText ? "disabled" : "";
     const blurClass = blockText ? "card-blur" : "";
-
     container.innerHTML = `
         <div class="card card2-container ${blockText ? 'card-disabled' : ''}" onclick="window.handleCard2Click(event, this)">
             <div class="card-inner">
@@ -116,7 +122,6 @@ function renderSecondCardUI(data) {
                     </div>
                 </div>
             </div>
-            
             <div class="quick-actions-grid">
                 <button class="grid-btn" ${isDisabled} onclick="event.stopPropagation(); window.location.href='rep.html'">Поповнити</button>
                 <button class="grid-btn" ${isDisabled} onclick="event.stopPropagation(); window.location.href='perecas.html'">Переказ</button>
@@ -125,30 +130,18 @@ function renderSecondCardUI(data) {
             </div>
         </div>`;
 }
-
-// --- Логіка синхронізації ---
-
 async function syncSecondCard(localData, uid) {
     const container = document.getElementById('secondCardContainer');
     if (!container) return;
-
     if (!localData) {
-        container.innerHTML = `
-            <div class="card" style="display: flex; align-items: center; justify-content: center;">
-                <div class="add-card-btn" onclick="window.location.href='card2.html'">
-                    <span>+</span>
-                </div>
-            </div>`;
+        container.innerHTML = `<div class="card" style="display: flex; align-items: center; justify-content: center;"><div class="add-card-btn" onclick="window.location.href='card2.html'"><span>+</span></div></div>`;
         return;
     }
-
     const rawNum = localData.number.replace(/\s/g, '');
-    
     try {
         const indexSnap = await get(ref(database, `cards_index/${rawNum}`));
         if (indexSnap.exists()) {
             const ownerUID = indexSnap.val().uid;
-            // Підписка на дані реального власника для синхронізації балансу та статусу
             onValue(ref(database, `user/${ownerUID}/card2`), (snap) => {
                 if (snap.exists()) renderSecondCardUI(snap.val());
             });
@@ -159,29 +152,30 @@ async function syncSecondCard(localData, uid) {
         renderSecondCardUI(localData);
     }
 }
-
 document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, user => {
         if (user) {
-            // Слухаємо першу карту
             onValue(ref(database, `user/${user.uid}/card`), (snap) => updateFirstCard(snap.val()));
-            
-            // Слухаємо другу карту
             onValue(ref(database, `user/${user.uid}/card2`), (snap) => {
                 syncSecondCard(snap.val(), user.uid);
             }, { onlyOnce: true });
-            
+            onValue(ref(database, `user/${user.uid}/collected_heli/1`), (snap) => {
+                const heli1 = document.getElementById('heli-1');
+                if (snap.exists() && snap.val() === true) {
+                    if (heli1) heli1.remove();
+                } else {
+                    if (heli1) heli1.style.display = 'block'; 
+                }
+            });
         } else {
             window.location.href = "login.html";
         }
     });
-
-    // Крапки слайдера
-    const slider = document.querySelector('.slider-container');
+    const slider = document.querySelector('.card-slider');
     const dots = document.querySelectorAll('.dot');
     if (slider) {
         slider.addEventListener('scroll', () => {
-            const index = Math.round(slider.scrollLeft / 350);
+            const index = Math.round(slider.scrollLeft / slider.offsetWidth);
             dots.forEach((dot, i) => { if (dot) dot.classList.toggle('active', i === index); });
         });
     }
