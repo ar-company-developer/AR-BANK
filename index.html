@@ -1,155 +1,50 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Bank - Завантаження</title>
-    
-    <script>
-        function isMobileDevice() {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            return /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-        }
-
-        function blockDesktopAccess() { 
-            if (typeof window.Telegram !== 'undefined' && typeof window.Telegram.WebApp !== 'undefined') {
-                return; 
-            }
-
-            if (!isMobileDevice()) {
-                document.body.style.display = 'none';
-                const desktopBlocker = document.createElement('div');
-                desktopBlocker.style.cssText = `
-                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                    background-color: #1a1a2e;
-                    color: white;
-                    display: flex; flex-direction: column; justify-content: center; align-items: center;
-                    padding: 20px; text-align: center;
-                    font-family: 'Inter', sans-serif; font-size: 20px;
-                    z-index: 99999;
-                `;
-                desktopBlocker.innerHTML = `
-                    <h2 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 1rem;">Доступ заборонено</h2>
-                    <p style="margin-bottom: 0.5rem;">Для безпеки цю програму можна відкрити лише на мобільному пристрої.</p>
-                    <p style="font-size: 14px; opacity: 0.7; margin-top: 15px;">
-                        (Або використовуйте <span style="font-weight: 600;">Telegram Mini App</span>.)
-                    </p>
-                `;
-                document.body.appendChild(desktopBlocker);
-                throw new Error("Доступ заблоковано");
-            }
-        }
-        blockDesktopAccess();
-    </script>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AR Bank - Geometric Grid Loading</title>
+<script>
+function isMobileDevice(){const u=navigator.userAgent||navigator.vendor||window.opera;return/android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(u)}
+if(!isMobileDevice()&&typeof window.Telegram==='undefined'){document.body.style.display='none';const b=document.createElement('div');b.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:#000;color:#fff;display:flex;justify-content:center;align-items:center;z-index:99999;';b.innerHTML='<h2>Доступ заборонено</h2>';document.body.appendChild(b);throw new Error("Desktop access blocked")}
+</script>
 <style>
-    :root {
-        --primary-color: #000000; 
-        --background-color: #f7f9fc; 
-        --text-color: #333333;
-    }
-
-    .dark-mode { 
-        --primary-color: #ffffff; 
-        --background-color: #0a0a0c; 
-        --text-color: #f0f0f0; 
-    }
-    
-    html, body {
-        margin: 0; padding: 0;
-        height: 100vh; width: 100%;
-        background-color: var(--background-color); 
-        color: var(--text-color);
-        font-family: 'Inter', sans-serif;
-        display: flex; justify-content: center; align-items: center;
-        overflow: hidden;
-    }
-
-    .loader-container { position: relative; z-index: 2; text-align: center; }
-    .card-pulse {
-        width: 65px;
-        height: 42px;
-        border-radius: 8px;
-        background-color: var(--primary-color);
-        position: relative;
-        margin: 0 auto 1.5rem;
-        animation: pulse-grow 1.5s infinite ease-in-out, wave-motion 3s infinite ease-in-out;
-        box-shadow: 0 0 20px rgba(0, 150, 255, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    @keyframes pulse-grow {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-    }
-    @keyframes wave-motion {
-        0%, 100% { transform: translateY(0) rotate(3deg); }
-        50% { transform: translateY(-5px) rotate(-3deg); } 
-    }
-
-    .loader-container h1 {
-        color: var(--text-color);
-        font-size: 2rem;
-        font-weight: 800;
-        margin: 0;
-        letter-spacing: 3px;
-    }
-
-    .dot-container { display: flex; justify-content: center; margin-top: 0.8rem; }
-    .dot {
-        width: 10px; height: 10px; border-radius: 50%; margin: 0 5px;
-        background-color: var(--primary-color);
-        animation: bounce 1.4s infinite ease-in-out both;
-    }
-    
-    .dot:nth-child(1) { animation-delay: -0.32s; background-color: var(--primary-color); }
-    .dot:nth-child(2) { animation-delay: -0.16s; background-color: var(--primary-color); }
-    .dot:nth-child(3) { background-color:var(--primary-color) ; }
-
-    @keyframes bounce {
-        0%, 80%, 100% { transform: scale(0); }
-        40% { transform: scale(1.2); }
-    }
+:root{--bg:#ffffff;--accent:#0066FF;--glow:rgba(0,102,255,0.3);--text:#000000;--logo-glass:rgba(0,0,0,0.05);--logo-border:rgba(0,0,0,0.1);--particle-size:6px}
+body.dark-mode{--bg:#000000;--accent:#0066FF;--glow:rgba(0,102,255,0.5);--text:#ffffff;--logo-glass:rgba(255,255,255,0.03);--logo-border:rgba(255,255,255,0.1)}
+html,body{margin:0;padding:0;height:100vh;width:100vw;background-color:var(--bg);display:flex;justify-content:center;align-items:center;overflow:hidden;transition:background-color 0.4s ease}
+.main-wrapper{display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
+.scene{position:relative;width:300px;height:200px;display:grid;place-items:center;margin-bottom:10px}
+.central-logo{grid-area:1/1;width:65px;height:65px;z-index:100;opacity:0;background:var(--logo-glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:12px;border:1px solid var(--logo-border);padding:10px;box-shadow:0 0 20px var(--glow);animation:logo-fade-in 1s ease-out forwards;animation-delay:1.2s;color:var(--accent)}
+.particle{grid-area:1/1;width:var(--particle-size);height:var(--particle-size);background:var(--accent);border-radius:1.5px;opacity:0;box-shadow:0 0 6px var(--glow);will-change:transform,opacity;animation:fast-assemble-grid 2.5s cubic-bezier(0.19,1,0.22,1) forwards}
+h1{position:relative;font-size:1.8rem;font-weight:1000;letter-spacing:12px;text-transform:uppercase;color:var(--text);opacity:0;z-index:110;margin-top:0;margin-left:10px;animation:fade-in-title 0.8s ease-out forwards;animation-delay:1.8s;transition:color 0.4s ease}
+@keyframes fast-assemble-grid{0%{opacity:0;transform:translate(var(--start-x),var(--start-y)) scale(0) rotate(0deg)}20%{opacity:1}70%,100%{opacity:1;transform:translate(var(--end-x),var(--end-y)) scale(1) rotate(var(--target-rot))}}
+.version {font-family: 'Inter', sans-serif;font-size: 0.8rem;color: gray;letter-spacing: 2px;margin-top: 10px;opacity: 0;animation: fade-in-version 0.8s ease-out forwards;animation-delay: 2.2s; }
+@keyframes fade-in-version {from { opacity: 0; }to { opacity: 1; }}
+@keyframes logo-fade-in{from{opacity:0;transform:scale(0.8) rotate(-10deg)}to{opacity:1;transform:scale(1) rotate(0deg)}}
+@keyframes fade-in-title{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
-    <div class="loader-container"> 
-        <div class="card-pulse">
-
-        </div>
-        <h1>AR BANK</h1> 
-        <div class="dot-container">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-        </div>
-    </div>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-        const firebaseConfig = {
-            apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
-            authDomain: "ar-bank-dbfd9.firebaseapp.com",
-            databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "ar-bank-dbfd9",
-            storageBucket: "ar-bank-dbfd9.firebasestorage.app",
-            messagingSenderId: "635449421773",
-            appId: "1:635449421773:web:bc7261cc5a4238c3649e84",
-            measurementId: "G-R2B0H618QQ"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        document.addEventListener('DOMContentLoaded', () => {
-            onAuthStateChanged(auth, (user) => {
-                setTimeout(() => {
-                    if (user) {
-                        window.location.href = "pin.html";
-                    } else {
-                        window.location.href = "welcome.html";
-                    }
-                }, 100); 
-            });
-        });
-    </script>
-        <script>function applyThemeOnLoad(){if(localStorage.getItem('theme')==='dark'){document.body.classList.add('dark-mode');}}applyThemeOnLoad();</script>
+<div class="main-wrapper">
+<div class="scene">
+<div class="central-logo">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88"><path d="M78 38v-3H10v3a1.003 1.003 0 0 0 1 1h66a1.003 1.003 0 0 0 1-1zM10 77h68v-3a1.003 1.003 0 0 0-1-1H11a1.003 1.003 0 0 0-1 1z" style="fill:var(--text)"/><rect x="5" y="79" width="78" height="8" rx="1" ry="1" style="fill:var(--text)"/><path d="M28 41H14v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM51 41H37v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM74 41H60v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM17 47h8v18h-8zM40 47h8v18h-8zM63 47h8v18h-8zM14 68v3h14v-3a1.003 1.003 0 0 0-1-1H15a1.003 1.003 0 0 0-1 1zM37 68v3h14v-3a1.003 1.003 0 0 0-1-1H38a1.003 1.003 0 0 0-1 1zM60 68v3h14v-3a1.003 1.003 0 0 0-1-1H61a1.003 1.003 0 0 0-1 1zM44 10a8 8 0 1 0 8 8 8.01 8.01 0 0 0-8-8zm-.527 6.618 1.949.975A2.844 2.844 0 0 1 45 22.855V23a1 1 0 0 1-2 0v-.145a2.848 2.848 0 0 1-2-2.71 1 1 0 0 1 2 0 .856.856 0 0 0 .855.855h.29a.854.854 0 0 0 .382-1.618l-1.949-.975A2.844 2.844 0 0 1 43 13.145V13a1 1 0 0 1 2 0v.145a2.848 2.848 0 0 1 2 2.71 1 1 0 1 1-2 0 .856.856 0 0 0-.855-.855h-.29a.854.854 0 0 0-.382 1.618z" style="fill:var(--text)"/><path d="m82.466 21.115-38-20a.995.995 0 0 0-.932 0l-38 20A1 1 0 0 0 5 22v10a1 1 0 0 0 1 1h76a1 1 0 0 0 1-1V22a1 1 0 0 0-.534-.885zM44 28a10 10 0 1 1 10-10 10.012 10.012 0 0 1-10 10z" style="fill:var(--text)"/></svg>
+</div>
+<div id="particles-container" style="display:contents"></div>
+</div>
+<h1>AR BANK</h1>
+<div class="version">v3.4</div>
+</div>
+<script>
+if(localStorage.getItem('theme')==='dark')document.body.classList.add('dark-mode');
+function initHighDetailGridLayout(){const c=document.getElementById('particles-container');const pC=40;for(let i=0;i<pC;i++){const p=document.createElement('div');p.className='particle';const cols=8,rows=5,col=i%cols,row=Math.floor(i/cols),sX=16,sY=22;const eX=(col-(cols-1)/2)*sX+'px',eY=(row-(rows-1)/2)*sY+'px';const sA=Math.random()*Math.PI*2,sD=500+Math.random()*200;const tR=(sA*180/Math.PI)+90+'deg';p.style.setProperty('--start-x',Math.cos(sA)*sD+'px');p.style.setProperty('--start-y',Math.sin(sA)*sD+'px');p.style.setProperty('--end-x',eX);p.style.setProperty('--end-y',eY);p.style.setProperty('--target-rot',tR);p.style.animationDelay=(i*0.03)+'s';c.appendChild(p)}}
+initHighDetailGridLayout();
+</script>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+const firebaseConfig={apiKey:"AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",authDomain:"ar-bank-dbfd9.firebaseapp.com",projectId:"ar-bank-dbfd9",appId:"1:635449421773:web:bc7261cc5a4238c3649e84"};
+const app=initializeApp(firebaseConfig);const auth=getAuth(app);
+onAuthStateChanged(auth,(user)=>{setTimeout(()=>{window.location.href=user?"pin.html":"welcome.html"},4500)});
+</script>
 </body>
 </html>
