@@ -135,14 +135,12 @@
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="header-nav">
             <button class="back-btn" onclick="location.href='card.html'">‹</button>
             <h2 style="margin:0; font-weight: 600;">AR Gift</h2>
             <div style="width:45px"></div>
         </div>
-
         <div class="progress-card">
             <div class="counter-box">
                 <svg>
@@ -153,10 +151,8 @@
             </div>
             <h3 style="margin-bottom: 5px;">Полювання на гелікоптери</h3>
             <p style="color: #888; font-size: 14px;">Знайдіть усі 5 прихованих гелікоптерів</p>
-
             <div class="heli-grid" id="heliGrid"></div>
         </div>
-
         <div class="reward-info" id="rewardPanel">
             <h4 style="margin:0; color: var(--gold);">ГОЛОВНИЙ ПРИЗ</h4>
             <div style="font-size: 28px; font-weight: 800; margin: 10px 0;">5 000 €</div>
@@ -232,22 +228,18 @@
                     }
                     return card;
                 });
-
-                // Оновлюємо статус VIP та стиль
                 await update(userRef, {
                     reward_claimed: true,
                     vip: true,
                     style_id: 'class3' 
                 });
-
-                alert("🎉 Гроші зараховано! Тепер ви VIP клієнт.");
+                alert("Успішно!");
                 window.location.href = "card.html";
 
             } catch (e) {
                 alert("Помилка: " + e.message);
             }
         }
-
         function createMoney() {
             const m = document.createElement('div');
             m.className = 'money';

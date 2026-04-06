@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AR BANK</title>
+<style>
+:root{--bg:#e0e5ec;--card-bg:rgb(255,255,255);--text:#374151;--primary:#4f46e5;--shadow:rgba(163,177,198,0.6);--light-shadow:rgba(255,255,255,0.7);--success:#10b981;--error:#ef4444}
+body.dark-mode{--bg:#1a1a1a;--card-bg:#242424;--text:#e0e0e0;--shadow:rgba(0,0,0,0.5);--light-shadow:rgba(255,255,255,0.05)}
+body{margin:0;font-family:'SF Pro Display',system-ui,sans-serif;background-color:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;overflow:hidden}
+.promo-card{width:80%;max-width:380px;padding:30px;background:var(--card-bg);border-radius:30px;box-shadow:20px 20px 60px var(--shadow),-20px -20px 60px var(--light-shadow);text-align:center}
+h1{font-size:24px;margin-bottom:10px}
+p{opacity:0.6;font-size:14px;margin-bottom:30px}
+input{width:100%;padding:15px;border:none;border-radius:15px;background:var(--bg);box-shadow:inset 6px 6px 12px var(--shadow),inset -6px -6px 12px var(--light-shadow);font-size:18px;text-align:center;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:25px}
+.btn-apply{width:100%;padding:15px;border:none;border-radius:15px;background:var(--primary);color:white;font-size:16px;font-weight:bold;cursor:pointer;box-shadow:6px 6px 12px rgba(79,70,229,0.3);transition:0.3s}
+.btn-apply:disabled{opacity:0.6;cursor:not-allowed}
+#status-msg{margin-top:20px;font-size:14px;min-height:20px;font-weight:500}
+.back-button{position:absolute;top:20px;left:20px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform 0.2s}
+.back-button svg{width:100%;height:100%}
+.back-button:hover{transform:scale(1.1)}
+.success-anim{animation:pulse 0.5s ease}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+</style>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark-mode');document.addEventListener('DOMContentLoaded',()=>document.body.classList.add('dark-mode'));}</script>
+</head>
+<body>
+<a href="setting.html" class="back-button">
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 9L8 12M8 12L11 15M8 12H16M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
+<div class="promo-card">
+<h1>Промокод</h1>
+<p>Введіть промокод</p>
+<input type="text" id="promo-input" placeholder="Введіть код" maxlength="20">
+<button class="btn-apply" id="apply-btn">Активувати</button>
+<div id="status-msg"></div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import { getDatabase, ref, get, runTransaction } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+const firebaseConfig = {apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",authDomain: "ar-bank-dbfd9.firebaseapp.com",databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",projectId: "ar-bank-dbfd9",storageBucket: "ar-bank-dbfd9.firebasestorage.app",messagingSenderId: "635449421773",appId: "1:635449421773:web:bc7261cc5a4238c3649e84"};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+let currentUID = null;
+onAuthStateChanged(auth, (user) => {if (user) {currentUID = user.uid;} else {window.location.href = "welcome.html";}});
+async function applyPromo() {
+const input = document.getElementById('promo-input');
+const status = document.getElementById('status-msg');
+const btn = document.getElementById('apply-btn');
+const code = input.value.trim();
+if (!code || !currentUID) return;
+btn.disabled = true;
+status.textContent = "Перевірка...";
+status.style.color = "var(--text)";
+const promoRef = ref(db, `promo/${code}`);
+const userUsedRef = ref(db, `user/${currentUID}/used_promos/${code}`);
+try {
+const testSnap = await get(promoRef);
+if (!testSnap.exists()) throw new Error("Такого коду не існує!");
+const usedSnap = await get(userUsedRef);
+if (usedSnap.exists()) throw new Error("Ви вже використали цей код!");
+const result = await runTransaction(promoRef, (promoData) => {
+if (!promoData) return promoData;
+let p = Number(promoData.people);
+if (p > 0) {promoData.people = p - 1;return promoData;}
+return;});
+if (!result.committed) throw new Error("Ліміт використань закінчився!");
+const amount = Number(result.snapshot.val().sum);
+const balanceRef = ref(db, `user/${currentUID}/card/balance`);
+await runTransaction(balanceRef, (curr) => (Number(curr) || 0) + amount);
+await runTransaction(userUsedRef, () => true);
+status.textContent = `Успіх! Нараховано ₴${amount}`;
+status.style.color = "var(--success)";
+input.value = "";
+document.querySelector('.promo-card').classList.add('success-anim');
+setTimeout(() => document.querySelector('.promo-card').classList.remove('success-anim'), 500);
+} catch (err) {
+status.textContent = err.message;
+status.style.color = "var(--error)";
+} finally {btn.disabled = false;}}
+document.getElementById('apply-btn').onclick = applyPromo;
+</script>
+</body>
+</html>

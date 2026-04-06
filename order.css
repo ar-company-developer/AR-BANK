@@ -1,101 +1,130 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: #fafafa;
-    color: #333;
-    -webkit-font-smoothing: antialiased;
+/* Основні змінні для легкого керування кольорами */
+:root {
+    --primary-color: black; 
+    --bg-color: #f2f2f7;
+    --card-bg: #ffffff;
+    --text-color: #1c1c1e;
+    --input-bg: #efeff4;
+    --border-radius: 14px;
+    --transition: all 0.3s ease;
 }
-
-/* Заголовок */
+body.dark-mode {
+  --primary-color:white;
+    --bg-color: #000000;
+    --card-bg: #1c1c1e;
+    --text-color: #ffffff;
+    --input-bg: #2c2c2e;
+}
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    transition: var(--transition);
+}
 .header {
+    width: 100%;
+    max-width: 500px;
     display: flex;
     align-items: center;
-    padding: 15px 15px;
-    background: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 20px;
+    position: sticky;
+    top: 0;
+    background: var(--bg-color);
+    z-index: 10;
 }
 .back-icon {
-    display: block;
-    padding-right: 15px;
-    color: #000;
+    color: var(--primary-color);
+    text-decoration: none;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
 }
 .page-title {
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 22px;
+    font-weight: 700;
     margin: 0;
-    flex-grow: 1;
-    text-align: center;
-    transform: translateX(-12px); /* Компенсуємо іконку назад для центрування */
 }
-
-/* Контейнер форми */
 .form-container {
+    width: 100%;
+    max-width: 500px;
     padding: 20px;
-    max-width: 450px;
-    margin: 0 auto;
 }
-
 .form-description {
-    font-size: 16px;
-    color: #555;
-    margin-bottom: 30px;
+    font-size: 15px;
+    color: #8e8e93;
+    margin-bottom: 25px;
+    line-height: 1.4;
 }
-
-/* Стилі полів форми */
-form label {
-    display: block;
+form {
+    display: flex;
+    flex-direction: column;
+}
+label {
     font-size: 14px;
-    font-weight: bold;
-    margin-top: 20px;
+    font-weight: 600;
     margin-bottom: 8px;
-    color: #000;
+    margin-left: 4px;
 }
-
-form input {
-    width: 100%;
-    padding: 15px;
+input {
+    background-color: var(--input-bg);
+    border: 2px solid transparent;
+    border-radius: var(--border-radius);
+    padding: 14px 16px;
     font-size: 16px;
-    border: 2px solid #000; /* Чорна рамка, як на кнопках */
-    border-radius: 10px;
-    box-sizing: border-box;
-    background-color: #fff;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    color: var(--text-color);
+    margin-bottom: 20px;
+    transition: var(--transition);
 }
-
-form input:focus {
-    border-color: #007bff; /* Легка синя підсвітка при фокусі */
+input:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    border-color: var(--primary-color);
+    background-color: var(--card-bg);
 }
-
-/* Кнопка відправки */
-.submit-button {
-    width: 100%;
-    padding: 18px;
-    margin-top: 40px;
-    background-color: #000;
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-}
-
-.submit-button:hover {
-    background-color: #333;
-}
-
-.submit-button:active {
-    transform: scale(0.99);
-}
-
-/* Повідомлення про помилку */
-.error-message {
-    color: red;
-    font-size: 14px;
+#pinInput {
+    letter-spacing: 8px;
     text-align: center;
-    margin-top: 15px;
     font-weight: bold;
+}
+.submit-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 18px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: transform 0.1s ease, opacity 0.3s ease;
+}
+.submit-button:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+.error-message, #pin-error {
+    font-size: 13px;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255, 59, 48, 0.1);
+    text-align: center;
+}
+@media (min-width: 600px) {
+    body {
+        padding-top: 40px;
+    }
+    .form-container {
+        background: var(--card-bg);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
 }
