@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Farm Clicker UI v2.2</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"><style>* {margin: 0;padding: 0;box-sizing: border-box;font-family: 'Segoe UI', Roboto, sans-serif;}body {height: 100vh;width: 100vw;overflow: hidden;background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),url('farmBg.jpg') no-repeat center center;background-size: cover;display: flex;justify-content: center;align-items: center;}button:disabled {cursor: not-allowed;opacity: 0.6;}.ui-wrapper {width: 100%;max-width: 450px;height: 80vh; display: flex;flex-direction: column;padding: 15px;margin-top: 180px;pointer-events: none;}.ui-wrapper > * {pointer-events: auto;}.glass {background: rgb(90,90,90, 0.01);backdrop-filter: blur(15px);-webkit-backdrop-filter: blur(15px);border: 1px solid rgba(255, 255, 255, 0.1);}.screen-investments {height: 100vh;overflow-y: auto; padding-bottom: 120px;-webkit-overflow-scrolling: touch;}.investments-wrapper {margin-top: 100px;display: flex;flex-direction: column;align-items: center;}.invest-card.glass {background: background: rgba(255, 255, 255, 0.2);;border: 1px solid rgba(255, 255, 255, 0.7);backdrop-filter: blur(15px);box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }.screen-tasks {height: 100vh;overflow: hidden; }.tasks-container {height: calc(100vh - 150px);overflow-y: auto;padding: 20px;padding-bottom: 120px;-webkit-overflow-scrolling: touch;}.tasks-container::-webkit-scrollbar {width: 0px;background: transparent;}.ui-wrapper {display: flex;flex-direction: column;height: 80%;}.buy-button {margin-top: 25px;width: 100%;padding: 15px;border-radius: 20px;background: white;color: black;border: none;font-weight: bold;font-size: 18px;transition: all 0.3s ease;}.buy-button:disabled {background: rgba(255, 255, 255, 0.2) !important;color: rgba(0, 0, 0, 0.5) !important;cursor: not-allowed;pointer-events: none;}.empty-card {background: rgba(255, 255, 255, 0.09) !important;}.investments-grid {width: 100%;max-width: 600px;}.leaderboard-wrapper {margin-top: 100px;padding: 0 20px 120px 20px;display: flex;flex-direction: column;align-items: center;}.leaderboard-card {width: 100%;max-width: 360px;border-radius: 25px;padding: 10px 20px;display: flex;flex-direction: column;}.leader-row {display: flex;justify-content: space-between;align-items: center;padding: 12px 0;border-bottom: 1px solid rgba(255, 255, 255, 0.2);}.leader-row:last-child {border-bottom: none;}.leader-left {display: flex;align-items: center;gap: 15px;}.leader-rank {font-size: 24px;font-weight: 900;color: #ffd700;min-width: 25px;}.leader-name {font-size: 18px;font-weight: bold;color: #fff;}.leader-score {font-size: 20px;font-weight: 900;color: #fff;}.loading-text {text-align: center;padding: 20px;color: rgba(255,255,255,0.5);}.cards-row {display: flex;gap: 10px;overflow-x: auto;padding: 10px 0;width: 100%;}.top-nav {display: grid;grid-template-columns: repeat(3, 1fr);gap: 10px;}.card {height: 60px;border-radius: 15px;display: flex;flex-direction: column;justify-content: center;align-items: center;text-align: center;}.card .value {color: #fff;font-size: 18px;font-weight: 800;}.card .label {color: #d4c63b;font-size: 9px;font-weight: bold;text-transform: uppercase;margin-top: 2px;}.score-board {margin-top: 20px;height: 70px;width: 290px;margin-left: 8%;border-radius: 20px;display: flex;justify-content: center;align-items: center;transform: translateX(12%);}.score-board h1 {color: #fff;font-size: 44px;font-weight: 700;}.click-area {flex: 1;display: flex;justify-content: center;align-items: center;}.circle-button {width: 70vw;height: 70vw;max-width: 300px;max-height: 300px;border-radius: 50%;display: flex;justify-content: center;align-items: center;box-shadow: 0 10px 40px rgba(0,0,0,0.3);transition: transform 0.1s;}.circle-button:active {transform: scale(0.99);}.energy-info {display: flex;align-items: center;gap: 8px;margin-bottom: 15px;margin-left: 15px;color: #fff;font-size: 16px;font-weight: 600;text-shadow: 0 2px 4px rgba(0,0,0,0.5);}.energy-info i {color: #ffd700;}.bottom-bar {position: relative;width: 100%;max-width: 450px;height: 80px;background: rgb(65,65,65, 0.01);backdrop-filter: blur(20px);-webkit-backdrop-filter: blur(20px);border-radius: 25px;display: flex;justify-content: space-around;align-items: center;padding: 0 10px;margin: 0 auto;border: 1px solid rgba(255, 255, 255, 0.1);}.bottom-bar {position: fixed;bottom: 0px;left: 50%;transform: translateX(-50%);width: 90%;max-width: 450px;z-index: 1000;}.nav-item {position: relative;z-index: 2;width: 60px;height: 60px;display: flex;justify-content: center;align-items: center;cursor: pointer;transition: transform 0.3s ease;-webkit-tap-highlight-color: transparent;}.static-circle {position: absolute;width: 45px;height: 45px;background: rgba(255, 255, 255, 0.1);border-radius: 50%;z-index: -1;}.nav-item i {font-size: 24px;color: rgba(255, 255, 255, 0.7);transition: color 0.3s ease;}.nav-item.active {transform: scale(1.70);}.nav-item.active i {color: #fff;}.nav-active-bg {position: absolute;width: 79px;height: 79px;background: rgba(255, 255, 255, 0.1);border: 2.5px solid rgba(255, 255, 255, 0.5);border-radius: 50%;top: 40%;left: -2%;margin-top: -31px;transition: transform 0.35s ease;z-index: 1;pointer-events: none;}.svg-icon {position: absolute;display: grid;width: 28px;height: 28px;display: flex;justify-content: center;align-items: center;z-index: 3;color: rgba(255, 255, 255, 0.6);transition: all 0.3s ease;}.svg-icon svg {width: 100%;height: 100%;justify-content: center;align-items: center;}.nav-item.active .svg-icon {color: #ffffff;transform: scale(1.1); }.svg-icon svg path {fill: currentColor; }.floating-text {position: absolute;color: #ffd700;font-weight: bold;font-size: 40px;pointer-events: none;animation: floatUp 0.8s ease-out forwards;text-shadow: 0 2px 6px rgba(0,0,0,0.5);}@keyframes floatUp {0% {opacity: 1;transform: translateY(0) scale(1);}100% {opacity: 0;transform: translateY(-80px) scale(1.2);}}.screen {position: absolute;width: 100%;height: 100%;top: 0;left: 0;}.hidden {display: none;}.tasks-container {padding: 20px;margin-top: 80px;}.screen-exchange .tasks-title {font-size: 48px;-webkit-text-stroke: 1px rgba(255,255,255,0.2);margin-bottom: 40px;font-family: Sans-Serif;}#exchange-input::placeholder {color: rgba(255,255,255,0.5);}.get-title {font-size: 48px;color: white;margin-bottom: 160px;}.tasks-title {text-align: center;color: #fff;font-size: 40px;margin-bottom: 20px;}.task {display: flex;align-items: center;justify-content: space-between;border-radius: 20px;padding: 15px;margin-bottom: 15px;}.task-left {width: 50px;height: 50px;background: green;border-radius: 15px;display: flex;justify-content: center;align-items: center;}.investments-wrapper {margin-top: 100px;padding-bottom: 120px; overflow-y: auto;height: 100vh;}.profit-board {width: 280px;height: 100vh;margin: 0 auto 30px auto;border-radius: 20px;flex-direction: row;justify-content: space-between;padding: 0 20px;backdrop-filter: blur(10px);}.profit-label {font-size: 16px;color: #ffd700;text-transform: none;margin: 0;}.profit-value {font-size: 32px;background: rgba(255,255,255,0.08);padding: 10px 25px;border-radius: 15px;}.section-subtitle {color: #fff;font-size: 32px;text-align: center;margin-bottom: 20px;font-weight: 700;}.category-title {color: #ffd700;font-size: 20px;font-weight: bold;margin-bottom: 10px;}.investments-grid {display: flex;flex-direction: column;gap: 25px;}.cards-row {display: flex;gap: 10px;overflow-x: auto;padding-bottom: 5px;}.cards-row::-webkit-scrollbar { height: 0; }.cards-grid-2x2 {display: grid;grid-template-columns: 1fr 1fr;gap: 10px;}.invest-card {border-radius: 20px;padding: 15px;display: flex;flex-direction: column;justify-content: space-between;min-width: 160px; cursor: pointer;transition: transform 0.1s ease;}.invest-card:active { transform: scale(0.97); }.coin-header {display: flex;align-items: center;gap: 10px;margin-bottom: 10px;}.card-icon, .coin-icon {width: 40px;height: 40px;padding:7px;border-radius: 12px;display: flex;justify-content: center;align-items: center;font-size: 10px;background: rgba(255,255,255,0.2);}.card-icon i { color: #fff; }.invest-name { color: #fff; font-weight: bold; font-size: 16px; display: block; }.invest-desc { color: rgba(255,255,255,0.7); font-size: 11px; }.card-stats {display: flex;justify-content: space-between;align-items: center;margin-top: auto;font-size: 12px;border-top: 1px solid rgba(255,255,255,0.1);padding-top: 8px;}.payout-stat { color: rgba(255,255,255,0.6); }.price-stat {color: #ffd700; font-weight: bold;background: rgba(255,255,255,0.05);padding: 2px 6px;border-radius: 8px;}.empty-card {background: rgba(100,100,100, 0.05);border: 1px solid rgba(255, 255, 255, 0.03);}.task-left i {color: white;font-size: 22px;}.task-center {flex: 1;margin-left: 10px;}.task-name {color: #fff;font-weight: bold;}.task-desc {color: #ccc;font-size: 12px;й}.task-right {text-align: right;}.task-btn {background: white;border: none;padding: 5px 12px;border-radius: 10px;cursor: pointer;}.task-reward {color: #ffd700;font-weight: bold;margin-top: 5px;}.task.empty {height: 70px;opacity: 0.5;}.ui-wrapper,.tasks-container {padding-bottom: 100px;}.fade-up {opacity: 0;transform: translateY(40px);animation: fadeUp 0.4s ease forwards;}@keyframes fadeUp {to {opacity: 1;transform: translateY(0);}}.btn-back{position:absolute;top:20px;left:20px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(100,100,100, 0.05);box-shadow:3px 3px 6px rgba(0,0,0,0.5),-3px -3px 6px rgba(255,255,255,0.05);z-index:20;color:white;transition:0.2s;text-decoration:none}button:disabled {background:rgba(212,255,112,0.6);pointer-events:none;cursor:not-allowed;opacity: 0.6;}
+    </style></head><body>
+  <a href="gameMenu.html" class="btn-back"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
+  <div class="screen screen-clicker">
+    <div class="ui-wrapper">
+        <header class="top-nav">
+            <div class="card glass fade-up">
+                <span class="value">+...</span>
+                <span class="label">Earn per tap</span>
+            </div>
+            <div class="card glass fade-up">
+                <span class="value">...</span>
+                <span class="label">Current level</span>
+            </div>
+            <div class="card glass fade-up">
+                <span class="value">...</span>
+                <span class="label">To next level</span>
+            </div>
+        </header>
+        <section class="score-board glass fade-up">
+            <h1>...</h1>
+        </section>
+        <main class="click-area">
+            <div class="circle-button glass fade-up">
+                <div class="inner-icon">        <div class="svg-dildo">
+           <svg version="1.0" xmlns="http://www.w3.org/2000/svg"width="160pt" height="1600pt" viewBox="0 0 512.000000 512.000000"preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"fill="rgb(253,184,123)" stroke="none"><path d="M1675 5106 c-265 -53 -480 -231 -579 -480 -15 -37 -72 -271 -127 -520 -89 -400 -100 -459 -96 -526 5 -90 31 -152 92 -215 47 -48 105 -81 162 -93 38 -8 38 -8 45 -67 3 -33 9 -184 13 -335 8 -299 2 -420 -41 -745 -66 -507 -76 -593 -89 -775 -34 -438 -30 -778 12 -1140 16 -141 17 -146 49 -177 l32 -33 496 0 496 0 30 27 c20 18 33 41 37 65 5 33 2 41 -30 73 l-35 35 -435 0 -435 0 -5 33 c-35 199 -42 744 -14 1095 10 117 29 299 43 405 63 478 74 571 84 702 6 77 10 238 8 358 -2 119 0 217 4 217 4 0 19 -5 35 -11 56 -21 136 -29 200 -19 71 12 622 246 659 281 64 60 7 181 -79 166 -17 -3 -157 -60 -310 -126 -246 -108 -284 -121 -334 -121 -42 0 -67 6 -99 25 -40 24 -84 72 -84 93 0 5 203 114 452 241 248 128 470 245 492 260 43 30 141 129 167 171 16 24 17 21 38 -90 64 -340 86 -633 78 -1050 -8 -408 -47 -805 -113 -1132 l-6 -28 -50 55 c-56 61 -174 143 -288 200 -151 74 -238 163 -317 323 -47 97 -74 122 -129 122 -35 0 -94 -59 -94 -95 0 -15 18 -65 40 -112 95 -203 227 -330 462 -447 132 -66 219 -153 265 -268 22 -53 25 -73 21 -142 -3 -45 -15 -116 -28 -159 l-23 -77 -108 -78 c-116 -82 -146 -121 -134 -170 15 -60 86 -98 136 -71 13 6 210 147 437 312 228 165 439 312 471 328 84 42 173 62 276 62 176 -1 311 -58 441 -188 123 -122 184 -265 184 -436 0 -274 -181 -519 -450 -605 -45 -14 -103 -18 -330 -21 -166 -2 -286 -8 -303 -15 -30 -12 -57 -54 -57 -88 0 -35 27 -76 59 -90 49 -20 576 -8 661 15 302 82 528 316 601 622 18 73 20 109 17 213 -5 107 -10 139 -38 223 -92 274 -305 474 -585 548 -60 16 -110 21 -200 21 -222 1 -353 -53 -639 -262 -137 -101 -177 -126 -172 -108 21 75 99 490 120 638 61 420 80 731 73 1145 -5 319 -22 512 -67 776 -61 355 -169 749 -241 878 -100 179 -273 315 -471 371 -94 27 -258 35 -353 16z m316 -216 c179 -56 318 -195 375 -374 65 -207 6 -430 -143 -539 -27 -19 -257 -141 -512 -272 -391 -201 -471 -238 -507 -238 -82 0 -139 64 -130 148 2 28 47 243 99 478 112 505 124 536 241 653 154 154 371 209 577 144z"/><path d="M3194 1176 c-45 -45 -47 -95 -5 -137 61 -60 156 -27 168 58 5 39 2 46 -30 78 -47 47 -86 48 -133 1z"/><path d="M3663 756 c-31 -14 -63 -60 -63 -91 0 -26 29 -74 51 -86 42 -22 91 -14 121 20 38 42 38 90 1 130 -34 37 -68 45 -110 27z"/> <path d="M3054 611 c-12 -5 -31 -22 -44 -38 -29 -37 -23 -98 15 -130 62 -54 165 -9 165 71 0 66 -78 121 -136 97z"/><path d="M2511 186 c-87 -48 -50 -186 49 -186 51 0 100 49 100 99 0 75 -83 124 -149 87z"/></g></svg></div></div></div></main>
+        <div class="energy-info fade-up">
+            <i class="fas fa-bolt"></i>
+            <span>... / 8000</span>
+        </div>
+    </div>
+  </div>
+<div class="screen screen-tasks hidden">
+    <div class="tasks-container ui-wrapper">
+        <h1 class="tasks-title fade-up">TASKS</h1>
+        <div id="tasks-list">
+            <div class="task glass fade-up">
+                <div class="task-left"><i class="fas fa-layer-group"></i></div>
+                <div class="task-center">
+                    <div class="task-name">Майстер рівнів</div>
+                    <div class="task-desc">Досягніть 5 рівня</div>
+                </div>
+                <div class="task-right">
+                    <button class="task-btn" id="task-lvl-5" onclick="claimTask('lvl-5', 5000)">Get</button>
+                    <div class="task-reward">+5,000</div>
+                </div>
+            </div>
+            <div class="task glass fade-up">
+                <div class="task-left"><i class="fas fa-coins"></i></div>
+                <div class="task-center">
+                    <div class="task-name">Накопичувач</div>
+                    <div class="task-desc">Назбирайте 50,000 DC</div>
+                </div>
+                <div class="task-right">
+                    <button class="task-btn" id="task-score-50k" onclick="claimTask('score-50k', 10000)">Get</button>
+                    <div class="task-reward">+10,000</div>
+                </div>
+            </div>
+            <div class="task glass fade-up">
+                <div class="task-left"><i class="fab fa-telegram-plane"></i></div>
+                <div class="task-center">
+                    <div class="task-name">Спільнота</div>
+                    <div class="task-desc">Підписка на Telegram</div>
+                </div>
+                <div class="task-right">
+                    <button class="task-btn" id="task-tg" onclick="window.open('https://t.me/ArBankOff'); claimTask('tg', 2000, true)">Join</button>
+                    <div class="task-reward">+2,000</div>
+                </div>
+            </div>
+            <div class="task glass fade-up">
+                <div class="task-left"><i class="fas fa-star"></i></div>
+                <div class="task-center">
+                    <div class="task-name">Профі</div>
+                    <div class="task-desc">Досягніть 10 рівня</div>
+                </div>
+                <div class="task-right">
+                    <button class="task-btn" id="task-lvl-10" onclick="claimTask('lvl-10', 25000)">Get</button>
+                    <div class="task-reward">+25,000</div>
+                </div>
+            </div>
+            <div class="task glass fade-up">
+                <div class="task-left"><i class="fas fa-wallet"></i></div>
+                <div class="task-center">
+                    <div class="task-name">Багатій</div>
+                    <div class="task-desc">Назбирайте 500,000 DC</div>
+                </div>
+                <div class="task-right">
+                    <button class="task-btn" id="task-score-500k" onclick="claimTask('score-500k', 100000)">Get</button>
+                    <div class="task-reward">+100,000</div>
+                </div>
+            </div>
+            <div class="task glass fade-up">
+                <div class="task-left"><i class="fas fa-trophy"></i></div>
+                <div class="task-center">
+                    <div class="task-name">Еліта</div>
+                    <div class="task-desc">Увійдіть в ТОП-10</div>
+                </div>
+                <div class="task-right">
+                    <button class="task-btn" id="task-top-10" onclick="claimTask('top-10', 50000)">Get</button>
+                    <div class="task-reward">+50,000</div>
+                </div>
+            </div>
+             <div class="task glass fade-up">
+                <div class="task-left"><i class="fas fa-chart-line"></i></div>
+                <div class="task-center">
+                    <div class="task-name">Інвестор</div>
+                    <div class="task-desc">Прибуток 1,000/год</div>
+                </div>
+                <div class="task-right">
+                    <button class="task-btn" id="task-payout-1k" onclick="claimTask('payout-1k', 15000)">Get</button>
+                    <div class="task-reward">+15,000</div>
+                </div>
+            </div>
+            <div class="task glass fade-up">
+                <div class="task-left"><i class="fas fa-gem"></i></div>
+                <div class="task-center">
+                    <div class="task-name">Мільйонер</div>
+                    <div class="task-desc">Назбирайте 1,000,000 DC</div>
+                </div>
+                <div class="task-right">
+                    <button class="task-btn" id="task-score-1m" onclick="claimTask('score-1m', 200000)">Get</button>
+                    <div class="task-reward">+200,000</div>
+                </div>
+            </div>
+            <div class="task glass fade-up">
+                <div class="task-left"><i class="fas fa-crown"></i></div>
+                <div class="task-center">
+                    <div class="task-name">Легенда</div>
+                    <div class="task-desc">Досягніть 20 рівня</div>
+                </div>
+                <div class="task-right">
+                    <button class="task-btn" id="task-lvl-20" onclick="claimTask('lvl-20', 500000)">Get</button>
+                    <div class="task-reward">+500,000</div>
+                </div>
+            </div>
+            <div class="task glass fade-up">
+                <div class="task-left"><i class="fas fa-medal"></i></div>
+                <div class="task-center">
+                    <div class="task-name">Чемпіон</div>
+                    <div class="task-desc">Увійдіть в ТОП-3</div>
+                </div>
+                <div class="task-right">
+                    <button class="task-btn" id="task-top-3" onclick="claimTask('top-3', 1000000)">Get</button>
+                    <div class="task-reward">+1,000,000</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="screen screen-exchange hidden">
+    <div class="ui-wrapper" style="margin-top: 50px; text-align: center; font-family: Sans-Serif;">
+        <h1 class="get-title">Get your DIC</h1>
+        <div class="card glass fade-up" style="height: 80px; margin-bottom: 15px; flex-direction: row; justify-content: space-between; padding: 0 20px;">
+            <span class="label" style="font-size: 16px;padding: 20px; border-radius: 20px;">Your balance:</span>
+            <span class="value" id="exchange-balance" style="background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 20px;">0 DC</span>
+        </div>
+        <div class="card glass fade-up" style="height: 80px; margin-bottom: 30px; flex-direction: row; justify-content: space-between; padding: 0 20px;">
+            <span class="label" style="font-size: 16px; padding: 20px; border-radius: 20px;">Course:</span>
+            <span class="value" style="background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 20px;">1 DIC = 500,000 DC</span>
+        </div>
+        <div class="glass fade-up" style="border-radius: 25px; padding: 20px; margin-bottom: 15px; position: relative;">
+            <input type="number" id="exchange-input" placeholder="Sum..." style="width: 100%; background: transparent; border: none; color: white; font-size: 20px; outline: none;">
+            <button onclick="setMaxExchange()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 15px; font-weight: bold; cursor: pointer;">MAX</button>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px;">
+            <div class="glass fade-up" style="border-radius: 20px; padding: 15px; color: white; font-weight: bold;">
+                <span style="color: #d4c63b;">MIN:</span> 1
+            </div>
+            <div class="glass fade-up" style="border-radius: 20px; padding: 15px; color: white; font-weight: bold;">
+                <span style="color: #d4c63b;">MAX:</span> No Limits
+            </div>
+        </div>
+        <button id="exchangeBtn" class="buy-button fade-up" disabled>EXCHANGE</button>
+    </div>
+</div>
+<div class="screen screen-investments hidden">
+    <div class="ui-wrapper investments-wrapper">
+        <h1 class="tasks-title fade-up">Investments</h1>
+        <div class="card glass profit-board fade-up">
+            <span class="label profit-label">Profit per hour</span>
+            <div class="value profit-value" id="investments-payout">+... DC</div>
+        </div>
+        <h2 class="section-subtitle fade-up">Recommendations</h2>
+        <div class="investments-grid">
+            <div class="investment-category fade-up">
+                <h3 class="category-title">AR Company:</h3>
+                <div class="cards-row">
+                    <div class="invest-card glass" onclick="buyInvestment('ar_bank', 14345, 98)">
+                        <div class="card-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88"><path d="M78 38v-3H10v3a1.003 1.003 0 0 0 1 1h66a1.003 1.003 0 0 0 1-1zM10 77h68v-3a1.003 1.003 0 0 0-1-1H11a1.003 1.003 0 0 0-1 1z" style="fill:white"/><rect x="5" y="79" width="78" height="8" rx="1" ry="1" style="fill:white"/><path d="M28 41H14v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM51 41H37v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM74 41H60v3a1.003 1.003 0 0 0 1 1h12a1.003 1.003 0 0 0 1-1zM17 47h8v18h-8zM40 47h8v18h-8zM63 47h8v18h-8zM14 68v3h14v-3a1.003 1.003 0 0 0-1-1H15a1.003 1.003 0 0 0-1 1zM37 68v3h14v-3a1.003 1.003 0 0 0-1-1H38a1.003 1.003 0 0 0-1 1zM60 68v3h14v-3a1.003 1.003 0 0 0-1-1H61a1.003 1.003 0 0 0-1 1zM44 10a8 8 0 1 0 8 8 8.01 8.01 0 0 0-8-8zm-.527 6.618 1.949.975A2.844 2.844 0 0 1 45 22.855V23a1 1 0 0 1-2 0v-.145a2.848 2.848 0 0 1-2-2.71 1 1 0 0 1 2 0 .856.856 0 0 0 .855.855h.29a.854.854 0 0 0 .382-1.618l-1.949-.975A2.844 2.844 0 0 1 43 13.145V13a1 1 0 0 1 2 0v.145a2.848 2.848 0 0 1 2 2.71 1 1 0 1 1-2 0 .856.856 0 0 0-.855-.855h-.29a.854.854 0 0 0-.382 1.618z" style="fill:white"/><path d="m82.466 21.115-38-20a.995.995 0 0 0-.932 0l-38 20A1 1 0 0 0 5 22v10a1 1 0 0 0 1 1h76a1 1 0 0 0 1-1V22a1 1 0 0 0-.534-.885zM44 28a10 10 0 1 1 10-10 10.012 10.012 0 0 1-10 10z" style="fill:white"/></svg></div>
+                        <div class="card-info">
+                            <span class="invest-name">AR BANK</span>
+                            <span class="invest-desc">+10% Companies</span>
+                        </div>
+                        <div class="card-stats">
+                            <span class="payout-stat">+98 /hour</span>
+                            <span class="price-stat">14,345 DC</span>
+                        </div>
+                    </div>
+                    <div class="invest-card glass" onclick="buyInvestment('ar_crypto', 24899, 145)">
+                        <div class="card-icon"> <svg  height="35" width="35" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M2 8C2 5.79086 3.79086 4 6 4H18C20.2091 4 22 5.79086 22 8V9V15V16C22 18.2091 20.2091 20 18 20H6C3.79086 20 2 18.2091 2 16V8ZM18 6C19.1046 6 20 6.89543 20 8H18C15.7909 8 14 9.79086 14 12C14 14.2091 15.7909 16 18 16H20C20 17.1046 19.1046 18 18 18H6C4.89543 18 4 17.1046 4 16V8C4 6.89543 4.89543 6 6 6H18ZM18 10H20V14H18C16.8954 14 16 13.1046 16 12C16 10.8954 16.8954 10 18 10ZM18 13C18.5523 13 19 12.5523 19 12C19 11.4477 18.5523 11 18 11C17.4477 11 17 11.4477 17 12C17 12.5523 17.4477 13 18 13Z" fill="white"></path> </g></svg></div>
+                        <div class="card-info">
+                            <span class="invest-name">AR Crypto</span>
+                            <span class="invest-desc">+23% Companies</span>
+                        </div>
+                        <div class="card-stats">
+                            <span class="payout-stat">+145 /hour</span>
+                            <span class="price-stat">24,899 DC</span>
+                        </div>
+                    </div>
+                    <div class="invest-card glass" onclick="buyInvestment('ar_market', 18589, 103)">
+                        <div class="card-icon"><svg fill="white" viewBox="0 0 200 200" data-name="Layer 1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><title></title><path d="M181.75,42.5c-3-13-15-22.5-29-22.5h-105a30.6,30.6,0,0,0-29.5,22.5l-10.5,40c-2,7,1,14,7,18l2,1.5c3,1.5,5.5,3,8.5,3.5V160a20.06,20.06,0,0,0,20,20h23.5a20.06,20.06,0,0,0,20-20V140h27.5v20a20.06,20.06,0,0,0,20,20h19a20.06,20.06,0,0,0,20-20V105.5a22.09,22.09,0,0,0,8-3l2-1.5a16.87,16.87,0,0,0,7-18.5ZM156.25,160h-20V140a20.06,20.06,0,0,0-20-20H88.75a20.06,20.06,0,0,0-20,20v20H45.25V100c6.5-2.5,13.5-1.5,19.5,2a21.07,21.07,0,0,0,24,0,21.07,21.07,0,0,1,24,0,21.07,21.07,0,0,0,24,0,20.87,20.87,0,0,1,19.5-2Zm14.5-74.5a40.69,40.69,0,0,0-46,0,.94.94,0,0,1-1.5,0,40.69,40.69,0,0,0-46,0,.94.94,0,0,1-1.5,0,40.69,40.69,0,0,0-46,0,.94.94,0,0,1-1.5,0l9.5-38c1-4.5,5-7.5,10-7.5h105.5a9.64,9.64,0,0,1,9.5,7.5l9.5,38S171.25,86,170.75,85.5Z"></path></g></svg></div>
+                        <div class="card-info">
+                            <span class="invest-name">AR Market</span>
+                            <span class="invest-desc">+18% Companies</span>
+                        </div>
+                        <div class="card-stats">
+                            <span class="payout-stat">+103 /hour</span>
+                            <span class="price-stat">18,589 DC</span>
+                        </div>
+                    </div>
+                    <div></div>
+                </div>
+            </div>
+            <div class="investment-category fade-up" style="animation-delay: 0.1s">
+                <h3 class="category-title">Crypto coin:</h3>
+                <div class="cards-grid-2x2">
+                    <div class="invest-card glass coin-card" onclick="buyInvestment('btc_14', 22781, 110)">
+                        <div class="coin-header">
+                            <div class="coin-icon btc-icon"><svg class="logo-svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path d="M22.292 14.56c.328-2.193-1.34-3.371-3.62-4.157l.74-2.965-1.803-.45-.72 2.887c-.474-.118-.96-.229-1.444-.339l.724-2.903-1.802-.45-.74 2.965c-.392-.09-.774-.178-1.144-.27l.002-.01-2.486-.62-.48 1.93s1.337.306 1.31.325c.73.182.862.665.84 1.047l-.842 3.376c.05.013.116.031.188.058l-.19-.047-1.18 4.728c-.09.222-.315.556-.824.43.018.026-1.31-.327-1.31-.327l-.895 2.064 2.346.586c.437.11.864.223 1.285.33l-.748 3.001 1.802.45.74-2.966c.492.133.971.258 1.439.377l-.736 2.95 1.802.45.748-3.003c3.076.582 5.392.348 6.366-2.435.786-2.242-.04-3.535-1.658-4.381 1.178-.272 2.065-1.047 2.304-2.642zm-4.12 5.772c-.558 2.241-4.332 1.03-5.556.724l.991-3.974c1.224.306 5.143.91 4.565 3.25zm.557-5.803c-.508 2.041-3.653 1.004-4.673.75l.9-3.606c1.02.254 4.302.73 3.773 2.856z" fill="white"/></svg></div>
+                            <div class="card-info">
+                                <span class="invest-name">Bitcoin</span>
+                                <span class="invest-desc">+14% Coin</span>
+                            </div>
+                        </div>
+                        <div class="card-stats">
+                            <span class="payout-stat">+110 /hour</span>
+                            <span class="price-stat">22,781 DC</span>
+                        </div>
+                    </div>
+                    <div class="invest-card glass coin-card" onclick="buyInvestment('arcoin', 24899, 78)">
+                        <div class="coin-header">
+                            <div class="coin-icon arcoin-icon"><svg class="logo-svg" width="50px" height="50px" viewBox="0 0 512 512"><polyline points="201.14 64 256 32 310.86 64" fill="white" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="256" y1="32" x2="256" y2="112" fill="white" stroke="white" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="310.86 448 256 480 201.14 448" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="256" y1="480" x2="256" y2="400" fill="white" stroke="white" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="64 207.51 64 144 117.15 112.49" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="64" y1="144" x2="131.29" y2="184" fill="white" stroke="white" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="448 304.49 448 368 394.85 399.51" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="448" y1="368" x2="380.71" y2="328" fill="white" stroke="white" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="117.15 400 64 368 64 304.49" fill="white" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="64" y1="368" x2="130.64" y2="328" fill="white" stroke="white" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="394.85 112.49 448 144 448 207.51" fill="white" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><line x1="448" y1="144" x2="380.71" y2="184" fill="white" stroke="white" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><polyline points="256 320 256 256 310.86 224" fill="white" stroke="white" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/><line x1="256" y1="256" x2="201.14" y2="224" fill="white" stroke="white" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32"/></svg></div>
+                            <div class="card-info">
+                                <span class="invest-name">ARcoin</span>
+                                <span class="invest-desc">+33% Coin</span>
+                            </div>
+                        </div>
+                        <div class="card-stats">
+                            <span class="payout-stat">+78 /hour</span>
+                            <span class="price-stat">24,899 DC</span>
+                        </div>
+                    </div>
+                    <div class="invest-card glass coin-card" onclick="buyInvestment('eth', 17983, 80)">
+                        <div class="coin-header">
+                            <div class="coin-icon eth-icon"><svg width="35" height="35" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#627EEA"/><path d="M16 3l-.3 1v14.4l.3.3 6.6-3.9L16 3z" fill-opacity=".6"/><path d="M16 3L9.4 14.8l6.6 3.9V3z"/><path d="M16 19.8l-.2.2v8.9l.2.3 6.6-9.4-6.6 0z" fill-opacity=".6"/><path d="M16 29.2v-9.4l-6.6 0 6.6 9.4z"/><path d="M16 18.7l6.6-3.9-6.6-3v6.9z" fill-opacity=".2"/><path d="M9.4 14.8l6.6 3.9v-6.9l-6.6 3z" fill-opacity=".6"/></svg></div>
+                            <div class="card-info">
+                                <span class="invest-name">Ethereum</span>
+                                <span class="invest-desc">+17% Coin</span>
+                            </div>
+                        </div>
+                        <div class="card-stats">
+                            <span class="payout-stat">+80 /hour</span>
+                            <span class="price-stat">17,983 DC</span>
+                        </div>
+                    </div>
+                    <div class="invest-card glass coin-card" onclick="buyInvestment('btc_27', 47429, 204)">
+                        <div class="coin-header">
+                            <div class="coin-icon btc-icon"><svg class="logo-svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path d="M22.292 14.56c.328-2.193-1.34-3.371-3.62-4.157l.74-2.965-1.803-.45-.72 2.887c-.474-.118-.96-.229-1.444-.339l.724-2.903-1.802-.45-.74 2.965c-.392-.09-.774-.178-1.144-.27l.002-.01-2.486-.62-.48 1.93s1.337.306 1.31.325c.73.182.862.665.84 1.047l-.842 3.376c.05.013.116.031.188.058l-.19-.047-1.18 4.728c-.09.222-.315.556-.824.43.018.026-1.31-.327-1.31-.327l-.895 2.064 2.346.586c.437.11.864.223 1.285.33l-.748 3.001 1.802.45.74-2.966c.492.133.971.258 1.439.377l-.736 2.95 1.802.45.748-3.003c3.076.582 5.392.348 6.366-2.435.786-2.242-.04-3.535-1.658-4.381 1.178-.272 2.065-1.047 2.304-2.642zm-4.12 5.772c-.558 2.241-4.332 1.03-5.556.724l.991-3.974c1.224.306 5.143.91 4.565 3.25zm.557-5.803c-.508 2.041-3.653 1.004-4.673.75l.9-3.606c1.02.254 4.302.73 3.773 2.856z" fill="white"/></svg></div>
+                            <div class="card-info">
+                                <span class="invest-name">Bitcoin</span>
+                                <span class="invest-desc">+27% Coin</span>
+                            </div>
+                        </div>
+                        <div class="card-stats">
+                            <span class="payout-stat">+204 /hour</span>
+                            <span class="price-stat">47,429 DC</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> </div>
+</div>
+<div class="screen screen-leaderboard hidden">
+    <div class="ui-wrapper leaderboard-wrapper">
+        <h1 class="tasks-title fade-up">Leaderboard</h1>
+
+        <div class="leaderboard-card glass fade-up">
+            <div id="leaderboard-list">
+                <div class="loading-text">Loading top players...</div>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="bottom-bar glass">
+    <div class="nav-active-bg" id="navIndicator"></div>
+    <div class="nav-item" onclick="setActive(0); showScreen('leaderboard')">
+        <div class="static-circle"></div>
+        <div class="svg-icon">
+            <i class="fas fa-trophy"></i>
+        </div>
+    </div>
+<div class="nav-item" onclick="setActive(1); showScreen('investments')">
+    <div class="static-circle"></div>
+    <div class="svg-icon">
+        <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 14.6C3 14.0399 3 13.7599 3.10899 13.546C3.20487 13.3578 3.35785 13.2049 3.54601 13.109C3.75992 13 4.03995 13 4.6 13H5.4C5.96005 13 6.24008 13 6.45399 13.109C6.64215 13.2049 6.79513 13.3578 6.89101 13.546C7 13.7599 7 14.0399 7 14.6V19.4C7 19.9601 7 20.2401 6.89101 20.454C6.79513 20.6422 6.64215 20.7951 6.45399 20.891C6.24008 21 5.96005 21 5.4 21H4.6C4.03995 21 3.75992 21 3.54601 20.891C3.35785 20.7951 3.20487 20.6422 3.10899 20.454C3 20.2401 3 19.9601 3 19.4V14.6Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M10 4.6C10 4.03995 10 3.75992 10.109 3.54601C10.2049 3.35785 10.3578 3.20487 10.546 3.10899C10.7599 3 11.0399 3 11.6 3H12.4C12.9601 3 13.2401 3 13.454 3.10899C13.6422 3.20487 13.7951 3.35785 13.891 3.54601C14 3.75992 14 4.03995 14 4.6V19.4C14 19.9601 14 20.2401 13.891 20.454C13.7951 20.6422 13.6422 20.7951 13.454 20.891C13.2401 21 12.9601 21 12.4 21H11.6C11.0399 21 10.7599 21 10.546 20.891C10.3578 20.7951 10.2049 20.6422 10.109 20.454C10 20.2401 10 19.9601 10 19.4V4.6Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M17 10.6C17 10.0399 17 9.75992 17.109 9.54601C17.2049 9.35785 17.3578 9.20487 17.546 9.10899C17.7599 9 18.0399 9 18.6 9H19.4C19.9601 9 20.2401 9 20.454 9.10899C20.6422 9.20487 20.7951 9.35785 20.891 9.54601C21 9.75992 21 10.0399 21 10.6V19.4C21 19.9601 21 20.2401 20.891 20.454C20.7951 20.6422 20.6422 20.7951 20.454 20.891C20.2401 21 19.9601 21 19.4 21H18.6C18.0399 21 17.7599 21 17.546 20.891C17.3578 20.7951 17.2049 20.6422 17.109 20.454C17 20.2401 17 19.9601 17 19.4V10.6Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+    </div>
+</div>
+    <div class="nav-item" onclick="setActive(2); showScreen('clicker')">
+        <div class="static-circle"></div>
+        <div class="svg-icon"><svg fill="#ffffff" height="200px" width="200px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.001 512.001" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M401.809,212.523c-12.295-1.17-24.556,2.892-33.639,11.15c-1.122,1.021-2.186,2.096-3.188,3.217 c-6.805-12.704-19.329-21.819-33.946-23.214c-12.295-1.17-24.556,2.892-33.639,11.15c-1.122,1.021-2.186,2.096-3.188,3.217 c-5.941-11.089-16.24-19.443-28.485-22.315c21.223-21.098,33.958-50.2,33.958-81.275C299.681,51.344,248.337,0,185.227,0 S70.774,51.344,70.774,114.454c0,46.302,28.254,88.244,70.773,105.817v49.155l-31.869,22.764 c-18.882,13.488-26.638,37.341-19.3,59.353l31.431,94.297c13.193,39.573,50.082,66.162,91.796,66.162h130.862 c53.354,0,96.76-43.406,96.76-96.76V257.522C441.227,234.396,423.913,214.632,401.809,212.523z M87.361,114.454 c0-53.963,43.903-97.866,97.866-97.866c53.963,0,97.866,43.903,97.866,97.866c0,37.248-21.382,71.191-54.186,87.594v-21.686 c21.942-14.579,35.387-39.4,35.387-65.908c0-43.597-35.47-79.067-79.067-79.067c-43.597,0-79.067,35.47-79.067,79.067 c0,26.506,13.446,51.328,35.387,65.908v21.686C108.745,185.645,87.361,151.701,87.361,114.454z M189.489,70.978 c-12.296-1.172-24.556,2.89-33.638,11.149c-9.09,8.265-14.304,20.048-14.304,32.327v44.644 c-11.839-11.626-18.799-27.699-18.799-44.644c0-34.451,28.028-62.479,62.479-62.479c34.451,0,62.479,28.028,62.479,62.479 c0,16.947-6.96,33.019-18.799,44.645v-43.123C228.908,92.85,211.594,73.084,189.489,70.978z M344.467,495.413H213.604 c-34.564,0-65.129-22.03-76.059-54.819l-31.431-94.296c-5.022-15.061,0.285-31.381,13.205-40.609l22.228-15.878v72.352 c0,4.58,3.712,8.294,8.294,8.294c4.581,0,8.294-3.713,8.294-8.294V114.454c0-7.617,3.235-14.927,8.874-20.053 c5.716-5.197,13.146-7.652,20.906-6.91c13.686,1.304,24.406,13.816,24.406,28.484v175.413c0,4.58,3.712,8.294,8.294,8.294 c4.581,0,8.294-3.713,8.294-8.294v-53.08c0-7.617,3.235-14.927,8.874-20.053c5.715-5.196,13.137-7.657,20.906-6.91 c13.685,1.305,24.405,13.817,24.405,28.485v7.325v53.08c0,4.58,3.712,8.294,8.294,8.294s8.294-3.713,8.294-8.294v-53.08 c0-7.617,3.235-14.927,8.874-20.053c5.715-5.196,13.137-7.657,20.906-6.91c13.685,1.305,24.405,13.817,24.405,28.485V256v53.08 c0,4.58,3.712,8.294,8.294,8.294s8.294-3.713,8.294-8.294V256c0-7.617,3.234-14.927,8.874-20.053 c5.715-5.196,13.137-7.657,20.906-6.91c13.685,1.305,24.405,13.817,24.405,28.485V415.24h0.003 C424.64,459.448,388.675,495.413,344.467,495.413z"></path> </g> </g> </g></svg></div>
+    </div>
+    <div class="nav-item" onclick="setActive(3); showScreen('tasks')">
+        <div class="static-circle"></div>
+        <div class="svg-icon"><svg fill="#ffffff" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32.045 32.046" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M25.302,6.499h-2.308v-0.6c0-1.181-0.957-2.138-2.137-2.138h-1.021C19.807,1.675,18.108,0,16.022,0 c-2.086,0-3.785,1.675-3.815,3.761h-1.021c-1.18,0-2.137,0.957-2.137,2.138v0.6H6.742c-0.765,0-1.408,0.618-1.408,1.383v22.78 c0,0.765,0.643,1.384,1.408,1.384h18.561c0.766,0,1.408-0.619,1.408-1.384V7.881C26.71,7.117,26.067,6.499,25.302,6.499z M16.022,1.999c0.984,0,1.788,0.785,1.817,1.762h-3.634C14.235,2.784,15.038,1.999,16.022,1.999z M24.95,30.35H7.094V8.192h1.955 v1.564h13.945V8.192h1.955V30.35z"></path> <path d="M22.476,12.69h-4.495c-0.707,0-1.283,0.527-1.283,1.236s0.576,1.238,1.283,1.238h4.495c0.708,0,1.282-0.529,1.282-1.238 S23.184,12.69,22.476,12.69z"></path> <path d="M11.481,13.864l-0.965-0.752c-0.238-0.187-0.58-0.156-0.782,0.068l-0.556,0.616c-0.106,0.118-0.159,0.275-0.146,0.435 c0.014,0.159,0.092,0.305,0.217,0.403l1.683,1.328c0.406,0.321,0.988,0.287,1.354-0.079l2.949-2.949 c0.143-0.143,0.223-0.336,0.223-0.538s-0.08-0.396-0.223-0.538l-0.337-0.337c-0.297-0.297-0.778-0.297-1.075,0L11.481,13.864z"></path> <path d="M22.476,18.424h-4.495c-0.707,0-1.283,0.529-1.283,1.238c0,0.707,0.576,1.238,1.283,1.238h4.495 c0.708,0,1.282-0.531,1.282-1.238C23.758,18.954,23.184,18.424,22.476,18.424z"></path> <path d="M11.481,19.598l-0.965-0.752c-0.238-0.186-0.58-0.154-0.782,0.069l-0.556,0.616c-0.106,0.117-0.159,0.275-0.146,0.435 c0.014,0.158,0.092,0.306,0.217,0.403l1.683,1.328c0.407,0.32,0.989,0.285,1.355-0.08l2.95-2.949 c0.143-0.143,0.223-0.336,0.223-0.538c0-0.2-0.08-0.396-0.223-0.538L14.9,17.255c-0.297-0.297-0.778-0.297-1.075,0L11.481,19.598z "></path> <path d="M22.476,23.963h-4.495c-0.707,0-1.283,0.529-1.283,1.238s0.576,1.238,1.283,1.238h4.495c0.708,0,1.282-0.529,1.282-1.238 S23.184,23.963,22.476,23.963z"></path> <path d="M11.481,25.137l-0.965-0.752c-0.238-0.188-0.58-0.156-0.782,0.068l-0.556,0.615c-0.106,0.119-0.16,0.275-0.146,0.436 c0.013,0.159,0.092,0.305,0.217,0.402l1.683,1.33c0.407,0.32,0.989,0.285,1.355-0.08l2.95-2.95c0.297-0.298,0.297-0.776,0-1.075 L14.9,22.794c-0.143-0.144-0.336-0.224-0.538-0.224s-0.395,0.08-0.538,0.224L11.481,25.137z"></path> </g> </g> </g></svg></div>
+    </div>
+<div class="nav-item" onclick="setActive(4); showScreen('exchange')">
+    <div class="static-circle"></div>
+    <div class="svg-icon"><svg viewBox="0 0 15 15" version="1.1" id="rocket" xmlns="http://www.w3.org/2000/svg" fill="white"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path id="path7143" d="M12.5547,1c-2.1441,0-5.0211,1.471-6.9531,4H4
+	C2.8427,5,2.1794,5.8638,1.7227,6.7773L1.1113,8h1.4434H4l1.5,1.5L7,11v1.4453v1.4434l1.2227-0.6113
+	C9.1362,12.8206,10,12.1573,10,11V9.3984c2.529-1.932,4-4.809,4-6.9531V1H12.5547z M10,4c0.5523,0,1,0.4477,1,1l0,0
+	c0,0.5523-0.4477,1-1,1l0,0C9.4477,6,9,5.5523,9,5v0C9,4.4477,9.4477,4,10,4L10,4z M3.5,10L3,10.5C2.2778,11.2222,2,13,2,13
+	s1.698-0.198,2.5-1L5,11.5L3.5,10z"></path> </g></svg></div>
+        <div class="empty-dot"></div>
+    </div>
+</footer>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import { getDatabase, ref, get, set, update, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+const firebaseConfig = {
+    apiKey: "AIzaSyCxfUZl7STcdC53SSogfbVc-4dIijVEbLg",
+    authDomain: "ar-bank-dbfd9.firebaseapp.com",
+    databaseURL: "https://ar-bank-dbfd9-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "ar-bank-dbfd9",
+    storageBucket: "ar-bank-dbfd9.firebasestorage.app",
+    messagingSenderId: "635449421773",
+    appId: "1:635449421773:web:bc7261cc5a4238c3649e84"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const scoreEl = document.querySelector('.score-board h1');
+const levelEl = document.querySelectorAll('.top-nav .value')[1];
+const tapPowerEl = document.querySelectorAll('.top-nav .value')[0];
+const nextLevelEl = document.querySelectorAll('.top-nav .value')[2];
+const energyEl = document.querySelector('.energy-info span');
+const button = document.querySelector('.circle-button');
+const investPayoutEl = document.getElementById('investments-payout');
+const clickerScreen = document.querySelector('.screen-clicker');
+const tasksScreen = document.querySelector('.screen-tasks');
+const exchangeScreen = document.querySelector('.screen-exchange');
+const investScreen = document.querySelector('.screen-investments');
+const leaderboardScreen = document.querySelector('.screen-leaderboard');
+const exchangeBalEl = document.getElementById('exchange-balance');
+let userUID = null;
+let gameState = {
+    score: 0,
+    level: 1,
+    tapPower: 1,
+    energy: 8000,
+    payoutPerHour: 0,
+    lastSync: Date.now(),
+    full_name: "Player",
+    completedTasks: []
+};
+const maxEnergy = 8000;
+const REGEN_TIME_SEC = 7200; 
+const BASE_LEVEL_XP = 10000;
+const XP_INCREMENT = 5000;
+function formatNumbers(num) {
+    if (num >= 1000000000) return (num / 1000000000).toFixed(2).replace(/\.00$/, '') + 'B';
+    if (num >= 1000000) return (num / 1000000).toFixed(2).replace(/\.00$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return Math.floor(num).toString();
+}
+function getThresholdForLevel(lvl) {
+    return (lvl / 2) * (2 * BASE_LEVEL_XP + (lvl - 1) * XP_INCREMENT);
+}
+function checkLevelUp() {
+    let nextThreshold = getThresholdForLevel(gameState.level);
+    if (gameState.score >= nextThreshold) {
+        gameState.level += 1;
+        gameState.tapPower += 1;
+        saveToDB(); 
+    }
+}
+function calculateOfflineStats() {
+    const now = Date.now();
+    const lastSync = gameState.lastSync || now;
+    const secondsOffline = Math.floor((now - lastSync) / 1000);
+    if (secondsOffline > 5) {
+        const earned = (gameState.payoutPerHour / 3600) * secondsOffline;
+        gameState.score += earned;
+        const energyRegen = (maxEnergy / REGEN_TIME_SEC) * secondsOffline;
+        gameState.energy = Math.min(maxEnergy, gameState.energy + energyRegen);
+    }
+    gameState.lastSync = now;
+}
+window.showScreen = function(name) {
+    const allScreens = [clickerScreen, tasksScreen, exchangeScreen, investScreen, leaderboardScreen];
+    allScreens.forEach(s => s?.classList.add('hidden'));
+    if (name === 'clicker') clickerScreen?.classList.remove('hidden');
+    if (name === 'tasks') {
+        tasksScreen?.classList.remove('hidden');
+        updateTasksUI();
+    }
+    if (name === 'exchange') {
+        exchangeScreen?.classList.remove('hidden');
+        updateExchangeUI();
+    }
+    if (name === 'investments') {
+        investScreen?.classList.remove('hidden');
+        updateInvestmentsUI();
+    }
+    if (name === 'leaderboard') {
+        leaderboardScreen?.classList.remove('hidden');
+        loadLeaderboard();
+    }
+};
+window.setActive = function(index) {
+    const items = document.querySelectorAll('.nav-item');
+    const indicator = document.getElementById('navIndicator');
+    const bar = document.querySelector('.bottom-bar');
+    items.forEach(item => item.classList.remove('active'));
+    if(items[index]) {
+        items[index].classList.add('active');
+        const barPadding = 10;
+        const itemWidth = (bar.clientWidth - (barPadding * 2)) / items.length;
+        const xPosition = barPadding + (index * itemWidth) + (itemWidth / 2) - 31; 
+        indicator.style.transform = `translateX(${xPosition}px)`;
+    }
+};
+async function loadLeaderboard() {
+    const listEl = document.getElementById('leaderboard-list');
+    if (!listEl) return;
+    try {
+        const topQuery = query(ref(db, 'user'), orderByChild('score'), limitToLast(10));
+        const snapshot = await get(topQuery);
+        if (snapshot.exists()) {
+            let players = [];
+            snapshot.forEach(child => { players.push(child.val()); });
+            players.reverse();
+            listEl.innerHTML = '';
+            players.forEach((p, i) => {
+                const row = document.createElement('div');
+                row.className = 'leader-row';
+                row.innerHTML = `
+                    <div class="leader-left">
+                        <span class="leader-rank">${i + 1}</span>
+                        <span class="leader-name">${p.full_name || 'Anonymous'}</span>
+                    </div>
+                    <span class="leader-score">${formatNumbers(p.score)}</span>
+                `;
+                listEl.appendChild(row);
+            });
+        }
+    } catch (e) { console.error("Leaderboard error:", e); }
+}
+async function isUserInTop(limit) {
+    if (!userUID) return false;
+    const topQuery = query(ref(db, 'user'), orderByChild('score'), limitToLast(limit));
+    const snap = await get(topQuery);
+    let found = false;
+    snap.forEach(child => { if (child.key === userUID) found = true; });
+    return found;
+}
+async function updateTasksUI() {
+    if (!gameState.completedTasks) gameState.completedTasks = [];
+    const check = (id, condition) => {
+        const btn = document.getElementById('task-' + id);
+        if (!btn) return;
+        if (gameState.completedTasks.includes('task-' + id)) {
+            btn.textContent = "Done";
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+        } else {
+            btn.disabled = !condition;
+        }
+    };
+    check('lvl-5', gameState.level >= 5);
+    check('lvl-10', gameState.level >= 10);
+    check('lvl-20', gameState.level >= 20);
+    check('score-50k', gameState.score >= 50000);
+    check('score-500k', gameState.score >= 500000);
+    check('score-1m', gameState.score >= 1000000);
+    check('payout-1k', gameState.payoutPerHour >= 1000);
+    check('tg', true);
+    const inTop10 = await isUserInTop(10);
+    check('top-10', inTop10);
+    const inTop3 = await isUserInTop(3);
+    check('top-3', inTop3);
+}
+window.claimTask = function(taskId, reward) {
+    const fullId = 'task-' + taskId;
+    if (gameState.completedTasks.includes(fullId)) return;
+    gameState.score += reward;
+    gameState.completedTasks.push(fullId);
+    updateUI();
+    updateTasksUI();
+    saveToDB();
+};
+window.buyInvestment = function(id, price, hourlyBoost) {
+    if (gameState.score < price) {
+        alert("Недостатньо коштів!");
+        return;
+    }
+    gameState.score -= price;
+    gameState.payoutPerHour += hourlyBoost;
+    updateUI();
+    updateInvestmentsUI();
+    saveToDB();
+};
+function updateUI() {
+    if (scoreEl) scoreEl.textContent = formatNumbers(gameState.score);
+    if (levelEl) levelEl.textContent = gameState.level;
+    if (tapPowerEl) tapPowerEl.textContent = `+${gameState.tapPower}`;
+    if (energyEl) energyEl.textContent = `${Math.floor(gameState.energy)} / ${maxEnergy}`;
+    if (nextLevelEl) {
+        const nextThreshold = getThresholdForLevel(gameState.level);
+        const toNext = nextThreshold - gameState.score;
+        nextLevelEl.textContent = toNext > 0 ? formatNumbers(toNext) : "0";
+    }
+}
+function updateExchangeUI() {
+    if (exchangeBalEl) exchangeBalEl.textContent = formatNumbers(gameState.score) + " DC";
+}
+function updateInvestmentsUI() {
+    if (investPayoutEl) investPayoutEl.textContent = `+${formatNumbers(gameState.payoutPerHour)} DC`;
+}
+async function loadUserData(uid) {
+    const userRef = ref(db, `user/${uid}`);
+    try {
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            gameState = { ...gameState, ...data };
+            if (!gameState.completedTasks) gameState.completedTasks = [];
+            calculateOfflineStats();
+        } else {
+            await set(userRef, gameState);
+        }
+        updateUI();
+    } catch (e) { console.error("Load error:", e); }
+}
+function saveToDB() {
+    if (!userUID) return;
+    gameState.lastSync = Date.now();
+    update(ref(db, `user/${userUID}`), {
+        score: gameState.score,
+        level: gameState.level,
+        tapPower: gameState.tapPower,
+        energy: gameState.energy,
+        payoutPerHour: gameState.payoutPerHour,
+        lastSync: gameState.lastSync,
+        full_name: gameState.full_name,
+        completedTasks: gameState.completedTasks || []
+    }).catch(e => console.error("Save error:", e));
+}
+button?.addEventListener('pointerdown', (e) => {
+    if (!userUID || gameState.energy < 1) return;
+    gameState.score += gameState.tapPower;
+    gameState.energy -= 1;
+    checkLevelUp();
+    const plus = document.createElement('div');
+    plus.className = 'floating-text';
+    plus.textContent = '+' + gameState.tapPower;
+    const rect = button.getBoundingClientRect();
+    plus.style.left = (e.clientX - rect.left) + 'px';
+    plus.style.top = (e.clientY - rect.top) + 'px';
+    button.appendChild(plus);
+    setTimeout(() => plus.remove(), 800);
+    updateUI();
+});
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        userUID = user.uid;
+        if (user.displayName) gameState.full_name = user.displayName;
+        loadUserData(userUID);
+    }
+});
+setInterval(() => {
+    if (userUID) {
+        gameState.score += (gameState.payoutPerHour / 3600) * 1.5;
+        if (gameState.energy < maxEnergy) {
+            gameState.energy = Math.min(maxEnergy, gameState.energy + (maxEnergy / REGEN_TIME_SEC) * 1.5);
+        }
+        updateUI();
+    }
+}, 1500);
+setInterval(saveToDB, 8000);
+window.addEventListener('beforeunload', saveToDB);
+window.addEventListener('load', () => {
+    setActive(2);
+    showScreen('clicker');
+});
+</script></body></html>
